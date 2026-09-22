@@ -1,0 +1,3737 @@
+[
+ {
+  "byma": "AAL",
+  "ticker_us": "AAL",
+  "cik": 6201,
+  "name": "American Airlines Group Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AAP",
+  "ticker_us": "AAP",
+  "cik": 1158449,
+  "name": "ADVANCE AUTO PARTS INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AAPL",
+  "ticker_us": "AAPL",
+  "cik": 320193,
+  "name": "Apple Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ABBV",
+  "ticker_us": "ABBV",
+  "cik": 1551152,
+  "name": "AbbVie Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ABEV",
+  "ticker_us": "ABEV",
+  "cik": 1565025,
+  "name": "AMBEV S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ABEV3",
+  "ticker_us": "ABEV3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ABNB",
+  "ticker_us": "ABNB",
+  "cik": 1559720,
+  "name": "Airbnb, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ABT",
+  "ticker_us": "ABT",
+  "cik": 1800,
+  "name": "ABBOTT LABORATORIES",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ACN",
+  "ticker_us": "ACN",
+  "cik": 1467373,
+  "name": "Accenture plc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ACWI",
+  "ticker_us": "ACWI",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ADBE",
+  "ticker_us": "ADBE",
+  "cik": 796343,
+  "name": "ADOBE INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ADGO",
+  "ticker_us": "ADGO",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ADI",
+  "ticker_us": "ADI",
+  "cik": 6281,
+  "name": "ANALOG DEVICES INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ADP",
+  "ticker_us": "ADP",
+  "cik": 8670,
+  "name": "AUTOMATIC DATA PROCESSING INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AEG",
+  "ticker_us": "AEG",
+  "cik": 769218,
+  "name": "AEGON LTD.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AEM",
+  "ticker_us": "AEM",
+  "cik": 2809,
+  "name": "AGNICO EAGLE MINES LTD",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AI",
+  "ticker_us": "AI",
+  "cik": 1577526,
+  "name": "C3.ai, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AIG",
+  "ticker_us": "AIG",
+  "cik": 5272,
+  "name": "AMERICAN INTERNATIONAL GROUP, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AKO.B",
+  "ticker_us": "AKO-B",
+  "cik": 925261,
+  "name": "ANDINA BOTTLING CO INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AKOBD",
+  "ticker_us": "AKOBD",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ALAB",
+  "ticker_us": "ALAB",
+  "cik": 1736297,
+  "name": "Astera Labs, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ALAD",
+  "ticker_us": "ALAD",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AMAT",
+  "ticker_us": "AMAT",
+  "cik": 6951,
+  "name": "APPLIED MATERIALS INC /DE",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AMD",
+  "ticker_us": "AMD",
+  "cik": 2488,
+  "name": "ADVANCED MICRO DEVICES INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AMGN",
+  "ticker_us": "AMGN",
+  "cik": 318154,
+  "name": "AMGEN INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AMX",
+  "ticker_us": "AMX",
+  "cik": 1129137,
+  "name": "AMERICA MOVIL SAB DE CV/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AMZN",
+  "ticker_us": "AMZN",
+  "cik": 1018724,
+  "name": "AMAZON COM INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ANET",
+  "ticker_us": "ANET",
+  "cik": 1596532,
+  "name": "Arista Networks, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ANF",
+  "ticker_us": "ANF",
+  "cik": 1018840,
+  "name": "ABERCROMBIE & FITCH CO /DE/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ARCO",
+  "ticker_us": "ARCO",
+  "cik": 1508478,
+  "name": "Arcos Dorados Holdings Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ARKK",
+  "ticker_us": "ARKK",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ARM",
+  "ticker_us": "ARM",
+  "cik": 1973239,
+  "name": "ARM HOLDINGS PLC /UK",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ASML",
+  "ticker_us": "ASML",
+  "cik": 937966,
+  "name": "ASML HOLDING NV",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ASR",
+  "ticker_us": "ASR",
+  "cik": 1123452,
+  "name": "SOUTHEAST AIRPORT GROUP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ASTS",
+  "ticker_us": "ASTS",
+  "cik": 1780312,
+  "name": "AST SpaceMobile, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AVGO",
+  "ticker_us": "AVGO",
+  "cik": 1730168,
+  "name": "Broadcom Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AVY",
+  "ticker_us": "AVY",
+  "cik": 8818,
+  "name": "Avery Dennison Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AXP",
+  "ticker_us": "AXP",
+  "cik": 4962,
+  "name": "AMERICAN EXPRESS CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "AZN",
+  "ticker_us": "AZN",
+  "cik": 901832,
+  "name": "ASTRAZENECA PLC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "B",
+  "ticker_us": "B",
+  "cik": 756894,
+  "name": "BARRICK MINING CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "B.C",
+  "ticker_us": "B-C",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "B.D",
+  "ticker_us": "B-D",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BA",
+  "ticker_us": "BA",
+  "cik": 12927,
+  "name": "BOEING CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BA.C",
+  "ticker_us": "BA-C",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BABA",
+  "ticker_us": "BABA",
+  "cik": 1577552,
+  "name": "Alibaba Group Holding Ltd",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BAK",
+  "ticker_us": "BAK",
+  "cik": 1071438,
+  "name": "BRASKEM SA",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BAYN",
+  "ticker_us": "BAYN",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BB.D",
+  "ticker_us": "BB-D",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BBAS3",
+  "ticker_us": "BBAS3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BBAX",
+  "ticker_us": "BBAX",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BBCA",
+  "ticker_us": "BBCA",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BBDC3",
+  "ticker_us": "BBDC3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BBV",
+  "ticker_us": "BBVA",
+  "cik": 842180,
+  "name": "BANCO BILBAO VIZCAYA ARGENTARIA, S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BCS",
+  "ticker_us": "BCS",
+  "cik": 312069,
+  "name": "BARCLAYS PLC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BHP",
+  "ticker_us": "BHP",
+  "cik": 811809,
+  "name": "BHP Group Ltd",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BIDU",
+  "ticker_us": "BIDU",
+  "cik": 1329099,
+  "name": "Baidu, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BIIB",
+  "ticker_us": "BIIB",
+  "cik": 875045,
+  "name": "BIOGEN INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BIOX",
+  "ticker_us": "BIOX",
+  "cik": 1769484,
+  "name": "Bioceres Crop Solutions Corp.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BKNG",
+  "ticker_us": "BKNG",
+  "cik": 1075531,
+  "name": "Booking Holdings Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BKR",
+  "ticker_us": "BKR",
+  "cik": 1701605,
+  "name": "Baker Hughes Co",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BMNR",
+  "ticker_us": "BMNR",
+  "cik": 1829311,
+  "name": "BITMINE IMMERSION TECHNOLOGIES, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BMY",
+  "ticker_us": "BMY",
+  "cik": 14272,
+  "name": "BRISTOL MYERS SQUIBB CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BNG",
+  "ticker_us": "BNG",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BNY",
+  "ticker_us": "BNY",
+  "cik": 1390777,
+  "name": "Bank of New York Mellon Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BP",
+  "ticker_us": "BP",
+  "cik": 313807,
+  "name": "BP PLC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BPA11",
+  "ticker_us": "BPA11",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BRKB",
+  "ticker_us": "BRK-B",
+  "cik": 1067983,
+  "name": "BERKSHIRE HATHAWAY INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BSBR",
+  "ticker_us": "BSBR",
+  "cik": 1471055,
+  "name": "Banco Santander (Brasil) S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "BX",
+  "ticker_us": "BX",
+  "cik": 1393818,
+  "name": "Blackstone Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "C",
+  "ticker_us": "C",
+  "cik": 831001,
+  "name": "CITIGROUP INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "C.D",
+  "ticker_us": "C-D",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CAAP",
+  "ticker_us": "CAAP",
+  "cik": 1717393,
+  "name": "CORPORACION AMERICA AIRPORTS S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CAH",
+  "ticker_us": "CAH",
+  "cik": 721371,
+  "name": "CARDINAL HEALTH INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CAR",
+  "ticker_us": "CAR",
+  "cik": 723612,
+  "name": "AVIS BUDGET GROUP, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CAR.C",
+  "ticker_us": "CAR-C",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CAR.D",
+  "ticker_us": "CAR-D",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CAT",
+  "ticker_us": "CAT",
+  "cik": 18230,
+  "name": "CATERPILLAR INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CCJ",
+  "ticker_us": "CCJ",
+  "cik": 1009001,
+  "name": "CAMECO CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CCL",
+  "ticker_us": "CCL",
+  "cik": 815097,
+  "name": "Carnival Corp Ltd.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CDE",
+  "ticker_us": "CDE",
+  "cik": 215466,
+  "name": "Coeur Mining, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CEG",
+  "ticker_us": "CEG",
+  "cik": 1868275,
+  "name": "Constellation Energy Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CIBR",
+  "ticker_us": "CIBR",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CL",
+  "ticker_us": "CL",
+  "cik": 21665,
+  "name": "COLGATE PALMOLIVE CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CLS",
+  "ticker_us": "CLS",
+  "cik": 1030894,
+  "name": "CELESTICA INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "COIN",
+  "ticker_us": "COIN",
+  "cik": 1679788,
+  "name": "Coinbase Global, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "COP",
+  "ticker_us": "COP",
+  "cik": 1163165,
+  "name": "CONOCOPHILLIPS",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "COPX",
+  "ticker_us": "COPX",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CORN",
+  "ticker_us": "CORN",
+  "cik": 1471824,
+  "name": "Teucrium Commodity Trust",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "COST",
+  "ticker_us": "COST",
+  "cik": 909832,
+  "name": "COSTCO WHOLESALE CORP /NEW",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CRM",
+  "ticker_us": "CRM",
+  "cik": 1108524,
+  "name": "Salesforce, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CRWD",
+  "ticker_us": "CRWD",
+  "cik": 1535527,
+  "name": "CrowdStrike Holdings, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CRWV",
+  "ticker_us": "CRWV",
+  "cik": 1769628,
+  "name": "CoreWeave, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CSCO",
+  "ticker_us": "CSCO",
+  "cik": 858877,
+  "name": "CISCO SYSTEMS, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CSNA3",
+  "ticker_us": "CSNA3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CVS",
+  "ticker_us": "CVS",
+  "cik": 64803,
+  "name": "CVS HEALTH Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CVX",
+  "ticker_us": "CVX",
+  "cik": 93410,
+  "name": "CHEVRON CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "CX",
+  "ticker_us": "CX",
+  "cik": 1076378,
+  "name": "CEMEX SAB DE CV",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "DAL",
+  "ticker_us": "DAL",
+  "cik": 27904,
+  "name": "DELTA AIR LINES, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "DD",
+  "ticker_us": "DD",
+  "cik": 1666700,
+  "name": "DuPont de Nemours, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "DE",
+  "ticker_us": "DE",
+  "cik": 315189,
+  "name": "DEERE & CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "DECK",
+  "ticker_us": "DECK",
+  "cik": 910521,
+  "name": "DECKERS OUTDOOR CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "DELL",
+  "ticker_us": "DELL",
+  "cik": 1571996,
+  "name": "Dell Technologies Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "DEO",
+  "ticker_us": "DEO",
+  "cik": 835403,
+  "name": "DIAGEO PLC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "DHR",
+  "ticker_us": "DHR",
+  "cik": 313616,
+  "name": "DANAHER CORP /DE/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "DIA",
+  "ticker_us": "DIA",
+  "cik": 1041130,
+  "name": "SPDR DOW JONES INDUSTRIAL AVERAGE ETF TRUST",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "DISN",
+  "ticker_us": "DIS",
+  "cik": 1744489,
+  "name": "Walt Disney Co",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "DOCU",
+  "ticker_us": "DOCU",
+  "cik": 1261333,
+  "name": "DOCUSIGN, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "DOW",
+  "ticker_us": "DOW",
+  "cik": 1751788,
+  "name": "DOW INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "E",
+  "ticker_us": "E",
+  "cik": 1002242,
+  "name": "ENI SPA",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "EBAY",
+  "ticker_us": "EBAY",
+  "cik": 1065088,
+  "name": "EBAY INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ECL",
+  "ticker_us": "ECL",
+  "cik": 31462,
+  "name": "ECOLAB INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "EEM",
+  "ticker_us": "EEM",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "EFA",
+  "ticker_us": "EFA",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "EFX",
+  "ticker_us": "EFX",
+  "cik": 33185,
+  "name": "EQUIFAX INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ELPC",
+  "ticker_us": "ELPC",
+  "cik": 1041792,
+  "name": "ENERGY CO OF PARANA",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "EMBJ",
+  "ticker_us": "EMBJ",
+  "cik": 1355444,
+  "name": "EMBRAER S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "EQNR",
+  "ticker_us": "EQNR",
+  "cik": 1140625,
+  "name": "EQUINOR ASA",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ERIC",
+  "ticker_us": "ERIC",
+  "cik": 717826,
+  "name": "ERICSSON LM TELEPHONE CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ESGU",
+  "ticker_us": "ESGU",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ETHA",
+  "ticker_us": "ETHA",
+  "cik": 2000638,
+  "name": "iShares Ethereum Trust ETF",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ETSY",
+  "ticker_us": "ETSY",
+  "cik": 1370637,
+  "name": "ETSY INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "EWJ",
+  "ticker_us": "EWJ",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "EWY",
+  "ticker_us": "EWY",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "EWZ",
+  "ticker_us": "EWZ",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "F",
+  "ticker_us": "F",
+  "cik": 37996,
+  "name": "FORD MOTOR CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "FCX",
+  "ticker_us": "FCX",
+  "cik": 831259,
+  "name": "FREEPORT-MCMORAN INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "FDX",
+  "ticker_us": "FDX",
+  "cik": 1048911,
+  "name": "FEDEX CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "FISV",
+  "ticker_us": "FISV",
+  "cik": 798354,
+  "name": "FISERV INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "FMX",
+  "ticker_us": "FMX",
+  "cik": 1061736,
+  "name": "MEXICAN ECONOMIC DEVELOPMENT INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "FNMA",
+  "ticker_us": "FNMA",
+  "cik": 310522,
+  "name": "FEDERAL NATIONAL MORTGAGE ASSOCIATION FANNIE MAE",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "FSLR",
+  "ticker_us": "FSLR",
+  "cik": 1274494,
+  "name": "FIRST SOLAR, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "FXI",
+  "ticker_us": "FXI",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GDX",
+  "ticker_us": "GDX",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GE",
+  "ticker_us": "GE",
+  "cik": 40545,
+  "name": "GENERAL ELECTRIC CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GEV",
+  "ticker_us": "GEV",
+  "cik": 1996810,
+  "name": "GE Vernova Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GFI",
+  "ticker_us": "GFI",
+  "cik": 1172724,
+  "name": "GOLD FIELDS LTD",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GGB",
+  "ticker_us": "GGB",
+  "cik": 1073404,
+  "name": "GERDAU S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GILD",
+  "ticker_us": "GILD",
+  "cik": 882095,
+  "name": "GILEAD SCIENCES, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GLD",
+  "ticker_us": "GLD",
+  "cik": 1222333,
+  "name": "SPDR GOLD TRUST",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GLNG",
+  "ticker_us": "GLNG",
+  "cik": 1207179,
+  "name": "GOLAR LNG LTD",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GLOB",
+  "ticker_us": "GLOB",
+  "cik": 1557860,
+  "name": "Globant S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GLW",
+  "ticker_us": "GLW",
+  "cik": 24741,
+  "name": "CORNING INC /NY",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GM",
+  "ticker_us": "GM",
+  "cik": 1467858,
+  "name": "General Motors Co",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GOGLC",
+  "ticker_us": "GOGLC",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GOGLD",
+  "ticker_us": "GOGLD",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GOOGL",
+  "ticker_us": "GOOGL",
+  "cik": 1652044,
+  "name": "Alphabet Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GPRK",
+  "ticker_us": "GPRK",
+  "cik": 1464591,
+  "name": "GeoPark Ltd",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GRMN",
+  "ticker_us": "GRMN",
+  "cik": 1121788,
+  "name": "GARMIN LTD",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GS",
+  "ticker_us": "GS",
+  "cik": 886982,
+  "name": "GOLDMAN SACHS GROUP INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GSG",
+  "ticker_us": "GSG",
+  "cik": 1332174,
+  "name": "iShares S&P GSCI Commodity-Indexed Trust",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GSK",
+  "ticker_us": "GSK",
+  "cik": 1131399,
+  "name": "GSK plc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "GT",
+  "ticker_us": "GT",
+  "cik": 42582,
+  "name": "GOODYEAR TIRE & RUBBER CO /OH/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HAL",
+  "ticker_us": "HAL",
+  "cik": 45012,
+  "name": "HALLIBURTON CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HAPV3",
+  "ticker_us": "HAPV3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HD",
+  "ticker_us": "HD",
+  "cik": 354950,
+  "name": "HOME DEPOT, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HIMS",
+  "ticker_us": "HIMS",
+  "cik": 1773751,
+  "name": "Hims & Hers Health, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HL",
+  "ticker_us": "HL",
+  "cik": 719413,
+  "name": "HECLA MINING CO/DE/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HMC",
+  "ticker_us": "HMC",
+  "cik": 715153,
+  "name": "HONDA MOTOR CO LTD",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HMY",
+  "ticker_us": "HMY",
+  "cik": 1023514,
+  "name": "HARMONY GOLD MINING CO LTD",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HOG",
+  "ticker_us": "HOG",
+  "cik": 793952,
+  "name": "HARLEY-DAVIDSON, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HON",
+  "ticker_us": "HON",
+  "cik": 773840,
+  "name": "HONEYWELL INTERNATIONAL INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HOOD",
+  "ticker_us": "HOOD",
+  "cik": 1783879,
+  "name": "Robinhood Markets, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HPQ",
+  "ticker_us": "HPQ",
+  "cik": 47217,
+  "name": "HP INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HSBC",
+  "ticker_us": "HSBC",
+  "cik": 1089113,
+  "name": "HSBC HOLDINGS PLC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HSY",
+  "ticker_us": "HSY",
+  "cik": 47111,
+  "name": "HERSHEY CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HUT",
+  "ticker_us": "HUT",
+  "cik": 1964789,
+  "name": "Hut 8 Corp.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "HWM",
+  "ticker_us": "HWM",
+  "cik": 4281,
+  "name": "Howmet Aerospace Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IBB",
+  "ticker_us": "IBB",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IBIT",
+  "ticker_us": "IBIT",
+  "cik": 1980994,
+  "name": "iShares Bitcoin Trust ETF",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IBKR",
+  "ticker_us": "IBKR",
+  "cik": 1381197,
+  "name": "Interactive Brokers Group, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IBM",
+  "ticker_us": "IBM",
+  "cik": 51143,
+  "name": "INTERNATIONAL BUSINESS MACHINES CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IBN",
+  "ticker_us": "IBN",
+  "cik": 1103838,
+  "name": "ICICI BANK LTD",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ICLN",
+  "ticker_us": "ICLN",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IEMG",
+  "ticker_us": "IEMG",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IEUR",
+  "ticker_us": "IEUR",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IFF",
+  "ticker_us": "IFF",
+  "cik": 51253,
+  "name": "INTERNATIONAL FLAVORS & FRAGRANCES INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IJH",
+  "ticker_us": "IJH",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ILF",
+  "ticker_us": "ILF",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "INFY",
+  "ticker_us": "INFY",
+  "cik": 1067491,
+  "name": "Infosys Ltd",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ING",
+  "ticker_us": "ING",
+  "cik": 1039765,
+  "name": "ING GROEP NV",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "INTC",
+  "ticker_us": "INTC",
+  "cik": 50863,
+  "name": "INTEL CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IP",
+  "ticker_us": "IP",
+  "cik": 51434,
+  "name": "INTERNATIONAL PAPER CO /NEW/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IREN",
+  "ticker_us": "IREN",
+  "cik": 1878848,
+  "name": "IREN Ltd",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ISRG",
+  "ticker_us": "ISRG",
+  "cik": 1035267,
+  "name": "INTUITIVE SURGICAL INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ITA",
+  "ticker_us": "ITA",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ITUB",
+  "ticker_us": "ITUB",
+  "cik": 1132597,
+  "name": "Itau Unibanco Holding S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ITUB3",
+  "ticker_us": "ITUB3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IVE",
+  "ticker_us": "IVE",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IVV",
+  "ticker_us": "IVV",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IVW",
+  "ticker_us": "IVW",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "IWM",
+  "ticker_us": "IWM",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "JCI",
+  "ticker_us": "JCI",
+  "cik": 833444,
+  "name": "Johnson Controls International plc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "JD",
+  "ticker_us": "JD",
+  "cik": 1549802,
+  "name": "JD.com, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "JMIA",
+  "ticker_us": "JMIA",
+  "cik": 1756708,
+  "name": "Jumia Technologies AG",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "JNJ",
+  "ticker_us": "JNJ",
+  "cik": 200406,
+  "name": "JOHNSON & JOHNSON",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "JOYY",
+  "ticker_us": "JOYY",
+  "cik": 1530238,
+  "name": "JOYY Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "JPM",
+  "ticker_us": "JPM",
+  "cik": 19617,
+  "name": "JPMORGAN CHASE & CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "KB",
+  "ticker_us": "KB",
+  "cik": 1445930,
+  "name": "KB Financial Group Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "KEEL",
+  "ticker_us": "KEEL",
+  "cik": 1812477,
+  "name": "Keel Infrastructure Corp.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "KEP",
+  "ticker_us": "KEP",
+  "cik": 887225,
+  "name": "KOREA ELECTRIC POWER CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "KGC",
+  "ticker_us": "KGC",
+  "cik": 701818,
+  "name": "KINROSS GOLD CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "KLAC",
+  "ticker_us": "KLAC",
+  "cik": 319201,
+  "name": "KLA CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "KMB",
+  "ticker_us": "KMB",
+  "cik": 55785,
+  "name": "KIMBERLY CLARK CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "KO",
+  "ticker_us": "KO",
+  "cik": 21344,
+  "name": "COCA COLA CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "KOFM",
+  "ticker_us": "KOF",
+  "cik": 910631,
+  "name": "COCA COLA FEMSA SAB DE CV",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "LAC",
+  "ticker_us": "LAC",
+  "cik": 1966983,
+  "name": "LITHIUM AMERICAS CORP.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "LAR",
+  "ticker_us": "LAR",
+  "cik": 1440972,
+  "name": "Lithium Argentina AG",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "LIN",
+  "ticker_us": "LIN",
+  "cik": 1707925,
+  "name": "LINDE PLC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "LLY",
+  "ticker_us": "LLY",
+  "cik": 59478,
+  "name": "ELI LILLY & Co",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "LMT",
+  "ticker_us": "LMT",
+  "cik": 936468,
+  "name": "LOCKHEED MARTIN CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "LND",
+  "ticker_us": "LND",
+  "cik": 1499849,
+  "name": "BrasilAgro - Brazilian Agricultural Real Estate Co",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "LRCX",
+  "ticker_us": "LRCX",
+  "cik": 707549,
+  "name": "LAM RESEARCH CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "LREN3",
+  "ticker_us": "LREN3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "LVS",
+  "ticker_us": "LVS",
+  "cik": 1300514,
+  "name": "LAS VEGAS SANDS CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "LYG",
+  "ticker_us": "LYG",
+  "cik": 1160106,
+  "name": "Lloyds Banking Group plc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MA",
+  "ticker_us": "MA",
+  "cik": 1141391,
+  "name": "Mastercard Inc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MCD",
+  "ticker_us": "MCD",
+  "cik": 63908,
+  "name": "MCDONALDS CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MDLZ",
+  "ticker_us": "MDLZ",
+  "cik": 1103982,
+  "name": "Mondelez International, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MDT",
+  "ticker_us": "MDT",
+  "cik": 1613103,
+  "name": "Medtronic plc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MELI",
+  "ticker_us": "MELI",
+  "cik": 1099590,
+  "name": "MERCADOLIBRE INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "META",
+  "ticker_us": "META",
+  "cik": 1326801,
+  "name": "Meta Platforms, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MFG",
+  "ticker_us": "MFG",
+  "cik": 1335730,
+  "name": "MIZUHO FINANCIAL GROUP INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MGLU3",
+  "ticker_us": "MGLU3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MMM",
+  "ticker_us": "MMM",
+  "cik": 66740,
+  "name": "3M CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MO",
+  "ticker_us": "MO",
+  "cik": 764180,
+  "name": "ALTRIA GROUP, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MOS",
+  "ticker_us": "MOS",
+  "cik": 1285785,
+  "name": "MOSAIC CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MP",
+  "ticker_us": "MP",
+  "cik": 1801368,
+  "name": "MP Materials Corp. / DE",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MRK",
+  "ticker_us": "MRK",
+  "cik": 310158,
+  "name": "Merck & Co., Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MRNA",
+  "ticker_us": "MRNA",
+  "cik": 1682852,
+  "name": "Moderna, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MRSH",
+  "ticker_us": "MRSH",
+  "cik": 62709,
+  "name": "MARSH & MCLENNAN COMPANIES, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MRVL",
+  "ticker_us": "MRVL",
+  "cik": 1835632,
+  "name": "Marvell Technology, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MS",
+  "ticker_us": "MS",
+  "cik": 895421,
+  "name": "MORGAN STANLEY",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MSFT",
+  "ticker_us": "MSFT",
+  "cik": 789019,
+  "name": "MICROSOFT CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MSI",
+  "ticker_us": "MSI",
+  "cik": 68505,
+  "name": "Motorola Solutions, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MSTR",
+  "ticker_us": "MSTR",
+  "cik": 1050446,
+  "name": "Strategy Inc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MU",
+  "ticker_us": "MU",
+  "cik": 723125,
+  "name": "MICRON TECHNOLOGY INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MUFG",
+  "ticker_us": "MUFG",
+  "cik": 67088,
+  "name": "MITSUBISHI UFJ FINANCIAL GROUP INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "MUX",
+  "ticker_us": "MUX",
+  "cik": 314203,
+  "name": "McEwen Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NAT3D",
+  "ticker_us": "NAT3D",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NATU3",
+  "ticker_us": "NATU3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NBIS",
+  "ticker_us": "NBIS",
+  "cik": 1513845,
+  "name": "Nebius Group N.V.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NEE",
+  "ticker_us": "NEE",
+  "cik": 753308,
+  "name": "NEXTERA ENERGY INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NEM",
+  "ticker_us": "NEM",
+  "cik": 1164727,
+  "name": "NEWMONT Corp /DE/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NFLX",
+  "ticker_us": "NFLX",
+  "cik": 1065280,
+  "name": "NETFLIX INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NG",
+  "ticker_us": "NG",
+  "cik": 1173420,
+  "name": "NOVAGOLD RESOURCES INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NGG",
+  "ticker_us": "NGG",
+  "cik": 1004315,
+  "name": "NATIONAL GRID PLC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NIO",
+  "ticker_us": "NIO",
+  "cik": 1736541,
+  "name": "NIO Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NKE",
+  "ticker_us": "NKE",
+  "cik": 320187,
+  "name": "NIKE, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NMR",
+  "ticker_us": "NMR",
+  "cik": 1163653,
+  "name": "NOMURA HOLDINGS INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NOKA",
+  "ticker_us": "NOK",
+  "cik": 924613,
+  "name": "NOKIA CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NOW",
+  "ticker_us": "NOW",
+  "cik": 1373715,
+  "name": "ServiceNow, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NTES",
+  "ticker_us": "NTES",
+  "cik": 1110646,
+  "name": "NetEase, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NTRA",
+  "ticker_us": "NTRA",
+  "cik": 1604821,
+  "name": "Natera, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NU",
+  "ticker_us": "NU",
+  "cik": 1691493,
+  "name": "Nu Holdings Ltd.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NUE",
+  "ticker_us": "NUE",
+  "cik": 73309,
+  "name": "NUCOR CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NVDA",
+  "ticker_us": "NVDA",
+  "cik": 1045810,
+  "name": "NVIDIA CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NVO",
+  "ticker_us": "NVO",
+  "cik": 353278,
+  "name": "NOVO NORDISK A S",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NVS",
+  "ticker_us": "NVS",
+  "cik": 1114448,
+  "name": "NOVARTIS AG",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "NXE",
+  "ticker_us": "NXE",
+  "cik": 1698535,
+  "name": "NexGen Energy Ltd.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "O",
+  "ticker_us": "O",
+  "cik": 726728,
+  "name": "REALTY INCOME CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "OKLO",
+  "ticker_us": "OKLO",
+  "cik": 1849056,
+  "name": "Oklo Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ONDS",
+  "ticker_us": "ONDS",
+  "cik": 1646188,
+  "name": "Ondas Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ORCL",
+  "ticker_us": "ORCL",
+  "cik": 1341439,
+  "name": "ORACLE CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ORLY",
+  "ticker_us": "ORLY",
+  "cik": 898173,
+  "name": "O REILLY AUTOMOTIVE INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "OXY",
+  "ticker_us": "OXY",
+  "cik": 797468,
+  "name": "OCCIDENTAL PETROLEUM CORP /DE/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PAAS",
+  "ticker_us": "PAAS",
+  "cik": 771992,
+  "name": "PAN AMERICAN SILVER CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PAC",
+  "ticker_us": "PAC",
+  "cik": 1347557,
+  "name": "Pacific Airport Group",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PAGS",
+  "ticker_us": "PAGS",
+  "cik": 1712807,
+  "name": "PagSeguro Digital Ltd.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PANW",
+  "ticker_us": "PANW",
+  "cik": 1327567,
+  "name": "Palo Alto Networks Inc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PATH",
+  "ticker_us": "PATH",
+  "cik": 1734722,
+  "name": "UiPath, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PBI",
+  "ticker_us": "PBI",
+  "cik": 78814,
+  "name": "PITNEY BOWES INC /DE/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PBR",
+  "ticker_us": "PBR",
+  "cik": 1119639,
+  "name": "PETROBRAS - PETROLEO BRASILEIRO SA",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PCAR",
+  "ticker_us": "PCAR",
+  "cik": 75362,
+  "name": "PACCAR INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PDD",
+  "ticker_us": "PDD",
+  "cik": 1737806,
+  "name": "PDD Holdings Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PEP",
+  "ticker_us": "PEP",
+  "cik": 77476,
+  "name": "PEPSICO INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PETR3",
+  "ticker_us": "PETR3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PETRD",
+  "ticker_us": "PETRD",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PFE",
+  "ticker_us": "PFE",
+  "cik": 78003,
+  "name": "PFIZER INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PG",
+  "ticker_us": "PG",
+  "cik": 80424,
+  "name": "PROCTER & GAMBLE Co",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PHG",
+  "ticker_us": "PHG",
+  "cik": 313216,
+  "name": "KONINKLIJKE PHILIPS NV",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PINS",
+  "ticker_us": "PINS",
+  "cik": 1506293,
+  "name": "PINTEREST, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PKS",
+  "ticker_us": "PKS",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PLD",
+  "ticker_us": "PLD",
+  "cik": 1045609,
+  "name": "Prologis, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PLTR",
+  "ticker_us": "PLTR",
+  "cik": 1321655,
+  "name": "Palantir Technologies Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PM",
+  "ticker_us": "PM",
+  "cik": 1413329,
+  "name": "Philip Morris International Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PRIO3",
+  "ticker_us": "PRIO3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PSQ",
+  "ticker_us": "PSQ",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PSX",
+  "ticker_us": "PSX",
+  "cik": 1534701,
+  "name": "Phillips 66",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "PYPL",
+  "ticker_us": "PYPL",
+  "cik": 1633917,
+  "name": "PayPal Holdings, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "QCOM",
+  "ticker_us": "QCOM",
+  "cik": 804328,
+  "name": "QUALCOMM INC/DE",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "QQQ",
+  "ticker_us": "QQQ",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "RACE",
+  "ticker_us": "RACE",
+  "cik": 1648416,
+  "name": "Ferrari N.V.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "RBLX",
+  "ticker_us": "RBLX",
+  "cik": 1315098,
+  "name": "Roblox Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "RENT3",
+  "ticker_us": "RENT3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "RGTI",
+  "ticker_us": "RGTI",
+  "cik": 1838359,
+  "name": "Rigetti Computing, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "RIO",
+  "ticker_us": "RIO",
+  "cik": 863064,
+  "name": "RIO TINTO PLC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "RIOT",
+  "ticker_us": "RIOT",
+  "cik": 1167419,
+  "name": "Riot Platforms, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "RKLB",
+  "ticker_us": "RKLB",
+  "cik": 1819994,
+  "name": "Rocket Lab Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ROKU",
+  "ticker_us": "ROKU",
+  "cik": 1428439,
+  "name": "ROKU, INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ROST",
+  "ticker_us": "ROST",
+  "cik": 745732,
+  "name": "ROSS STORES, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "RSP",
+  "ticker_us": "RSP",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "RTX",
+  "ticker_us": "RTX",
+  "cik": 101829,
+  "name": "RTX Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SAN",
+  "ticker_us": "SAN",
+  "cik": 891478,
+  "name": "Banco Santander, S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SAP",
+  "ticker_us": "SAP",
+  "cik": 1000184,
+  "name": "SAP SE",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SATL",
+  "ticker_us": "SATL",
+  "cik": 1874315,
+  "name": "Satellogic Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SBS",
+  "ticker_us": "SBS",
+  "cik": 1170858,
+  "name": "COMPANHIA DE SANEAMENTO BASICO DO ESTADO DE SAO PAULO-SABESP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SBSP3",
+  "ticker_us": "SBSP3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SBUX",
+  "ticker_us": "SBUX",
+  "cik": 829224,
+  "name": "STARBUCKS CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SCCO",
+  "ticker_us": "SCCO",
+  "cik": 1001838,
+  "name": "SOUTHERN COPPER CORP/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SCHW",
+  "ticker_us": "SCHW",
+  "cik": 316709,
+  "name": "SCHWAB CHARLES CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SDA",
+  "ticker_us": "SDA",
+  "cik": 1936804,
+  "name": "SunCar Technology Group Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SE",
+  "ticker_us": "SE",
+  "cik": 1703399,
+  "name": "Sea Ltd",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SH",
+  "ticker_us": "SH",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SHEL",
+  "ticker_us": "SHEL",
+  "cik": 1306965,
+  "name": "Shell plc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SHOP",
+  "ticker_us": "SHOP",
+  "cik": 1594805,
+  "name": "SHOPIFY INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SHW",
+  "ticker_us": "SHW",
+  "cik": 89800,
+  "name": "SHERWIN WILLIAMS CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SID",
+  "ticker_us": "SID",
+  "cik": 1049659,
+  "name": "NATIONAL STEEL CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SKHY",
+  "ticker_us": "SKHY",
+  "cik": null,
+  "name": "SK hynix Inc.",
+  "ratio": null,
+  "verified": true,
+  "note": "SK Hynix no presenta estados en XBRL ante la SEC"
+ },
+ {
+  "byma": "SLB",
+  "ticker_us": "SLB",
+  "cik": 87347,
+  "name": "SLB LIMITED/NV",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SLV",
+  "ticker_us": "SLV",
+  "cik": 1330568,
+  "name": "iShares Silver Trust",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SMH",
+  "ticker_us": "SMH",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SNA",
+  "ticker_us": "SNA",
+  "cik": 91440,
+  "name": "Snap-on Inc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SNAP",
+  "ticker_us": "SNAP",
+  "cik": 1564408,
+  "name": "Snap Inc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SNDK",
+  "ticker_us": "SNDK",
+  "cik": 2023554,
+  "name": "Sandisk Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SNOW",
+  "ticker_us": "SNOW",
+  "cik": 1640147,
+  "name": "Snowflake Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SONY",
+  "ticker_us": "SONY",
+  "cik": 313838,
+  "name": "Sony Group Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SOYB",
+  "ticker_us": "SOYB",
+  "cik": 1471824,
+  "name": "Teucrium Commodity Trust",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SPCE",
+  "ticker_us": "SPCE",
+  "cik": 1706946,
+  "name": "Virgin Galactic Holdings, Inc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SPCX",
+  "ticker_us": "SPCX",
+  "cik": 1181412,
+  "name": "SPACE EXPLORATION TECHNOLOGIES CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SPGI",
+  "ticker_us": "SPGI",
+  "cik": 64040,
+  "name": "S&P Global Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SPHQ",
+  "ticker_us": "SPHQ",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SPOT",
+  "ticker_us": "SPOT",
+  "cik": 1639920,
+  "name": "Spotify Technology S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SPXL",
+  "ticker_us": "SPXL",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SPY",
+  "ticker_us": "SPY",
+  "cik": 884394,
+  "name": "SPDR S&P 500 ETF TRUST",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "STLA",
+  "ticker_us": "STLA",
+  "cik": 1605484,
+  "name": "Stellantis N.V.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "STNE",
+  "ticker_us": "STNE",
+  "cik": 1745431,
+  "name": "StoneCo Ltd.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SUZ",
+  "ticker_us": "SUZ",
+  "cik": 909327,
+  "name": "Suzano S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SUZB3",
+  "ticker_us": "SUZB3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SWKS",
+  "ticker_us": "SWKS",
+  "cik": 4127,
+  "name": "SKYWORKS SOLUTIONS, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "SYY",
+  "ticker_us": "SYY",
+  "cik": 96021,
+  "name": "SYSCO CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "T",
+  "ticker_us": "T",
+  "cik": 732717,
+  "name": "AT&T INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TCOM",
+  "ticker_us": "TCOM",
+  "cik": 1269238,
+  "name": "Trip.com Group Ltd",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TEAM",
+  "ticker_us": "TEAM",
+  "cik": 1650372,
+  "name": "Atlassian Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TEM",
+  "ticker_us": "TEM",
+  "cik": 1717115,
+  "name": "Tempus AI, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TEN",
+  "ticker_us": "TEN",
+  "cik": 1166663,
+  "name": "TSAKOS ENERGY NAVIGATION LTD",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TGT",
+  "ticker_us": "TGT",
+  "cik": 27419,
+  "name": "TARGET CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TIMB",
+  "ticker_us": "TIMB",
+  "cik": 1826168,
+  "name": "TIM S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TIMS3",
+  "ticker_us": "TIMS3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TJX",
+  "ticker_us": "TJX",
+  "cik": 109198,
+  "name": "TJX COMPANIES INC /DE/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TLN",
+  "ticker_us": "TLN",
+  "cik": 1622536,
+  "name": "Talen Energy Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TM",
+  "ticker_us": "TM",
+  "cik": 1094517,
+  "name": "TOYOTA MOTOR CORP/",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TMO",
+  "ticker_us": "TMO",
+  "cik": 97745,
+  "name": "THERMO FISHER SCIENTIFIC INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TMUS",
+  "ticker_us": "TMUS",
+  "cik": 1283699,
+  "name": "T-Mobile US, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TQQQ",
+  "ticker_us": "TQQQ",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TRIP",
+  "ticker_us": "TRIP",
+  "cik": 1526520,
+  "name": "TripAdvisor, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TRVV",
+  "ticker_us": "TRV",
+  "cik": 86312,
+  "name": "TRAVELERS COMPANIES, INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TSLA",
+  "ticker_us": "TSLA",
+  "cik": 1318605,
+  "name": "Tesla, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TSM",
+  "ticker_us": "TSM",
+  "cik": 1046179,
+  "name": "TAIWAN SEMICONDUCTOR MANUFACTURING CO LTD",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TTE",
+  "ticker_us": "TTE",
+  "cik": 879764,
+  "name": "TotalEnergies SE",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TV",
+  "ticker_us": "TV",
+  "cik": 912892,
+  "name": "GRUPO TELEVISA, S.A.B.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TWLO",
+  "ticker_us": "TWLO",
+  "cik": 1447669,
+  "name": "TWILIO INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TXN",
+  "ticker_us": "TXN",
+  "cik": 97476,
+  "name": "TEXAS INSTRUMENTS INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "TXR",
+  "ticker_us": "TX",
+  "cik": 1342874,
+  "name": "Ternium S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "UAL",
+  "ticker_us": "UAL",
+  "cik": 100517,
+  "name": "United Airlines Holdings, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "UBER",
+  "ticker_us": "UBER",
+  "cik": 1543151,
+  "name": "Uber Technologies, Inc",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "UGP",
+  "ticker_us": "UGP",
+  "cik": 1094972,
+  "name": "ULTRAPAR HOLDINGS INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "UL",
+  "ticker_us": "UL",
+  "cik": 217410,
+  "name": "UNILEVER PLC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "UNH",
+  "ticker_us": "UNH",
+  "cik": 731766,
+  "name": "UNITEDHEALTH GROUP INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "UNP",
+  "ticker_us": "UNP",
+  "cik": 100885,
+  "name": "UNION PACIFIC CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "UPST",
+  "ticker_us": "UPST",
+  "cik": 1647639,
+  "name": "Upstart Holdings, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "URA",
+  "ticker_us": "URA",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "URBN",
+  "ticker_us": "URBN",
+  "cik": 912615,
+  "name": "URBAN OUTFITTERS INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "USB",
+  "ticker_us": "USB",
+  "cik": 36104,
+  "name": "US BANCORP DE",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "USO",
+  "ticker_us": "USO",
+  "cik": 1327068,
+  "name": "United States Oil Fund, LP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "V",
+  "ticker_us": "V",
+  "cik": 1403161,
+  "name": "VISA INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VAL3C",
+  "ticker_us": "VAL3C",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VAL3D",
+  "ticker_us": "VAL3D",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VALE",
+  "ticker_us": "VALE",
+  "cik": 917851,
+  "name": "Vale S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VALE3",
+  "ticker_us": "VALE3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VEA",
+  "ticker_us": "VEA",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VIG",
+  "ticker_us": "VIG",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VIST",
+  "ticker_us": "VIST",
+  "cik": 1762506,
+  "name": "Vista Energy, S.A.B. de C.V.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VIV",
+  "ticker_us": "VIV",
+  "cik": 1066119,
+  "name": "TELEFONICA BRASIL S.A.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VIVT3",
+  "ticker_us": "VIVT3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VOD",
+  "ticker_us": "VOD",
+  "cik": 839923,
+  "name": "VODAFONE GROUP PUBLIC LTD CO",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VRSN",
+  "ticker_us": "VRSN",
+  "cik": 1014473,
+  "name": "VERISIGN INC/CA",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VRTX",
+  "ticker_us": "VRTX",
+  "cik": 875320,
+  "name": "VERTEX PHARMACEUTICALS INC / MA",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VST",
+  "ticker_us": "VST",
+  "cik": 1692819,
+  "name": "Vistra Corp.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "VXX",
+  "ticker_us": "VXX",
+  "cik": null,
+  "name": "BARCLAYS BANK PLC",
+  "ratio": null,
+  "verified": true,
+  "note": "ETN de Barclays: el CIK es de Barclays Bank, no tiene fundamentals propios"
+ },
+ {
+  "byma": "VZ",
+  "ticker_us": "VZ",
+  "cik": 732712,
+  "name": "VERIZON COMMUNICATIONS INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "WBO",
+  "ticker_us": "WBO",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "WDC",
+  "ticker_us": "WDC",
+  "cik": 106040,
+  "name": "WESTERN DIGITAL CORP",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "WEGE3",
+  "ticker_us": "WEGE3",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "WELL",
+  "ticker_us": "WELL",
+  "cik": 766704,
+  "name": "WELLTOWER INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "WFC",
+  "ticker_us": "WFC",
+  "cik": 72971,
+  "name": "WELLS FARGO & COMPANY/MN",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "WMT",
+  "ticker_us": "WMT",
+  "cik": 104169,
+  "name": "Walmart Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XLB",
+  "ticker_us": "XLB",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XLC",
+  "ticker_us": "XLC",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XLE",
+  "ticker_us": "XLE",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XLF",
+  "ticker_us": "XLF",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XLI",
+  "ticker_us": "XLI",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XLK",
+  "ticker_us": "XLK",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XLP",
+  "ticker_us": "XLP",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XLRE",
+  "ticker_us": "XLRE",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XLU",
+  "ticker_us": "XLU",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XLV",
+  "ticker_us": "XLV",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XLY",
+  "ticker_us": "XLY",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XME",
+  "ticker_us": "XME",
+  "cik": null,
+  "name": "",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XOM",
+  "ticker_us": "XOM",
+  "cik": 2115436,
+  "name": "ExxonMobil Holdings Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XP",
+  "ticker_us": "XP",
+  "cik": 1787425,
+  "name": "XP Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XPEV",
+  "ticker_us": "XPEV",
+  "cik": 1810997,
+  "name": "XPENG INC.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XROX",
+  "ticker_us": "XRX",
+  "cik": 1770450,
+  "name": "Xerox Holdings Corp",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "XYZ",
+  "ticker_us": "XYZ",
+  "cik": 1512673,
+  "name": "Block, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "YELP",
+  "ticker_us": "YELP",
+  "cik": 1345016,
+  "name": "YELP INC",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ },
+ {
+  "byma": "ZM",
+  "ticker_us": "ZM",
+  "cik": 1585521,
+  "name": "Zoom Communications, Inc.",
+  "ratio": null,
+  "verified": false,
+  "note": ""
+ }
+]
