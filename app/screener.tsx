@@ -291,8 +291,8 @@ export default function Screener({ rows }: { rows: Row[] }) {
           {Object.values(COL).map((c) => <li key={c.key}><strong>{c.label}:</strong> {c.tip}</li>)}
         </ul>
         {hiddenNd && (
-          <p>Deuda neta/EBITDA no se muestra porque esta corrida del ETL no trae depreciaciones y amortizaciones;
-            mientras tanto, Solidez se calcula con deuda/PN y liquidez corriente.</p>
+          <p>Deuda neta/EBITDA no se muestra porque los datos publicados todavía no traen EBITDA (llega con la
+            próxima corrida del ETL); mientras tanto, Solidez se calcula con deuda/PN y liquidez corriente.</p>
         )}
         <p>* en Período: hay un 10-Q, 10-K o 20-F más nuevo que la API de la SEC todavía no expone en XBRL, o el
           último ejercicio tiene más de 15 meses. * en Deuda/PN: patrimonio neto negativo (recompras acumuladas).</p>

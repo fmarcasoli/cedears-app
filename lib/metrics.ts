@@ -29,11 +29,8 @@ export type View = Metrics & {
 const div = (a: number | null, b: number | null) => (a != null && b != null && b !== 0 ? a / b : null);
 
 function fromBalance(b: Balance | null, financial: boolean) {
-  if (!b || financial) return { de: null, nd_ebitda: null, neg_equity: false };
-  const de = div(b.debt, b.equity);
-  let nd_ebitda: number | null = null;
-  if (b.net_debt != null && b.ebitda != null && b.ebitda > 0) nd_ebitda = b.net_debt <= 0 ? 0 : b.net_debt / b.ebitda;
-  return { de, nd_ebitda, neg_equity: b.equity != null && b.equity <= 0 };
+  if (!b || financial) return { de: null, neg_equity: false };
+  return { de: div(b.debt, b.equity), neg_equity: b.equity != null && b.equity <= 0 };
 }
 
 export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
@@ -56,6 +53,7 @@ export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
     // Con resultado neto <= 0 el cociente cambia de sentido: no se calcula.
     fcf_ni: r.financial || ni == null || ni <= 0 ? null : div(fcf, ni),
     current_ratio: useTtm ? r.t_current_ratio : r.current_ratio,
+    nd_ebitda: r.financial ? null : (useTtm ? r.t_nd_ebitda : r.nd_ebitda) ?? null,
     ...fromBalance(useTtm ? r.bal_t : r.bal_a, r.financial),
     alerts: r.alerts,
   };
@@ -183,7 +181,12 @@ export const COL: Record<MKey, Col> = {
   fcf_margin: { key: "fcf_margin", label: "Mg. caja libre", fmt: pct, shade: "high", tip: "Caja libre / ingresos." },
   fcf_ni: { key: "fcf_ni", label: "Caja libre / RN", fmt: times, shade: "high", tip: "Caja libre sobre resultado neto: cuánto del resultado se convierte en caja. Solo con resultado neto positivo; en el perfil se acota entre -1 y 2,5." },
   de: { key: "de", label: "Deuda/PN", fmt: x2, shade: "low", tip: "Deuda financiera total / patrimonio neto. Con PN negativo se muestra con asterisco y queda fuera del sombreado y del orden." },
-  nd_ebitda: { key: "nd_ebitda", label: "DN/EBITDA", fmt: times, shade: "low", tip: "Deuda neta / EBITDA. Caja neta se muestra 0; con EBITDA negativo no se calcula." },
+  nd_ebitda: {
+    key: "nd_ebitda", label: "DN/EBITDA", fmt: times, shade: "low",
+    tip: "Deuda neta / EBITDA, con EBITDA = resultado operativo + depreciaciones y amortizaciones informadas. " +
+      "Caja neta se muestra 0; con EBITDA negativo no se calcula. La deuda es solo financiera (sin arrendamientos), " +
+      "y en IFRS la depreciación del derecho de uso puede no estar incluida. Calculado en la moneda de origen.",
+  },
   current_ratio: { key: "current_ratio", label: "Liq. corriente", fmt: x2, shade: "high", tip: "Activo corriente / pasivo corriente." },
   alerts: { key: "alerts", label: "Alertas", fmt: (v) => (v ? String(v) : "–"), tip: "Cantidad de alertas automáticas. El detalle está en la ficha." },
 };

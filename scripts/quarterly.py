@@ -17,6 +17,11 @@ from datetime import date
 FORMS = {"10-Q", "10-Q/A", "10-K", "10-K/A", "10-KT", "6-K", "6-K/A",
          "20-F", "20-F/A", "40-F", "40-F/A"}
 N_QUARTERS = 16  # 4 años: 3 para mostrar + 1 para comparar interanual
+# Conceptos donde, si una empresa etiqueta varios, gana el mayor y no el primero:
+# algunas usan el concepto combinado para un componente (MCD etiqueta como
+# DepreciationDepletionAndAmortization 0,46 B y el total de 2,2 B como
+# DepreciationAndAmortization). Un componente nunca supera al total.
+MAX_OF = {"da"}
 
 
 def _d(s):
@@ -90,7 +95,10 @@ def build_quarters(facts, taxonomies, currency, concepts, instant_keys, per_shar
                 pts = quarter_points(node["units"][unit], key in instant_keys,
                                      additive=key not in share_count)
                 for e, v in pts.items():
-                    merged.setdefault(e, v)
+                    if key in MAX_OF and e in merged and v is not None:
+                        merged[e] = max(merged[e], v)
+                    else:
+                        merged.setdefault(e, v)
         series[key] = merged
 
     ends = sorted(set(series.get("revenue", {})) | set(series.get("net_income", {})))
@@ -132,6 +140,25 @@ def _div(a, b):
     return a / b if a is not None and b not in (None, 0) else None
 
 
+def ebitda_of(r):
+    """Resultado operativo + D&A. D&A = el mayor entre el concepto combinado y
+    depreciación + amortización (la amortización sola no alcanza)."""
+    oi = r.get("operating_income")
+    da = r.get("da")
+    if r.get("depreciation") is not None:  # si el combinado es menor, es un componente
+        parts = r["depreciation"] + (r.get("amortization") or 0)
+        da = parts if da is None else max(da, parts)
+    r["da_total"] = da
+    return oi + da if oi is not None and da is not None else None
+
+
+def nd_ebitda(net_debt, ebitda):
+    """Deuda neta / EBITDA: caja neta -> 0; EBITDA <= 0 no admite el ratio."""
+    if net_debt is None or ebitda is None or ebitda <= 0:
+        return None
+    return 0.0 if net_debt <= 0 else net_debt / ebitda
+
+
 def add_quarter_ratios(q):
     for i, r in enumerate(q):
         r["fcf"] = r["ocf"] - (r["capex"] or 0) if r.get("ocf") is not None else None
@@ -142,6 +169,7 @@ def add_quarter_ratios(q):
         r["gross_margin"] = _div(r["gross_profit"], r["revenue"])
         r["op_margin"] = _div(r["operating_income"], r["revenue"])
         r["net_margin"] = _div(r["net_income"], r["revenue"])
+        r["ebitda"] = ebitda_of(r)
         # interanual contra el mismo trimestre del año anterior (evita la estacionalidad)
         prev = q[i - 4] if i >= 4 and 350 <= (_d(r["end"]) - _d(q[i - 4]["end"])).days <= 380 else None
         r["rev_yoy"] = (_div(r["revenue"], prev["revenue"]) - 1
@@ -155,7 +183,7 @@ def _consecutive(block):
     return all(_is_quarter((_d(b["end"]) - _d(a["end"])).days) for a, b in zip(block, block[1:]))
 
 
-TTM_FLOWS = ("revenue", "gross_profit", "operating_income", "net_income", "ocf", "capex",
+TTM_FLOWS = ("revenue", "gross_profit", "operating_income", "ebitda", "da_total", "net_income", "ocf", "capex",
              "fcf", "dividends", "buybacks", "eps_diluted")
 
 
@@ -180,6 +208,7 @@ def ttm(q):
     t["roe"] = None if thin else _div(t["net_income"], t["equity"])
     t["debt_equity"] = None if thin else _div(t["total_debt"], t["equity"])
     t["current_ratio"] = _div(t["current_assets"], t["current_liabilities"])
+    t["nd_ebitda"] = nd_ebitda(t["net_debt"], t["ebitda"])
     # crecimiento TTM contra los 12 meses anteriores
     t["rev_growth"] = None
     if len(q) >= 8 and _consecutive(q[-8:]):

@@ -90,7 +90,7 @@ function Body({ c, view, basis, tab, setTab }: {
   const last = c.rows[c.rows.length - 1];
   const negEq = (view?.neg_equity) ?? ((val(c.ttm ?? last, "equity") ?? 1) <= 0);
   const edgar = `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${c.cik}&type=&dateb=&owner=include&count=40`;
-  const kpis: MKey[] = c.financial ? ["net_income", "roe"] : ["revenue", "net_income", "fcf", "op_margin", "roe", "fcf_margin", "de", "current_ratio"];
+  const kpis: MKey[] = c.financial ? ["net_income", "roe"] : ["revenue", "net_income", "fcf", "op_margin", "roe", "fcf_margin", "de", "nd_ebitda", "current_ratio"];
   const usingTtm = basis === "ttm" && !!c.ttm;
 
   return (
@@ -157,6 +157,7 @@ const ANNUAL_ROWS: Def[] = [
   ["Resultados"],
   ["Ingresos", "revenue", money], ["Crecimiento en USD", "rev_growth", pct],
   ["Resultado bruto", "gross_profit", money], ["Resultado operativo", "operating_income", money],
+  ["Depreciaciones y amortizaciones", "da_total", money], ["EBITDA", "ebitda", money],
   ["Resultado neto", "net_income", money], ["EPS diluido", "eps_diluted", (v) => num(v)],
   ["Flujo de fondos"],
   ["Flujo operativo", "ocf", money], ["CAPEX", "capex", money], ["Caja libre", "fcf", money],
@@ -169,12 +170,14 @@ const ANNUAL_ROWS: Def[] = [
   ["Margen bruto", "gross_margin", pct], ["Margen operativo", "op_margin", pct],
   ["Margen neto", "net_margin", pct], ["Margen caja libre", "fcf_margin", pct],
   ["ROE", "roe", pct], ["ROA", "roa", pct],
-  ["Deuda / PN", "debt_equity", (v) => num(v)], ["Liquidez corriente", "current_ratio", (v) => num(v)],
+  ["Deuda / PN", "debt_equity", (v) => num(v)], ["Deuda neta / EBITDA", "nd_ebitda", (v) => num(v)],
+  ["Liquidez corriente", "current_ratio", (v) => num(v)],
 ];
 const QUARTER_ROWS: Def[] = [
   ["Resultados del trimestre"],
   ["Ingresos", "revenue", money], ["Interanual (USD)", "rev_yoy", pct],
   ["Resultado operativo", "operating_income", money], ["Margen operativo", "op_margin", pct],
+  ["EBITDA", "ebitda", money],
   ["Resultado neto", "net_income", money], ["Margen neto", "net_margin", pct],
   ["EPS diluido", "eps_diluted", (v) => num(v)], ["EPS interanual", "eps_yoy", pct],
   ["Flujo de fondos del trimestre"],
@@ -335,6 +338,7 @@ const CHANGE_ROWS: { label: string; key: string; kind: "amt" | "ratio" | "eps" }
   { label: "Margen bruto", key: "gross_margin", kind: "ratio" },
   { label: "Resultado operativo", key: "operating_income", kind: "amt" },
   { label: "Margen operativo", key: "op_margin", kind: "ratio" },
+  { label: "EBITDA", key: "ebitda", kind: "amt" },
   { label: "Resultado neto", key: "net_income", kind: "amt" },
   { label: "Margen neto", key: "net_margin", kind: "ratio" },
   { label: "EPS diluido", key: "eps_diluted", kind: "eps" },

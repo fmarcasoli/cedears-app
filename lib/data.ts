@@ -15,13 +15,14 @@ export type ScreenerRow = {
   t_revenue: number | null; t_net_income: number | null; t_fcf: number | null; t_rev_growth: number | null;
   t_gross_margin: number | null; t_op_margin: number | null; t_net_margin: number | null;
   t_fcf_margin: number | null; t_roe: number | null; t_debt_equity: number | null; t_current_ratio: number | null;
+  // EBITDA y deuda neta/EBITDA (el ratio se calcula en el ETL en moneda de origen).
+  // Opcionales: los screener.json anteriores a este cambio no los traen.
+  ebitda?: number | null; nd_ebitda?: number | null; t_ebitda?: number | null; t_nd_ebitda?: number | null;
 };
 
 /** Saldos de balance que el screener.json no trae y la UI necesita (deuda/PN con PN
- *  negativo, deuda neta/EBITDA). Salen de companies/*.json al compilar. */
-export type Balance = {
-  equity: number | null; debt: number | null; net_debt: number | null; ebitda: number | null;
-};
+ *  negativo). Salen de companies/*.json al compilar. */
+export type Balance = { equity: number | null; debt: number | null };
 export type Row = ScreenerRow & { cik: number | null; bal_a: Balance; bal_t: Balance | null };
 
 export type Meta = {
@@ -62,11 +63,7 @@ const n = (p: Period | null | undefined, k: string) => {
   return typeof v === "number" ? v : null;
 };
 
-// EBITDA: el ETL de esta versión no baja D&A. Si algún día lo trae (campo `ebitda`),
-// deuda neta/EBITDA se completa sola; mientras tanto queda en null.
-const balance = (p: Period | null | undefined): Balance => ({
-  equity: n(p, "equity"), debt: n(p, "total_debt"), net_debt: n(p, "net_debt"), ebitda: n(p, "ebitda"),
-});
+const balance = (p: Period | null | undefined): Balance => ({ equity: n(p, "equity"), debt: n(p, "total_debt") });
 
 export async function getRows(): Promise<{ meta: Meta; rows: Row[] }> {
   const { meta, rows } = await getScreener();

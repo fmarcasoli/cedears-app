@@ -65,6 +65,19 @@ CONCEPTS = {
         "DividendsPaidClassifiedAsFinancingActivities",
     ],
     "buybacks": ["PaymentsForRepurchaseOfCommonStock"],
+    # D&A para el EBITDA. Primero el concepto combinado (casi siempre del flujo de
+    # fondos); si no está, depreciación + amortización por separado. Se excluyen los
+    # conceptos que incluyen deterioro (impairment) o amortizaciones futuras.
+    "da": [
+        "DepreciationDepletionAndAmortization", "DepreciationAndAmortization",
+        "DepreciationAmortizationAndAccretionNet", "DepreciationAndAmortisationExpense",
+        "AdjustmentsForDepreciationAndAmortisationExpense",
+    ],
+    "depreciation": ["Depreciation", "DepreciationExpense", "DepreciationPropertyPlantAndEquipment"],
+    "amortization": [
+        "AmortizationOfIntangibleAssets", "FiniteLivedIntangibleAssetsAmortizationExpense",
+        "AmortisationIntangibleAssetsOtherThanGoodwill", "AmortisationExpense",
+    ],
     # ---- Balance (saldos a una fecha)
     "assets": ["Assets"],
     "current_assets": ["AssetsCurrent", "CurrentAssets"],
@@ -192,6 +205,9 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
                     if end not in merged:
                         merged[end] = val
                         added = True
+                    elif key in MAX_OF and val is not None and val > merged[end]:
+                        merged[end] = val
+                        added = True
                     last_filed = max(last_filed, filed)
                 if added:
                     used_here.append(concept)
@@ -266,6 +282,8 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
         r["net_debt"] = debt - r["cash"] if debt is not None and r["cash"] is not None else None
         r["debt_equity"] = div(debt, r["equity"])
         r["fcf_conversion"] = div(r["fcf"], r["net_income"])
+        r["ebitda"] = ebitda_of(r)
+        r["nd_ebitda"] = nd_ebitda(r["net_debt"], r["ebitda"])
         r["rev_growth"] = (
             div(r["revenue"], prev["revenue"]) - 1
             if prev and div(r["revenue"], prev["revenue"]) is not None else None
@@ -330,9 +348,10 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
 
 # ───────────────────────── CONVERSIÓN A USD ─────────────────────────
 from fx import FX  # noqa: E402
-from quarterly import build_quarters, ttm  # noqa: E402
+from quarterly import MAX_OF, build_quarters, ebitda_of, nd_ebitda, ttm  # noqa: E402
 
 FLOW_KEYS = ("revenue", "gross_profit", "cost_of_revenue", "operating_income", "net_income",
+             "da", "depreciation", "amortization", "da_total", "ebitda",
              "ocf", "capex", "dividends", "buybacks", "fcf")
 STOCK_KEYS = ("assets", "current_assets", "current_liabilities", "liabilities", "equity",
               "cash", "lt_debt", "lt_debt_current", "st_debt", "total_debt", "net_debt")
@@ -400,7 +419,7 @@ def get_sector(cik: int):
 
 # Bancos, aseguradoras y brokers (SIC 6000-6499): "ingresos", margen bruto,
 # liquidez corriente y deuda/PN no significan lo mismo que en una industrial.
-FIN_RATIOS_OFF = ("gross_margin", "op_margin", "net_margin", "fcf_margin",
+FIN_RATIOS_OFF = ("gross_margin", "op_margin", "net_margin", "fcf_margin", "ebitda", "nd_ebitda",
                   "current_ratio", "debt_equity", "rev_growth")
 FIN_SCREENER_OFF = ("revenue", "rev_cagr3", "fcf")  # "ingresos" de bancos no comparables
 STALE_DAYS = 450
@@ -413,7 +432,7 @@ def ttm_fields(comp):
            "q_rev_yoy": q[-1].get("rev_yoy") if q else None,
            "q_eps_yoy": q[-1].get("eps_yoy") if q else None}
     for k in ("revenue", "net_income", "fcf", "rev_growth", "gross_margin", "op_margin",
-              "net_margin", "fcf_margin", "roe", "debt_equity", "current_ratio"):
+              "net_margin", "fcf_margin", "roe", "debt_equity", "current_ratio", "ebitda", "nd_ebitda"):
         out["t_" + k] = t.get(k) if t else None
     if comp.get("financial"):
         for k in ("t_revenue", "t_fcf", "t_rev_growth", "q_rev_yoy"):
@@ -469,7 +488,7 @@ def main():
         t = ttm(comp["quarters"]) if t_local else None
         if t and t_local:
             for k in ("gross_margin", "op_margin", "net_margin", "fcf_margin", "roe",
-                      "debt_equity", "current_ratio"):
+                      "debt_equity", "current_ratio", "nd_ebitda"):
                 t[k] = t_local[k]
             t["rev_growth_local"] = t_local["rev_growth"]
         comp["ttm"] = t
@@ -526,6 +545,7 @@ def main():
             "net_margin": L.get("net_margin"), "fcf_margin": L.get("fcf_margin"),
             "roe": L.get("roe"), "debt_equity": L.get("debt_equity"),
             "current_ratio": L.get("current_ratio"),
+            "ebitda": L.get("ebitda"), "nd_ebitda": L.get("nd_ebitda"),
             "financial": comp["financial"], "stale": comp["stale"], "api_lag": comp["api_lag"],
             **ttm_fields(comp),
             "alerts": len(comp["alerts"]), "missing": comp["missing"],
