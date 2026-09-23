@@ -18,6 +18,9 @@ export type ScreenerRow = {
   // EBITDA y deuda neta/EBITDA (el ratio se calcula en el ETL en moneda de origen).
   // Opcionales: los screener.json anteriores a este cambio no los traen.
   ebitda?: number | null; nd_ebitda?: number | null; t_ebitda?: number | null; t_nd_ebitda?: number | null;
+  // Valuación: capitalización en USD (Nasdaq, fecha de la corrida) y CAGR 3a del
+  // resultado neto en moneda de origen, para el PEG.
+  market_cap?: number | null; mcap_date?: string | null; ni_cagr3?: number | null;
 };
 
 /** Saldos de balance que el screener.json no trae y la UI necesita (deuda/PN con PN

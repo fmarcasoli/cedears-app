@@ -23,7 +23,7 @@ export default function Compare({ views, basis, onClose, onOpen }: {
         <h2 id="cmp-title">Comparador</h2>
         <p className="hint">
           Base: {basis === "ttm" ? "últimos 12 meses (o último ejercicio si no hay trimestres)" : "último ejercicio"}.
-          En negrita, la mejor de cada fila; ingresos y resultado neto no se marcan porque el tamaño no es mérito.
+          En negrita, la mejor de cada fila; capitalización, ingresos y resultado neto no se marcan porque el tamaño no es mérito. En valuación, mejor = más barato.
         </p>
         <div className="tablebox">
           <table>

@@ -41,8 +41,15 @@ No las cambies sin motivo; cada una salió de un bug real.
   ROE va en null cuando el PN es negativo o menor al 5% del activo.
 - **Financieras** (SIC 6000-6499): no se calculan márgenes, liquidez, deuda/PN ni
   "ingresos" comparables. Se marcan con `financial: true`.
-- **EBITDA** = resultado operativo + D&A (concepto combinado, o depreciación + amortización).
-  Deuda neta/EBITDA: caja neta se muestra 0, EBITDA <= 0 no admite el ratio.
+- **EBITDA** = resultado operativo + D&A. D&A = el MAYOR entre los conceptos combinados y
+  depreciación + amortización: hay empresas que etiquetan un componente con el concepto
+  combinado (MCD: 0,46 B vs 2,2 B reales). Deuda neta/EBITDA se calcula en moneda de origen;
+  caja neta se muestra 0, EBITDA <= 0 no admite el ratio. Financieras sin EBITDA.
+- **Valuación** (PER, PEG, P/VL, P/Ventas): capitalización bursátil de Nasdaq
+  (`scripts/market.py`), NO precio × acciones de la SEC: en ADRs el precio es por ADR y las
+  acciones son ordinarias. PER = cap / resultado neto, P/VL = cap / PN, P/Ventas = cap /
+  ingresos; con denominador <= 0 no hay múltiplo. PEG = PER / CAGR 3a del resultado neto en
+  moneda de origen (histórico, no proyectado). Si Nasdaq falla, la valuación queda en null.
 - **Desfase de la SEC**: la API companyfacts a veces no tiene el último 10-Q ya presentado.
   Se detecta contra el endpoint `submissions` y se marca `api_lag`.
 - **Montos**: en el JSON de salida están en unidades (USD), no en millones. Si armás un

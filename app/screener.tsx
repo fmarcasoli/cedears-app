@@ -8,6 +8,7 @@ import {
 } from "@/lib/metrics";
 import CompanySheet from "./sheet";
 import Compare from "./compare";
+import Glossary from "./glossary";
 import { PillarBar } from "./profile";
 
 type SortKey = MKey | "byma" | "sector" | "period" | `p_${PKey}`;
@@ -52,6 +53,7 @@ export default function Screener({ rows }: { rows: Row[] }) {
   const [picked, setPicked] = useState<string[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [comparing, setComparing] = useState(false);
+  const [gloss, setGloss] = useState(false);
   const search = useRef<HTMLInputElement>(null);
 
   useEffect(() => setMine(loadMine()), []);
@@ -196,8 +198,16 @@ export default function Screener({ rows }: { rows: Row[] }) {
             <button key={v.id} type="button" role="radio" aria-checked={view === v.id} onClick={() => setView(v.id)}>{v.label}</button>
           ))}
         </div>
+        <button type="button" className="gloss-btn" aria-expanded={gloss} aria-controls="indicadores"
+          onClick={() => setGloss((g) => !g)}>
+          {gloss ? "Ocultar" : "Qué son cada uno de los indicadores"}
+        </button>
         <span className="count">{sorted.length} de {rows.length} empresas</span>
       </div>
+      {gloss && (
+        <Glossary views={sorted.length ? sorted : all} initial={open ?? sorted[0]?.row.byma ?? null}
+          basisLabel={basis === "ttm" ? "últimos 12 meses" : "último ejercicio"} />
+      )}
       {basis === "ttm" && fallbacks > 0 && (
         <p className="hint">
           {fallbacks} empresas no presentan trimestres en XBRL (en general, extranjeras con 20-F): para
@@ -287,9 +297,7 @@ export default function Screener({ rows }: { rows: Row[] }) {
           <strong>Sombreado.</strong> Celeste más intenso = mejor percentil dentro de la lista que estás viendo
           (no del universo). En deuda/PN y deuda neta/EBITDA, menos es mejor.
         </p>
-        <ul>
-          {Object.values(COL).map((c) => <li key={c.key}><strong>{c.label}:</strong> {c.tip}</li>)}
-        </ul>
+        <p>Qué mide y cómo se calcula cada columna: botón “Qué son cada uno de los indicadores”.</p>
         {hiddenNd && (
           <p>Deuda neta/EBITDA no se muestra porque los datos publicados todavía no traen EBITDA (llega con la
             próxima corrida del ETL); mientras tanto, Solidez se calcula con deuda/PN y liquidez corriente.</p>

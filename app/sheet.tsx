@@ -90,7 +90,7 @@ function Body({ c, view, basis, tab, setTab }: {
   const last = c.rows[c.rows.length - 1];
   const negEq = (view?.neg_equity) ?? ((val(c.ttm ?? last, "equity") ?? 1) <= 0);
   const edgar = `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${c.cik}&type=&dateb=&owner=include&count=40`;
-  const kpis: MKey[] = c.financial ? ["net_income", "roe"] : ["revenue", "net_income", "fcf", "op_margin", "roe", "fcf_margin", "de", "nd_ebitda", "current_ratio"];
+  const kpis: MKey[] = c.financial ? ["net_income", "roe", "mcap", "pe", "pb"] : ["revenue", "net_income", "fcf", "op_margin", "roe", "fcf_margin", "de", "nd_ebitda", "current_ratio", "mcap", "pe", "peg", "pb", "ps"];
   const usingTtm = basis === "ttm" && !!c.ttm;
 
   return (

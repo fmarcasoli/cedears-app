@@ -13,6 +13,7 @@ export type Metrics = {
   gross_margin: number | null; op_margin: number | null; net_margin: number | null; roe: number | null;
   fcf_margin: number | null; fcf_ni: number | null;
   de: number | null; nd_ebitda: number | null; current_ratio: number | null;
+  mcap: number | null; pe: number | null; peg: number | null; pb: number | null; ps: number | null;
   alerts: number;
 };
 export type MKey = keyof Metrics;
@@ -37,11 +38,21 @@ export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
   const useTtm = basis === "ttm" && !!r.ttm_end;
   const ni = useTtm ? r.t_net_income : r.net_income;
   const fcf = useTtm ? r.t_fcf : r.fcf;
+  const rev = useTtm ? r.t_revenue : r.revenue;
+  const eq = (useTtm ? r.bal_t : r.bal_a)?.equity ?? null;
+  const mcap = r.market_cap ?? null;
+  // Valuación: con resultado, PN o ventas <= 0 el múltiplo no se calcula (no es "barato").
+  const pe = mcap != null && ni != null && ni > 0 ? mcap / ni : null;
+  const g = r.ni_cagr3 ?? null;
   return {
+    mcap, pe,
+    peg: pe != null && g != null && g > 0 ? pe / (g * 100) : null,
+    pb: mcap != null && eq != null && eq > 0 ? mcap / eq : null,
+    ps: mcap != null && !r.financial && rev != null && rev > 0 ? mcap / rev : null,
     row: r,
     period: useTtm ? `TTM ${mmyy(r.ttm_end!)}` : r.fy ? `FY${r.fy}` : "–",
     fallback: basis === "ttm" && !r.ttm_end,
-    revenue: useTtm ? r.t_revenue : r.revenue,
+    revenue: rev,
     net_income: ni, fcf,
     growth: useTtm ? r.t_rev_growth : r.rev_growth,
     q_yoy: r.q_rev_yoy, q_eps_yoy: r.q_eps_yoy, cagr3: r.rev_cagr3,
@@ -188,15 +199,21 @@ export const COL: Record<MKey, Col> = {
       "y en IFRS la depreciación del derecho de uso puede no estar incluida. Calculado en la moneda de origen.",
   },
   current_ratio: { key: "current_ratio", label: "Liq. corriente", fmt: x2, shade: "high", tip: "Activo corriente / pasivo corriente." },
+  mcap: { key: "mcap", label: "Cap. bursátil", fmt: money, tip: "Precio × acciones en circulación, en USD, a la fecha de la última corrida (Nasdaq)." },
+  pe: { key: "pe", label: "PER", fmt: times, shade: "low", tip: "Capitalización / resultado neto. Cuántos años de ganancias actuales paga el precio. Sin dato si hay pérdida." },
+  peg: { key: "peg", label: "PEG", fmt: x2, shade: "low", tip: "PER / crecimiento anual del resultado neto en 3 ejercicios (en %). Histórico, no proyectado. Sin dato si el crecimiento es <= 0." },
+  pb: { key: "pb", label: "P/VL", fmt: times, shade: "low", tip: "Capitalización / patrimonio neto contable. Sin dato con PN negativo." },
+  ps: { key: "ps", label: "P/Ventas", fmt: times, shade: "low", tip: "Capitalización / ingresos de la base elegida (TTM o último ejercicio). No aplica a financieras." },
   alerts: { key: "alerts", label: "Alertas", fmt: (v) => (v ? String(v) : "–"), tip: "Cantidad de alertas automáticas. El detalle está en la ficha." },
 };
 
-export type ViewId = "summary" | "growth" | "profit" | "cash";
+export type ViewId = "summary" | "growth" | "profit" | "cash" | "value";
 export const VIEWS: { id: ViewId; label: string; cols: MKey[] }[] = [
-  { id: "summary", label: "Resumen", cols: ["revenue", "growth", "op_margin", "roe", "fcf_margin", "de", "alerts"] },
+  { id: "summary", label: "Resumen", cols: ["revenue", "growth", "op_margin", "roe", "fcf_margin", "de", "pe", "alerts"] },
   { id: "growth", label: "Crecimiento", cols: ["revenue", "growth", "q_yoy", "cagr3", "q_eps_yoy"] },
   { id: "profit", label: "Rentabilidad", cols: ["gross_margin", "op_margin", "net_margin", "roe"] },
   { id: "cash", label: "Caja y balance", cols: ["fcf", "fcf_margin", "fcf_ni", "de", "nd_ebitda", "current_ratio"] },
+  { id: "value", label: "Valuación", cols: ["mcap", "pe", "peg", "pb", "ps"] },
 ];
 
 /** Valor para ordenar/sombrear: deuda/PN con PN negativo no participa. */
@@ -204,7 +221,7 @@ export const rankable = (v: View, k: MKey) => (k === "de" && v.neg_equity ? null
 
 /** Bloques del comparador. `best` indica qué se marca como mejor. */
 export const COMPARE: { title: string; rows: { key: MKey; best?: "high" | "low" }[] }[] = [
-  { title: "Tamaño", rows: [{ key: "revenue" }, { key: "net_income" }, { key: "fcf", best: "high" }] },
+  { title: "Tamaño", rows: [{ key: "mcap" }, { key: "revenue" }, { key: "net_income" }, { key: "fcf", best: "high" }] },
   { title: "Crecimiento", rows: [{ key: "growth", best: "high" }, { key: "q_yoy", best: "high" }, { key: "cagr3", best: "high" }] },
   {
     title: "Rentabilidad",
@@ -216,5 +233,9 @@ export const COMPARE: { title: string; rows: { key: MKey; best?: "high" | "low" 
       { key: "fcf_margin", best: "high" }, { key: "fcf_ni", best: "high" }, { key: "de", best: "low" },
       { key: "nd_ebitda", best: "low" }, { key: "current_ratio", best: "high" },
     ],
+  },
+  {
+    title: "Valuación",
+    rows: [{ key: "pe", best: "low" }, { key: "peg", best: "low" }, { key: "pb", best: "low" }, { key: "ps", best: "low" }],
   },
 ];

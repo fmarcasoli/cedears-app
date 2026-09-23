@@ -348,6 +348,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
 
 # ───────────────────────── CONVERSIÓN A USD ─────────────────────────
 from fx import FX  # noqa: E402
+from market import Market  # noqa: E402
 from quarterly import MAX_OF, build_quarters, ebitda_of, nd_ebitda, ttm  # noqa: E402
 
 FLOW_KEYS = ("revenue", "gross_profit", "cost_of_revenue", "operating_income", "net_income",
@@ -455,6 +456,7 @@ def main():
     cedears = json.loads(CEDEARS_FILE.read_text(encoding="utf-8"))
     (OUT_DIR / "companies").mkdir(parents=True, exist_ok=True)
     fx = FX(CACHE_DIR)
+    market = Market(CACHE_DIR)
     screener, errors = [], []
     targets = [c for c in cedears if c.get("cik")]
     for i, c in enumerate(targets, 1):
@@ -480,6 +482,9 @@ def main():
                             f"({sum(vals) / row[k] - 1:+.1%}): posible reexpresión u operaciones "
                             "discontinuadas. Tomar el TTM con cuidado.")
         t_local = ttm(comp["quarters"])
+        # Crecimiento del resultado neto para el PEG: en moneda de origen, antes de
+        # convertir (así no mezcla el efecto cambiario).
+        comp["ni_cagr3"] = cagr(comp["rows"], "net_income")
         try:
             to_usd(comp, fx)
         except Exception as e:  # sin tipo de cambio: queda en moneda original
@@ -501,6 +506,7 @@ def main():
                 "El margen operativo refleja mejor el negocio.")
         comp["byma"] = byma
         comp["ratio"] = c.get("ratio")
+        comp["market_cap"], comp["mcap_date"] = market.market_cap(us)
         comp["sector"], sic, latest = get_sector(cik)
         # ¿La API companyfacts ya incorporó el último 10-Q/10-K presentado?
         have = max([r["end"] for r in comp["quarters"]] + [r["fiscal_end"] for r in comp["rows"]] or [""])
@@ -546,6 +552,7 @@ def main():
             "roe": L.get("roe"), "debt_equity": L.get("debt_equity"),
             "current_ratio": L.get("current_ratio"),
             "ebitda": L.get("ebitda"), "nd_ebitda": L.get("nd_ebitda"),
+            "market_cap": comp["market_cap"], "mcap_date": comp["mcap_date"], "ni_cagr3": comp["ni_cagr3"],
             "financial": comp["financial"], "stale": comp["stale"], "api_lag": comp["api_lag"],
             **ttm_fields(comp),
             "alerts": len(comp["alerts"]), "missing": comp["missing"],
@@ -558,6 +565,7 @@ def main():
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
         "total_cedears": len(cedears), "with_sec": len(targets),
         "ok": len(screener), "errors": errors,
+        "with_market_cap": sum(1 for r in screener if r["market_cap"]),
         "without_sec": [c["byma"] for c in cedears if not c.get("cik")],
     }
     (OUT_DIR / "screener.json").write_text(
