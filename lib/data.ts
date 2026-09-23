@@ -16,19 +16,28 @@ export type ScreenerRow = {
   t_gross_margin: number | null; t_op_margin: number | null; t_net_margin: number | null;
   t_fcf_margin: number | null; t_roe: number | null; t_debt_equity: number | null; t_current_ratio: number | null;
 };
+
+/** Saldos de balance que el screener.json no trae y la UI necesita (deuda/PN con PN
+ *  negativo, deuda neta/EBITDA). Salen de companies/*.json al compilar. */
+export type Balance = {
+  equity: number | null; debt: number | null; net_debt: number | null; ebitda: number | null;
+};
+export type Row = ScreenerRow & { cik: number | null; bal_a: Balance; bal_t: Balance | null };
+
 export type Meta = {
   generated: string; total_cedears: number; with_sec: number; ok: number;
   errors: { byma: string; error: string }[]; without_sec: string[];
 };
-export type YearRow = Record<string, number | string | null> & { year: number; fiscal_end: string };
+export type Period = Record<string, number | string | null>;
+export type YearRow = Period & { year: number; fiscal_end: string };
 export type Company = {
   byma: string; ticker: string; name: string; cik: number; sector: string;
   taxonomy: string; currency: string; reported_currency: string; converted: boolean;
   fx_source?: string; last_filed: string; ratio: string | null;
   rows: YearRow[]; alerts: string[]; missing: string[]; financial: boolean; stale: boolean;
   api_lag: boolean;
-  quarters: (Record<string, number | string | null> & { end: string })[];
-  ttm: (Record<string, number | string | null> & { end: string }) | null;
+  quarters: (Period & { end: string })[];
+  ttm: (Period & { end: string }) | null;
   concepts_used: Record<string, string[]>;
 };
 
@@ -46,4 +55,27 @@ export async function getCompany(byma: string): Promise<Company | null> {
   } catch {
     return null;
   }
+}
+
+const n = (p: Period | null | undefined, k: string) => {
+  const v = p?.[k];
+  return typeof v === "number" ? v : null;
+};
+
+// EBITDA: el ETL de esta versión no baja D&A. Si algún día lo trae (campo `ebitda`),
+// deuda neta/EBITDA se completa sola; mientras tanto queda en null.
+const balance = (p: Period | null | undefined): Balance => ({
+  equity: n(p, "equity"), debt: n(p, "total_debt"), net_debt: n(p, "net_debt"), ebitda: n(p, "ebitda"),
+});
+
+export async function getRows(): Promise<{ meta: Meta; rows: Row[] }> {
+  const { meta, rows } = await getScreener();
+  const out = await Promise.all(
+    rows.map(async (r) => {
+      const c = await getCompany(r.byma);
+      const last = c?.rows[c.rows.length - 1];
+      return { ...r, cik: c?.cik ?? null, bal_a: balance(last), bal_t: c?.ttm ? balance(c.ttm) : null };
+    })
+  );
+  return { meta, rows: out };
 }

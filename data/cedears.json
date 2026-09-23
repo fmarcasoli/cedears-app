@@ -3674,10 +3674,10 @@
  {
   "byma": "XOM",
   "ticker_us": "XOM",
-  "cik": 2115436,
-  "name": "ExxonMobil Holdings Corp",
+  "cik": 34088,
+  "name": "Exxon Mobil Corp",
   "ratio": null,
-  "verified": false,
+  "verified": true,
   "note": ""
  },
  {

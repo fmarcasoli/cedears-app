@@ -1,63 +1,38 @@
 "use client";
 
-import Link from "next/link";
-import { useMemo, useState } from "react";
-import type { ScreenerRow } from "@/lib/data";
-import { money, num, pct } from "@/lib/format";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { Row } from "@/lib/data";
+import {
+  COL, LISTS, PILLARS, PROFILE_NOTE, VIEWS, buildViews, rankable,
+  type Basis, type ListId, type MKey, type PKey, type View, type ViewId,
+} from "@/lib/metrics";
+import CompanySheet from "./sheet";
+import Compare from "./compare";
+import { PillarBar } from "./profile";
 
-type Basis = "ttm" | "annual";
-type View = {
-  row: ScreenerRow; period: string; fallback: boolean;
-  revenue: number | null; growth: number | null; q_yoy: number | null; cagr3: number | null;
-  gross_margin: number | null; op_margin: number | null; net_margin: number | null;
-  fcf_margin: number | null; roe: number | null; debt_equity: number | null;
-  current_ratio: number | null; alerts: number;
-};
-type VKey = Exclude<keyof View, "row" | "period" | "fallback">;
-type Col = { key: VKey; label: string; fmt: (v: number | null) => string; shade?: "high" | "low"; title?: string };
+type SortKey = MKey | "byma" | "sector" | "period" | `p_${PKey}`;
+const MAX_COMPARE = 4;
+const STORE_KEY = "cedears:mi-lista";
 
-const COLS: Col[] = [
-  { key: "revenue", label: "Ingresos", fmt: money },
-  { key: "growth", label: "Crec. 12m", fmt: pct, shade: "high", title: "TTM contra los 12 meses previos, o ejercicio contra ejercicio" },
-  { key: "q_yoy", label: "Últ. trim. i.a.", fmt: pct, shade: "high", title: "Ingresos del último trimestre contra el mismo trimestre del año anterior" },
-  { key: "cagr3", label: "CAGR 3a", fmt: pct, shade: "high", title: "Crecimiento anual compuesto de ingresos, 3 ejercicios" },
-  { key: "gross_margin", label: "Mg. bruto", fmt: pct, shade: "high" },
-  { key: "op_margin", label: "Mg. operativo", fmt: pct, shade: "high" },
-  { key: "net_margin", label: "Mg. neto", fmt: pct, shade: "high" },
-  { key: "fcf_margin", label: "Mg. FCF", fmt: pct, shade: "high" },
-  { key: "roe", label: "ROE", fmt: pct, shade: "high" },
-  { key: "debt_equity", label: "Deuda/PN", fmt: (v) => num(v), shade: "low" },
-  { key: "current_ratio", label: "Liq. corriente", fmt: (v) => num(v), shade: "high" },
-  { key: "alerts", label: "Alertas", fmt: (v) => (v ? String(v) : "–") },
-];
-
-const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-const mmyy = (d: string) => `${MONTHS[Number(d.slice(5, 7)) - 1]}-${d.slice(2, 4)}`;
-
-function toView(r: ScreenerRow, basis: Basis): View {
-  const useTtm = basis === "ttm" && !!r.ttm_end;
-  const base = {
-    row: r, q_yoy: r.q_rev_yoy, cagr3: r.rev_cagr3, alerts: r.alerts,
-    fallback: basis === "ttm" && !r.ttm_end,
-  };
-  if (useTtm) {
-    return {
-      ...base, period: `TTM ${mmyy(r.ttm_end!)}`,
-      revenue: r.t_revenue, growth: r.t_rev_growth, gross_margin: r.t_gross_margin,
-      op_margin: r.t_op_margin, net_margin: r.t_net_margin, fcf_margin: r.t_fcf_margin,
-      roe: r.t_roe, debt_equity: r.t_debt_equity, current_ratio: r.t_current_ratio,
-    };
+function loadMine(): Set<string> {
+  try {
+    const raw = window.localStorage.getItem(STORE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(arr) ? arr.filter((x) => typeof x === "string") : []);
+  } catch {
+    return new Set();
   }
-  return {
-    ...base, period: r.fy ? `FY${r.fy}` : "–",
-    revenue: r.revenue, growth: r.rev_growth, gross_margin: r.gross_margin, op_margin: r.op_margin,
-    net_margin: r.net_margin, fcf_margin: r.fcf_margin, roe: r.roe, debt_equity: r.debt_equity,
-    current_ratio: r.current_ratio,
-  };
+}
+function saveMine(s: Set<string>) {
+  try {
+    window.localStorage.setItem(STORE_KEY, JSON.stringify([...s]));
+  } catch {
+    /* navegador sin almacenamiento: la lista vive solo en esta pestaña */
+  }
 }
 
-function percentiles(views: View[], key: VKey) {
-  const vals = views.map((v) => v[key]).filter((v): v is number => typeof v === "number").sort((a, b) => a - b);
+function percentileFn(views: View[], key: MKey) {
+  const vals = views.map((v) => rankable(v, key)).filter((v): v is number => v != null).sort((a, b) => a - b);
   return (v: number | null) => {
     if (v == null || vals.length < 5) return null;
     let lo = 0, hi = vals.length;
@@ -66,137 +41,287 @@ function percentiles(views: View[], key: VKey) {
   };
 }
 
-type SortKey = VKey | "byma" | "sector" | "period";
-
-export default function Screener({ rows }: { rows: ScreenerRow[] }) {
+export default function Screener({ rows }: { rows: Row[] }) {
   const [q, setQ] = useState("");
   const [sector, setSector] = useState("");
   const [basis, setBasis] = useState<Basis>("ttm");
-  const [usdOnly, setUsdOnly] = useState(false);
-  const [ttmOnly, setTtmOnly] = useState(false);
+  const [list, setList] = useState<ListId>("all");
+  const [view, setView] = useState<ViewId>("summary");
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "revenue", dir: -1 });
+  const [mine, setMine] = useState<Set<string>>(new Set());
+  const [picked, setPicked] = useState<string[]>([]);
+  const [open, setOpen] = useState<string | null>(null);
+  const [comparing, setComparing] = useState(false);
+  const search = useRef<HTMLInputElement>(null);
+
+  useEffect(() => setMine(loadMine()), []);
+
+  // Ficha abierta en la URL (?e=AAPL) para poder compartirla o volver con el navegador.
+  useEffect(() => {
+    const read = () => setOpen(new URLSearchParams(window.location.search).get("e"));
+    read();
+    window.addEventListener("popstate", read);
+    return () => window.removeEventListener("popstate", read);
+  }, []);
+  const openSheet = useCallback((byma: string | null) => {
+    setOpen(byma);
+    const url = new URL(window.location.href);
+    if (byma) url.searchParams.set("e", byma);
+    else url.searchParams.delete("e");
+    window.history.replaceState(null, "", url);
+  }, []);
+
+  // Atajo "/" para el buscador.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      e.preventDefault();
+      search.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const toggleMine = (byma: string) =>
+    setMine((prev) => {
+      const s = new Set(prev);
+      if (s.has(byma)) s.delete(byma);
+      else s.add(byma);
+      saveMine(s);
+      return s;
+    });
+  const togglePick = (byma: string) =>
+    setPicked((p) => (p.includes(byma) ? p.filter((x) => x !== byma) : p.length >= MAX_COMPARE ? p : [...p, byma]));
 
   const sectors = useMemo(() => Array.from(new Set(rows.map((r) => r.sector).filter(Boolean))).sort(), [rows]);
+  const all = useMemo(() => buildViews(rows, basis), [rows, basis]);
+  const byId = useMemo(() => new Map(all.map((v) => [v.row.byma, v])), [all]);
 
-  const views = useMemo(() => {
+  // Búsqueda y sector se aplican antes de las pestañas, así cada pestaña cuenta sobre lo buscado.
+  const searched = useMemo(() => {
     const s = q.trim().toLowerCase();
-    return rows
-      .filter((r) =>
-        (!s || r.byma.toLowerCase().includes(s) || r.ticker.toLowerCase().includes(s) || r.name.toLowerCase().includes(s)) &&
-        (!sector || r.sector === sector) &&
-        (!usdOnly || r.reported_currency === "USD") &&
-        (!ttmOnly || !!r.ttm_end))
-      .map((r) => toView(r, basis));
-  }, [rows, q, sector, usdOnly, ttmOnly, basis]);
+    return all.filter((v) => {
+      const r = v.row;
+      return (!s || r.byma.toLowerCase().includes(s) || r.ticker.toLowerCase().includes(s) || r.name.toLowerCase().includes(s)) &&
+        (!sector || r.sector === sector);
+    });
+  }, [all, q, sector]);
+
+  const counts = useMemo(() => {
+    const m = {} as Record<ListId, number>;
+    for (const l of LISTS) m[l.id] = searched.filter((v) => l.test(v, mine)).length;
+    return m;
+  }, [searched, mine]);
+
+  const current = LISTS.find((l) => l.id === list)!;
+  const shown = useMemo(() => searched.filter((v) => current.test(v, mine)), [searched, current, mine]);
 
   const sorted = useMemo(() => {
     const { key, dir } = sort;
-    const get = (v: View) => (key === "byma" ? v.row.byma : key === "sector" ? v.row.sector : key === "period" ? v.period : v[key]);
-    return [...views].sort((a, b) => {
+    const get = (v: View): number | string | null =>
+      key === "byma" ? v.row.byma : key === "sector" ? v.row.sector : key === "period" ? v.period
+        : key.startsWith("p_") ? v.profile?.[key.slice(2) as PKey] ?? null : rankable(v, key as MKey);
+    return [...shown].sort((a, b) => {
       const x = get(a), y = get(b);
       if (x == null && y == null) return 0;
-      if (x == null) return 1;
-      if (y == null) return -1;
+      if (x == null || x === "") return 1;
+      if (y == null || y === "") return -1;
       if (typeof x === "number" && typeof y === "number") return (x - y) * dir;
       return String(x).localeCompare(String(y)) * dir;
     });
-  }, [views, sort]);
+  }, [shown, sort]);
+
+  const cols = VIEWS.find((v) => v.id === view)!.cols
+    .map((k) => COL[k])
+    .filter((c) => c.key !== "nd_ebitda" || all.some((v) => v.nd_ebitda != null));
 
   const pctFns = useMemo(() => {
-    const m: Partial<Record<VKey, (v: number | null) => number | null>> = {};
-    COLS.forEach((c) => c.shade && (m[c.key] = percentiles(views, c.key)));
+    const m: Partial<Record<MKey, (v: number | null) => number | null>> = {};
+    for (const c of Object.values(COL)) if (c.shade) m[c.key] = percentileFn(shown, c.key);
     return m;
-  }, [views]);
+  }, [shown]);
 
-  const shade = (c: Col, v: number | null) => {
-    const f = pctFns[c.key];
-    let p = f ? f(v) : null;
+  const shade = (key: MKey, v: View) => {
+    const c = COL[key];
+    const f = pctFns[key];
+    let p = f ? f(rankable(v, key)) : null;
     if (p == null) return undefined;
     if (c.shade === "low") p = 1 - p;
     return { background: `rgb(var(--celeste-wash) / ${(p * 0.32).toFixed(3)})` };
   };
 
-  const th = (key: SortKey, label: string, cls = "", title?: string) => (
-    <th key={key} className={cls} title={title}
+  const th = (key: SortKey, label: React.ReactNode, cls = "", title?: string) => (
+    <th key={key} className={cls} title={title} scope="col"
       aria-sort={sort.key === key ? (sort.dir === 1 ? "ascending" : "descending") : "none"}>
-      <button onClick={() => setSort((s) => ({ key, dir: s.key === key ? (-s.dir as 1 | -1) : -1 }))}>{label}</button>
+      <button type="button" onClick={() => setSort((s) => ({ key, dir: s.key === key ? (-s.dir as 1 | -1) : -1 }))}>{label}</button>
     </th>
   );
 
-  const fallbacks = views.filter((v) => v.fallback).length;
+  const fallbacks = shown.filter((v) => v.fallback).length;
+  const hiddenNd = !cols.some((c) => c.key === "nd_ebitda") && VIEWS.find((v) => v.id === view)!.cols.includes("nd_ebitda");
 
   return (
     <>
       <div className="bar">
         <div className="seg" role="radiogroup" aria-label="Base de cálculo">
-          <button role="radio" aria-checked={basis === "ttm"} onClick={() => setBasis("ttm")}>Últimos 12 meses</button>
-          <button role="radio" aria-checked={basis === "annual"} onClick={() => setBasis("annual")}>Último ejercicio</button>
+          <button type="button" role="radio" aria-checked={basis === "ttm"} onClick={() => setBasis("ttm")}
+            title="Suma de los 4 trimestres más recientes; si no hay, se usa el último ejercicio">TTM</button>
+          <button type="button" role="radio" aria-checked={basis === "annual"} onClick={() => setBasis("annual")}>Último ejercicio</button>
         </div>
-        <input type="search" placeholder="Buscar CEDEAR, ticker o empresa" value={q}
-          onChange={(e) => setQ(e.target.value)} aria-label="Buscar" />
+        <span className="searchbox">
+          <input ref={search} type="search" placeholder="Buscar CEDEAR, ticker o empresa" value={q}
+            onChange={(e) => setQ(e.target.value)} aria-label="Buscar" aria-keyshortcuts="/" />
+          <kbd aria-hidden="true">/</kbd>
+        </span>
         <select value={sector} onChange={(e) => setSector(e.target.value)} aria-label="Sector">
           <option value="">Todos los sectores</option>
           {sectors.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
-        <label>
-          <input type="checkbox" checked={ttmOnly} onChange={(e) => setTtmOnly(e.target.checked)} />
-          Solo con datos trimestrales
-        </label>
-        <label>
-          <input type="checkbox" checked={usdOnly} onChange={(e) => setUsdOnly(e.target.checked)} />
-          Solo las que reportan en USD de origen
-        </label>
+      </div>
+
+      <div className="lists" role="tablist" aria-label="Listas armadas">
+        {LISTS.map((l) => (
+          <button key={l.id} type="button" role="tab" aria-selected={list === l.id} onClick={() => setList(l.id)}>
+            {l.label} <span className="n">{counts[l.id]}</span>
+          </button>
+        ))}
+      </div>
+      <p className="crit">{current.crit}</p>
+
+      <div className="bar">
+        <div className="seg" role="radiogroup" aria-label="Columnas">
+          {VIEWS.map((v) => (
+            <button key={v.id} type="button" role="radio" aria-checked={view === v.id} onClick={() => setView(v.id)}>{v.label}</button>
+          ))}
+        </div>
         <span className="count">{sorted.length} de {rows.length} empresas</span>
       </div>
-      {basis === "ttm" && fallbacks > 0 && !ttmOnly && (
+      {basis === "ttm" && fallbacks > 0 && (
         <p className="hint">
           {fallbacks} empresas no presentan trimestres en XBRL (en general, extranjeras con 20-F): para
-          ellas se muestra el último ejercicio anual, marcado en gris en la columna Período.
+          ellas se muestra el último ejercicio anual, en cursiva en la columna Período.
         </p>
       )}
 
       <div className="tablebox">
-        <table>
+        <table className="grid">
           <thead>
             <tr>
               {th("byma", "CEDEAR", "l sticky")}
-              {th("sector", "Sector", "l")}
+              {PILLARS.map((p) => th(`p_${p.key}`, p.short, "pil", `${p.label}: ${p.tip} Percentil 0-100.`))}
               {th("period", "Período")}
-              {COLS.map((c) => th(c.key, c.label, "", c.title))}
+              {cols.map((c) => th(c.key, c.label, "", c.tip))}
+              {th("sector", "Sector", "l")}
             </tr>
           </thead>
           <tbody>
             {sorted.map((v) => {
               const r = v.row;
               const warn = r.stale || r.api_lag;
+              const star = mine.has(r.byma);
+              const pick = picked.includes(r.byma);
               return (
-                <tr key={r.byma}>
+                <tr key={r.byma} className={open === r.byma ? "sel" : undefined}>
                   <td className="l sticky">
-                    <Link className="tk" href={`/empresa/${encodeURIComponent(r.byma)}`}>{r.byma}</Link>
-                    <span className="sub" title={r.name}>{r.ticker !== r.byma ? `${r.ticker}, ` : ""}{r.name}</span>
-                    {r.converted && <span className="conv">convertido desde {r.reported_currency}</span>}
+                    <div className="first">
+                      <span className="ctl">
+                        <button type="button" className={`star${star ? " on" : ""}`} aria-pressed={star}
+                          aria-label={star ? `Sacar ${r.byma} de mi lista` : `Agregar ${r.byma} a mi lista`}
+                          onClick={() => toggleMine(r.byma)}>{star ? "★" : "☆"}</button>
+                        <input type="checkbox" checked={pick} aria-label={`Comparar ${r.byma}`}
+                          disabled={!pick && picked.length >= MAX_COMPARE}
+                          title={!pick && picked.length >= MAX_COMPARE ? "Hasta 4 empresas" : "Comparar"}
+                          onChange={() => togglePick(r.byma)} />
+                      </span>
+                      <span className="who">
+                        <button type="button" className="tk" onClick={() => openSheet(r.byma)}>{r.byma}</button>
+                        <span className="sub" title={r.name}>{r.ticker !== r.byma ? `${r.ticker}, ` : ""}{r.name}</span>
+                      </span>
+                    </div>
                   </td>
-                  <td className="l"><span className="sub" title={r.sector}>{r.sector || "–"}</span></td>
+                  {v.profile ? (
+                    PILLARS.map((p) => (
+                      <td key={p.key} className="pil"><PillarBar value={v.profile![p.key]} label={p.label} /></td>
+                    ))
+                  ) : (
+                    <td colSpan={PILLARS.length} className="fin" title="Bancos, aseguradoras y brokers: los pilares no son comparables con el resto">Financiera</td>
+                  )}
                   <td className={v.fallback ? "fb" : warn ? "neg" : ""}
-                    title={warn ? "Hay un balance más nuevo que la API de la SEC todavía no incorporó" : undefined}>
+                    title={r.api_lag ? "Hay un balance más nuevo que la API de la SEC todavía no incorporó"
+                      : r.stale ? "El último ejercicio tiene más de 15 meses" : undefined}>
                     {v.period}{warn ? " *" : ""}
                   </td>
-                  {COLS.map((c) => {
+                  {cols.map((c) => {
                     const val = v[c.key];
+                    if (c.key === "de" && v.neg_equity && val != null)
+                      return <td key={c.key} className="negeq" title="Patrimonio neto negativo: fuera del sombreado y del orden">{c.fmt(val)}*</td>;
                     const neg = typeof val === "number" && val < 0 && c.key !== "alerts";
                     return (
-                      <td key={c.key} style={shade(c, val)} className={c.key === "alerts" && val ? "flag" : neg ? "neg" : ""}>
+                      <td key={c.key} style={shade(c.key, v)} className={c.key === "alerts" && val ? "flag" : neg ? "neg" : ""}>
                         {c.fmt(val)}
                       </td>
                     );
                   })}
+                  <td className="l"><span className="sub" title={r.sector}>{r.sector || "–"}</span></td>
                 </tr>
               );
             })}
+            {sorted.length === 0 && (
+              <tr><td className="l empty" colSpan={cols.length + PILLARS.length + 3}>
+                {list === "mine" && mine.size === 0 ? "Todavía no marcaste ninguna empresa con la estrella." : "No hay empresas con estos filtros."}
+              </td></tr>
+            )}
           </tbody>
         </table>
       </div>
-      <p className="note">* Hay un 10-Q, 10-K o 20-F más nuevo que la API de la SEC todavía no expone en XBRL.</p>
+
+      <details className="how">
+        <summary>Cómo leer la tabla</summary>
+        <p><strong>Perfil.</strong> {PROFILE_NOTE}</p>
+        <ul>
+          {PILLARS.map((p) => <li key={p.key}><strong>{p.label}:</strong> {p.tip}</li>)}
+        </ul>
+        <p>
+          <strong>Sombreado.</strong> Celeste más intenso = mejor percentil dentro de la lista que estás viendo
+          (no del universo). En deuda/PN y deuda neta/EBITDA, menos es mejor.
+        </p>
+        <ul>
+          {Object.values(COL).map((c) => <li key={c.key}><strong>{c.label}:</strong> {c.tip}</li>)}
+        </ul>
+        {hiddenNd && (
+          <p>Deuda neta/EBITDA no se muestra porque esta corrida del ETL no trae depreciaciones y amortizaciones;
+            mientras tanto, Solidez se calcula con deuda/PN y liquidez corriente.</p>
+        )}
+        <p>* en Período: hay un 10-Q, 10-K o 20-F más nuevo que la API de la SEC todavía no expone en XBRL, o el
+          último ejercicio tiene más de 15 meses. * en Deuda/PN: patrimonio neto negativo (recompras acumuladas).</p>
+      </details>
+
+      {picked.length > 0 && (
+        <div className="tray" role="region" aria-label="Comparador">
+          <span className="tray-l">Comparar ({picked.length}/{MAX_COMPARE}):</span>
+          {picked.map((b) => (
+            <span key={b} className="chip">
+              {b}
+              <button type="button" aria-label={`Quitar ${b}`} onClick={() => togglePick(b)}>×</button>
+            </span>
+          ))}
+          <span className="tray-r">
+            <button type="button" className="ghost" onClick={() => setPicked([])}>Limpiar</button>
+            <button type="button" className="primary" disabled={picked.length < 2} onClick={() => setComparing(true)}
+              title={picked.length < 2 ? "Elegí al menos 2" : undefined}>Comparar</button>
+          </span>
+        </div>
+      )}
+
+      {comparing && (
+        <Compare views={picked.map((b) => byId.get(b)!).filter(Boolean)} basis={basis}
+          onClose={() => setComparing(false)} onOpen={(b) => { setComparing(false); openSheet(b); }} />
+      )}
+      {open && (
+        <CompanySheet byma={open} view={byId.get(open) ?? null} basis={basis} onClose={() => openSheet(null)} />
+      )}
     </>
   );
 }

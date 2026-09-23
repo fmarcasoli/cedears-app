@@ -1,8 +1,8 @@
-import { getScreener } from "@/lib/data";
+import { getRows } from "@/lib/data";
 import Screener from "./screener";
 
 export default async function Home() {
-  const { meta, rows } = await getScreener();
+  const { meta, rows } = await getRows();
   const when = new Date(meta.generated).toLocaleString("es-AR", {
     timeZone: "America/Argentina/Cordoba", dateStyle: "medium", timeStyle: "short",
   });
@@ -13,8 +13,8 @@ export default async function Home() {
           <h1>Fundamentals de CEDEARs</h1>
           <p>
             Estados contables presentados ante la SEC, en base a los últimos 12 meses (suma de los
-            4 trimestres más recientes) o al último ejercicio anual. El sombreado celeste marca en qué
-            percentil está cada empresa dentro de la lista filtrada.
+            4 trimestres más recientes) o al último ejercicio anual. Cada empresa tiene un perfil de
+            cuatro pilares, sin puntaje único. Tocá el código para abrir la ficha.
           </p>
         </div>
         <div className="fresh">
