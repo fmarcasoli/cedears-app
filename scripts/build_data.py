@@ -181,6 +181,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
     taxonomies = [t for t in ("us-gaap", "ifrs-full") if t in facts]
 
     series, currency, used = {}, None, {}
+    filed_by = {}  # {key: {cierre: fecha del filing del valor usado}}, para los splits
     fiscal_ends = set()
     last_filed = ""
 
@@ -204,6 +205,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
                 for end, (val, filed) in pts.items():
                     if end not in merged:
                         merged[end] = val
+                        filed_by.setdefault(key, {})[end] = filed
                         added = True
                     elif key in MAX_OF and val is not None and val > merged[end]:
                         merged[end] = val
@@ -245,19 +247,21 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
             r["gross_profit"] = r["revenue"] - r["cost_of_revenue"]
         rows.append(r)
 
-    # ── Splits: EPS y acciones vienen "as reported" (sin ajustar por splits viejos).
-    # Si las acciones saltan ≥45% en un año, se asume split y se ajusta hacia atrás.
-    splits = []
-    for i in range(len(rows) - 1, 0, -1):
-        a, b = rows[i]["shares"], rows[i - 1]["shares"]
-        if a and b and a / b >= 1.45:
-            factor = round(a / b * 2) / 2
-            splits.append(f"Split ~{factor:g}:1 en la serie de acciones: EPS y acciones anteriores a FY{rows[i]['year']} ajustados")
-            for r in rows[:i]:
-                if r["shares"]:
-                    r["shares"] *= factor
-                if r["eps_diluted"] is not None:
-                    r["eps_diluted"] /= factor
+    # ── Splits y unidades de acciones (ver scripts/splits.py): split = reexpresión
+    # en filings posteriores, no un salto de acciones entre años.
+    split_events = splits.detect(facts, taxonomies)
+    fe = lambda r: r["fiscal_end"]
+    used_splits = splits.apply(rows, split_events, filed_by.get("shares", {}),
+                               filed_by.get("eps_diluted", {}), fe)
+    split_notes = [f"Split {k:g}:1 (reexpresado desde el filing del {d}): acciones y EPS de "
+                   "ejercicios no reexpresados llevados a la base actual" if k >= 1 else
+                   f"Agrupamiento de acciones 1:{1 / k:g} (reexpresado desde el filing del {d}): "
+                   "acciones y EPS de ejercicios no reexpresados llevados a la base actual"
+                   for d, k in used_splits]
+    unit_fix = splits.fix_units(rows, lambda r: f"FY{r['year']}")
+    if unit_fix:
+        split_notes.append("Acciones informadas en otra unidad (miles o millones) en " + ", ".join(unit_fix) +
+                           ": corregidas contra resultado neto / EPS")
 
     # ── Ratios
     def div(a, b):
@@ -312,7 +316,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
             alerts.append(f"Dilución: acciones +{a['shares'] / b['shares'] - 1:.1%}")
     if rows:  # las alertas de arriba son del último ejercicio anual: dejarlo explícito
         alerts = [f"Ejercicio FY{rows[-1]['year']}: {x[0].lower()}{x[1:]}" for x in alerts]
-    alerts.extend(splits)
+    alerts.extend(split_notes)
     if currency and currency not in ("USD", "EUR", "GBP", "JPY", "CHF", "CAD"):
         alerts.append(f"Reporta en {currency}: si es moneda de alta inflación (ARS → NIC 29), "
                       "cada año puede estar expresado en moneda de distinto cierre. "
@@ -323,7 +327,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
     missing = [k for k in ("revenue", "net_income", "ocf", "equity") if not used.get(k)]
 
     quarters = build_quarters(facts, taxonomies, currency or "USD", CONCEPTS, INSTANT,
-                              PER_SHARE, SHARE_COUNT, pick_unit)
+                              PER_SHARE, SHARE_COUNT, pick_unit, split_events)
     if quarters:
         lq = quarters[-1]
         if lq.get("rev_yoy") is not None and lq["rev_yoy"] < 0:
@@ -349,6 +353,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
 # ───────────────────────── CONVERSIÓN A USD ─────────────────────────
 from fx import FX  # noqa: E402
 from market import Market  # noqa: E402
+import splits  # noqa: E402
 from quarterly import MAX_OF, build_quarters, ebitda_of, nd_ebitda, ttm  # noqa: E402
 
 FLOW_KEYS = ("revenue", "gross_profit", "cost_of_revenue", "operating_income", "net_income",

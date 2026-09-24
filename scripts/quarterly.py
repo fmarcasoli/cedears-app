@@ -14,6 +14,8 @@ el dato directo de 3 meses.
 """
 from datetime import date
 
+import splits
+
 FORMS = {"10-Q", "10-Q/A", "10-K", "10-K/A", "10-KT", "6-K", "6-K/A",
          "20-F", "20-F/A", "40-F", "40-F/A"}
 N_QUARTERS = 16  # 4 años: 3 para mostrar + 1 para comparar interanual
@@ -33,14 +35,15 @@ def _is_quarter(days):
 
 
 def quarter_points(facts_list, instant: bool, additive: bool = True) -> dict:
-    """{fin_de_trimestre: valor}. additive=False desactiva la derivación por resta."""
+    """{fin_de_trimestre: (valor, filed)}. additive=False desactiva la derivación por resta.
+    En los derivados por resta, filed es el del acumulado más nuevo."""
     if instant:
         out = {}
         for f in facts_list:
             if f.get("form") in FORMS and "start" not in f and f.get("end"):
                 if f["end"] not in out or f.get("filed", "") > out[f["end"]][1]:
                     out[f["end"]] = (f["val"], f.get("filed", ""))
-        return {k: v[0] for k, v in out.items()}
+        return out
 
     periods = {}  # (inicio, fin) -> (valor, filed); gana el filing más reciente
     for f in facts_list:
@@ -51,20 +54,20 @@ def quarter_points(facts_list, instant: bool, additive: bool = True) -> dict:
             periods[key] = (f["val"], f.get("filed", ""))
 
     quarters = {}
-    for (s, e), (v, _) in periods.items():  # 1) trimestres reportados directamente
+    for (s, e), (v, f) in periods.items():  # 1) trimestres reportados directamente
         if _is_quarter((_d(e) - _d(s)).days):
-            quarters[e] = v
+            quarters[e] = (v, f)
     if not additive:
         return quarters
 
     by_start = {}  # 2) derivar restando acumulados con el mismo inicio
-    for (s, e), (v, _) in periods.items():
-        by_start.setdefault(s, []).append((e, v))
+    for (s, e), (v, f) in periods.items():
+        by_start.setdefault(s, []).append((e, v, f))
     for s, items in by_start.items():
         items.sort()
-        for (e0, v0), (e1, v1) in zip(items, items[1:]):
+        for (e0, v0, f0), (e1, v1, f1) in zip(items, items[1:]):
             if e1 not in quarters and _is_quarter((_d(e1) - _d(e0)).days):
-                quarters[e1] = v1 - v0
+                quarters[e1] = (v1 - v0, max(f0, f1))
     return quarters
 
 
@@ -78,8 +81,9 @@ def _near(series: dict, end: str, tol=7):
     return None
 
 
-def build_quarters(facts, taxonomies, currency, concepts, instant_keys, per_share, share_count, pick_unit):
-    series = {}
+def build_quarters(facts, taxonomies, currency, concepts, instant_keys, per_share, share_count, pick_unit,
+                   split_events=()):
+    series, filed_by = {}, {}
     for key, cands in concepts.items():
         merged = {}
         for concept in cands:
@@ -94,11 +98,12 @@ def build_quarters(facts, taxonomies, currency, concepts, instant_keys, per_shar
                     continue
                 pts = quarter_points(node["units"][unit], key in instant_keys,
                                      additive=key not in share_count)
-                for e, v in pts.items():
+                for e, (v, f) in pts.items():
                     if key in MAX_OF and e in merged and v is not None:
                         merged[e] = max(merged[e], v)
-                    else:
-                        merged.setdefault(e, v)
+                    elif e not in merged:
+                        merged[e] = v
+                        filed_by.setdefault(key, {})[e] = f
         series[key] = merged
 
     ends = sorted(set(series.get("revenue", {})) | set(series.get("net_income", {})))
@@ -121,16 +126,10 @@ def build_quarters(facts, taxonomies, currency, concepts, instant_keys, per_shar
             r["gross_profit"] = r["revenue"] - r["cost_of_revenue"]
         q.append(r)
 
-    # Splits: mismo criterio que en la serie anual
-    for i in range(len(q) - 1, 0, -1):
-        a, b = q[i]["shares"], q[i - 1]["shares"]
-        if a and b and a / b >= 1.45:
-            factor = round(a / b * 2) / 2
-            for r in q[:i]:
-                if r["shares"]:
-                    r["shares"] *= factor
-                if r["eps_diluted"] is not None:
-                    r["eps_diluted"] /= factor
+    # Splits y unidades: mismo criterio que la serie anual (scripts/splits.py)
+    splits.apply(q, split_events, filed_by.get("shares", {}), filed_by.get("eps_diluted", {}),
+                 lambda r: r["end"])
+    splits.fix_units(q, lambda r: r["end"])
 
     add_quarter_ratios(q)
     return q

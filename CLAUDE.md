@@ -34,8 +34,13 @@ No las cambies sin motivo; cada una salió de un bug real.
   promedio ponderado: NUNCA se resta.
 - **TTM**: suma de 4 trimestres consecutivos; balance del último. Si no hay 4 seguidos, no
   hay TTM y la UI cae al último ejercicio anual (se marca en cursiva).
-- **Splits**: EPS y acciones vienen sin ajustar. Si las acciones saltan 45% o más en un
-  período, se asume split y se ajustan los anteriores.
+- **Splits** (`scripts/splits.py`): EPS y acciones vienen "as reported". Split = REEXPRESIÓN:
+  un filing nuevo re-publica un período viejo con k veces las acciones. Se ajustan solo los
+  valores cuyo último filing es anterior al primero reexpresado. NUNCA detectar splits por
+  salto de acciones entre años: confunde emisiones y fusiones (RTX, LIN, ASTS) y rompe el EPS.
+- **Unidad de acciones**: hay empresas que etiquetan acciones en miles o millones algunos
+  años (MCD, COP, GRMN, GT, PCAR). Se corrige contra resultado neto / EPS, tomando como
+  referencia los años más cercanos a 1 en potencias de 1.000 (no la mediana simple).
 - **Patrimonio negativo**: es legítimo (recompras acumuladas: MCD, SBUX, PM, ABBV).
   Deuda/PN se muestra igual, marcada, pero queda fuera de rankings y sombreados.
   ROE va en null cuando el PN es negativo o menor al 5% del activo.
