@@ -31,6 +31,11 @@ export default function Glossary({ views, initial, basisLabel }: { views: View[]
                 <article key={e.key} className="gloss-card">
                   <h4>{e.name}</h4>
                   <p>{e.what}</p>
+                  {e.parts && (
+                    <ul className="gloss-parts">
+                      {e.parts.map((p) => <li key={p.name}><strong>{p.name}</strong>{p.text}</li>)}
+                    </ul>
+                  )}
                   <dl>
                     <dt>Cómo se calcula</dt><dd>{e.how}</dd>
                     <dt>Cómo leerlo</dt><dd>{e.read}</dd>

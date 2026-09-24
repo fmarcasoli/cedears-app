@@ -9,6 +9,7 @@ export type Entry = {
   how: string;       // cómo se calcula
   read: string;      // cómo leerlo
   watch?: string;    // limitaciones
+  parts?: { name: string; text: string }[]; // desglose (ej. los cuatro pilares)
   example?: (v: View) => string | null; // cuenta con los números de la empresa elegida
 };
 
@@ -21,8 +22,8 @@ export const GROUPS: { title: string; entries: Entry[] }[] = [
     entries: [{
       key: "profile", name: "Perfil por pilares",
       what: "Dónde está la empresa contra el resto del universo en cuatro dimensiones: crecimiento, rentabilidad, solidez y calidad del resultado.",
-      how: "Para cada métrica del pilar se calcula el percentil (0 a 100) contra las empresas no financieras; el pilar es el promedio de esos percentiles. " +
-        PILLARS.map((p) => `${p.label}: ${p.tip.charAt(0).toLowerCase()}${p.tip.slice(1)}`).join(" "),
+      how: "Para cada métrica del pilar se calcula el percentil (0 a 100) contra las empresas no financieras; el pilar es el promedio de esos percentiles.",
+      parts: PILLARS.map((p) => ({ name: p.label, text: p.tip })),
       read: "80 significa que la empresa supera al 80% del universo en ese pilar. Los pilares no se suman: una empresa puede ser 90 en crecimiento y 10 en solidez.",
       watch: "Es relativo al universo de CEDEARs, no un umbral absoluto. Con menos de la mitad de las métricas, el pilar queda en blanco. Las financieras no tienen perfil.",
       example: (v) => v.profile ? PILLARS.map((p) => `${p.label} ${v.profile![p.key] == null ? "–" : Math.round(v.profile![p.key]!)}`).join(" · ") : "Financiera: sin perfil.",
