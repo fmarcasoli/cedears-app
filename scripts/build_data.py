@@ -6,6 +6,7 @@ Local:  SEC_USER_AGENT="Nombre tu@mail.com" python scripts/build_data.py
 """
 
 import json
+import re
 import sys
 import time
 from datetime import date, datetime, timezone
@@ -23,6 +24,8 @@ USER_AGENT = os.environ.get("SEC_USER_AGENT", "")
 YEARS = 10
 ROOT = Path(__file__).resolve().parent.parent
 CEDEARS_FILE = ROOT / "data" / "cedears.json"
+IND_OVERRIDES_FILE = ROOT / "data" / "industry_overrides.json"
+IND_OVERRIDES = {}
 OUT_DIR = ROOT / "public" / "data"
 CACHE_DIR = ROOT / ".sec_cache"
 CACHE_HOURS = 12
@@ -402,6 +405,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
 # ───────────────────────── CONVERSIÓN A USD ─────────────────────────
 from fx import FX  # noqa: E402
 from market import SECTOR_ES, Market, sector_from_sic  # noqa: E402
+from industry import Industries  # noqa: E402
 import splits  # noqa: E402
 from quarterly import (MAX_OF, _lease_in_debt, build_quarters, debt_of, ebitda_of,  # noqa: E402
                        efficiency, nd_ebitda, ttm)
@@ -552,6 +556,15 @@ def main():
     (OUT_DIR / "companies").mkdir(parents=True, exist_ok=True)
     fx = FX(CACHE_DIR)
     market = Market(CACHE_DIR)
+    try:
+        industries = Industries(CACHE_DIR)
+    except Exception as e:  # Damodaran caído: se sigue sin comparación contra la industria
+        print(f"Sin datos de industria (Damodaran): {e}")
+        industries = None
+    used_ind = set()
+    global IND_OVERRIDES
+    IND_OVERRIDES = {k: v for k, v in json.loads(IND_OVERRIDES_FILE.read_text(encoding="utf-8")).items()
+                     if not k.startswith("_")} if IND_OVERRIDES_FILE.exists() else {}
     screener, errors = [], []
     targets = [c for c in cedears if c.get("cik")]
     for i, c in enumerate(targets, 1):
@@ -608,6 +621,22 @@ def main():
         ns, ni_ = market.sector.get(us, (None, None))
         comp["sector_group"] = SECTOR_ES.get(ns, ns) if ns else sector_from_sic(sic)
         comp["industry"] = ni_
+        comp["dam_industry"] = comp["dam_region"] = comp["dam_match"] = None
+        fund = sic == 6221 or re.search(r"\b(ETF|Trust|Fund)\b", comp["name"] or "", re.I)
+        if industries and byma in IND_OVERRIDES:
+            o = IND_OVERRIDES[byma]
+            ind, reg, how = o["industry"], o["region"], "manual"
+            if ind in industries.bench.get(reg, {}):
+                comp["dam_industry"], comp["dam_region"], comp["dam_match"] = ind, reg, how
+                used_ind.add((reg, ind))
+            else:
+                print(f"  industry_overrides.json: '{ind}' ({reg}) no es una industria de Damodaran")
+        elif industries and not fund:  # ETFs y fideicomisos no tienen industria
+            foreign = "ifrs" in comp["taxonomy"] or comp["reported_currency"] != "USD"
+            ind, reg, how = industries.match(us, comp["name"], sic, foreign)
+            comp["dam_industry"], comp["dam_region"], comp["dam_match"] = ind, reg, how
+            if ind:
+                used_ind.add((reg, ind))
         # ¿La API companyfacts ya incorporó el último 10-Q/10-K presentado?
         have = max([r["end"] for r in comp["quarters"]] + [r["fiscal_end"] for r in comp["rows"]] or [""])
         comp["api_lag"] = bool(latest and have and latest["period"] > have and
@@ -644,6 +673,7 @@ def main():
         screener.append({
             "byma": byma, "ticker": us, "name": comp["name"], "sector": comp["sector"],
             "sector_group": comp["sector_group"], "industry": comp["industry"],
+            "dam_industry": comp["dam_industry"], "dam_region": comp["dam_region"], "dam_match": comp["dam_match"],
             "currency": comp["currency"], "reported_currency": comp["reported_currency"],
             "converted": comp["converted"], "fy": L.get("year"), "fiscal_end": L.get("fiscal_end"),
             "last_filed": comp["last_filed"],
@@ -675,6 +705,8 @@ def main():
         "with_market_cap": sum(1 for r in screener if r["market_cap"]),
         "without_sec": [c["byma"] for c in cedears if not c.get("cik")],
     }
+    if industries:
+        industries.dump(OUT_DIR / "industries.json", used_ind)
     (OUT_DIR / "screener.json").write_text(
         json.dumps({"meta": meta, "rows": screener}, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8")

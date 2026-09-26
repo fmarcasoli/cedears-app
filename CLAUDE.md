@@ -65,10 +65,13 @@ No las cambies sin motivo; cada una salió de un bug real.
   diluidas ≈ capitalización; si no (ADR), cap / resultado neto. P/VL = cap / PN, P/Ventas = cap /
   ingresos; con denominador <= 0 no hay múltiplo. PEG = PER / CAGR 3a del resultado neto en
   moneda de origen (histórico, no proyectado). Si Nasdaq falla, la valuación queda en null.
-- **Sectores**: `sector_group` = sector de Nasdaq en castellano (misma consulta que la
-  capitalización); si Nasdaq no lo informa, por rango de código SIC (`sector_from_sic`). `sector`
-  sigue siendo la descripción SIC. Las comparaciones sectoriales son medianas sobre el universo de
-  CEDEARs (mínimo 3 empresas con dato), no contra todo el mercado.
+- **Sectores e industria**: `sector_group` = sector de Nasdaq (filtro). La COMPARACIÓN es contra la
+  industria real de Damodaran (NYU Stern, `scripts/industry.py`, ~6.000 empresas EE.UU. / ~48.000
+  global, actualización anual en enero), NUNCA contra el promedio de los CEDEARs: el usuario quiere
+  saber qué tan sana es la empresa frente a su industria. Asignación: ticker de EE.UU. > nombre >
+  `data/industry_overrides.json` (editable) > código SIC (aproximada). ETFs y fideicomisos, sin industria.
+  Damodaran define distinto algunas métricas (deuda/EBITDA bruta, crecimiento del RN, PEG esperado):
+  se aclara en la UI.
 - **Desfase de la SEC**: la API companyfacts a veces no tiene el último 10-Q ya presentado.
   Se detecta contra el endpoint `submissions` y se marca `api_lag`.
 - **Montos**: en el JSON de salida están en unidades (USD), no en millones. Si armás un

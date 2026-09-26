@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Row } from "@/lib/data";
+import type { Industries, Row } from "@/lib/data";
 import {
   COL, LISTS, PILLARS, PROFILE_NOTE, VIEWS, buildViews, rankable,
   type Basis, type ListId, type MKey, type PKey, type View, type ViewId,
@@ -9,8 +9,9 @@ import {
 import CompanySheet from "./sheet";
 import Compare from "./compare";
 import Glossary from "./glossary";
-import Sectors from "./sectors";
-import { sectorOf, sectorStats } from "@/lib/sector";
+import IndustryPanel from "./industries";
+import { sectorOf } from "@/lib/sector";
+import { benchOf } from "@/lib/industry";
 import { PillarBar } from "./profile";
 
 type SortKey = MKey | "byma" | "sector" | "period" | `p_${PKey}`;
@@ -44,7 +45,7 @@ function percentileFn(views: View[], key: MKey) {
   };
 }
 
-export default function Screener({ rows }: { rows: Row[] }) {
+export default function Screener({ rows, industries }: { rows: Row[]; industries: Industries | null }) {
   const [q, setQ] = useState("");
   const [sector, setSector] = useState("");
   const [basis, setBasis] = useState<Basis>("ttm");
@@ -56,7 +57,8 @@ export default function Screener({ rows }: { rows: Row[] }) {
   const [open, setOpen] = useState<string | null>(null);
   const [comparing, setComparing] = useState(false);
   const [gloss, setGloss] = useState(false);
-  const [bySector, setBySector] = useState(false);
+  const [byIndustry, setByIndustry] = useState(false);
+  const [industry, setIndustry] = useState(""); // "region|industria" de Damodaran
   const search = useRef<HTMLInputElement>(null);
 
   useEffect(() => setMine(loadMine()), []);
@@ -102,8 +104,6 @@ export default function Screener({ rows }: { rows: Row[] }) {
 
   const sectors = useMemo(() => Array.from(new Set(rows.map(sectorOf))).sort((a, b) => a.localeCompare(b, "es")), [rows]);
   const all = useMemo(() => buildViews(rows, basis), [rows, basis]);
-  // Medianas por sector sobre todo el universo (no sobre lo filtrado), en la base elegida
-  const stats = useMemo(() => sectorStats(all), [all]);
   const byId = useMemo(() => new Map(all.map((v) => [v.row.byma, v])), [all]);
 
   // Búsqueda y sector se aplican antes de las pestañas, así cada pestaña cuenta sobre lo buscado.
@@ -112,9 +112,10 @@ export default function Screener({ rows }: { rows: Row[] }) {
     return all.filter((v) => {
       const r = v.row;
       return (!s || r.byma.toLowerCase().includes(s) || r.ticker.toLowerCase().includes(s) || r.name.toLowerCase().includes(s)) &&
-        (!sector || sectorOf(r) === sector);
+        (!sector || sectorOf(r) === sector) &&
+        (!industry || `${r.dam_region}|${r.dam_industry}` === industry);
     });
-  }, [all, q, sector]);
+  }, [all, q, sector, industry]);
 
   const counts = useMemo(() => {
     const m = {} as Record<ListId, number>;
@@ -207,15 +208,23 @@ export default function Screener({ rows }: { rows: Row[] }) {
           onClick={() => setGloss((g) => !g)}>
           {gloss ? "Ocultar" : "Qué son cada uno de los indicadores"}
         </button>
-        <button type="button" className="gloss-btn" aria-expanded={bySector} aria-controls="sectores"
-          onClick={() => setBySector((g) => !g)}>
-          {bySector ? "Ocultar sectores" : "Indicadores por sector"}
-        </button>
+        {industries && (
+          <button type="button" className="gloss-btn" aria-expanded={byIndustry} aria-controls="industrias"
+            onClick={() => setByIndustry((g) => !g)}>
+            {byIndustry ? "Ocultar industrias" : "Promedios de la industria"}
+          </button>
+        )}
         <span className="count">{sorted.length} de {rows.length} empresas</span>
       </div>
-      {bySector && (
-        <Sectors stats={stats} cols={VIEWS.find((v) => v.id === view)!.cols.filter((k) => k !== "alerts")}
-          current={sector} onPick={setSector} />
+      {industry && (
+        <p className="hint">
+          Industria: <strong>{industry.split("|")[1]}</strong>{" "}
+          <button type="button" className="ghost" onClick={() => setIndustry("")}>Quitar filtro ×</button>
+        </p>
+      )}
+      {byIndustry && industries && (
+        <IndustryPanel data={industries} rows={shown.map((v) => v.row)}
+          cols={VIEWS.find((v) => v.id === view)!.cols} current={industry} onPick={setIndustry} />
       )}
       {gloss && (
         <Glossary views={sorted.length ? sorted : all} initial={open ?? sorted[0]?.row.byma ?? null}
@@ -289,7 +298,11 @@ export default function Screener({ rows }: { rows: Row[] }) {
                   })}
                   <td className="l">
                     <span className="sub" title={r.sector}>{sectorOf(r)}</span>
-                    {(r.industry || r.sector) && <span className="sub muted" title={r.industry || r.sector}>{r.industry || r.sector}</span>}
+                    {(r.dam_industry || r.industry || r.sector) && (
+                      <span className="sub muted" title={r.dam_industry ? `Industria (Damodaran): ${r.dam_industry}` : r.industry || r.sector}>
+                        {r.dam_industry || r.industry || r.sector}
+                      </span>
+                    )}
                   </td>
                 </tr>
               );
@@ -345,7 +358,8 @@ export default function Screener({ rows }: { rows: Row[] }) {
       )}
       {open && (
         <CompanySheet byma={open} view={byId.get(open) ?? null} basis={basis}
-          peers={byId.get(open) ? stats.get(sectorOf(byId.get(open)!.row)) : undefined} onClose={() => openSheet(null)} />
+          bench={byId.get(open) ? benchOf(industries, byId.get(open)!.row) : null}
+          benchMeta={industries?.meta ?? null} onClose={() => openSheet(null)} />
       )}
     </>
   );

@@ -1,8 +1,9 @@
-import { getRows } from "@/lib/data";
+import { getIndustries, getRows } from "@/lib/data";
 import Screener from "./screener";
 
 export default async function Home() {
   const { meta, rows } = await getRows();
+  const industries = await getIndustries();
   const when = new Date(meta.generated).toLocaleString("es-AR", {
     timeZone: "America/Argentina/Cordoba", dateStyle: "medium", timeStyle: "short",
   });
@@ -23,7 +24,7 @@ export default async function Home() {
           {meta.ok} de {meta.total_cedears} CEDEARs con fundamentals
         </div>
       </header>
-      <Screener rows={rows} />
+      <Screener rows={rows} industries={industries} />
       <p className="note">
         Sin fundamentals en esta fuente ({meta.without_sec.length}): ETFs, acciones que cotizan en Brasil
         y emisores que no reportan a la SEC. Todos los montos están en USD: las empresas que presentan sus

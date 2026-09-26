@@ -168,14 +168,14 @@ export const GROUPS: { title: string; entries: Entry[] }[] = [
     ],
   },
   {
-    title: "Comparación sectorial",
+    title: "Comparación con la industria",
     entries: [{
-      key: "sector", name: "Contra el sector",
-      what: "Cómo está la empresa contra las demás de su sector, indicador por indicador.",
-      how: "Sector según Nasdaq (parecido a GICS; si Nasdaq no lo informa, según el código SIC de la SEC). Para cada indicador se toma la mediana de las empresas del universo de CEDEARs de ese sector y la posición de la empresa: qué porcentaje de sus pares supera.",
-      read: "“Mejor que el 80%” en margen operativo: supera a 8 de cada 10 empresas del sector. En deuda y múltiplos de valuación, mejor es más bajo. Está en la ficha (pestaña “Contra el sector”) y en el botón “Indicadores por sector”.",
-      watch: "La base es el universo de CEDEARs, no todo el mercado: Investing compara contra toda su base de la industria y sus números difieren. Con menos de 3 empresas con dato no hay mediana.",
-      example: (v) => `${v.row.sector_group || v.row.sector || "Sin sector"}${v.row.industry ? ` · ${v.row.industry}` : ""}`,
+      key: "sector", name: "Contra la industria",
+      what: "Cómo está la empresa contra el promedio de TODA su industria (no contra los CEDEARs).",
+      how: "Promedios por industria de Aswath Damodaran (NYU Stern), la referencia estándar de los analistas: ~95 industrias, ~6.000 empresas de EE.UU. y ~48.000 del mundo, actualizados cada enero. Son agregados: suma de resultados / suma de ventas de la industria. Empresas de EE.UU. contra la industria de EE.UU.; el resto contra la global. La industria de cada CEDEAR sale del listado de Damodaran por ticker o por nombre; si no figura, por código SIC (aproximada).",
+      read: "En márgenes y crecimiento la diferencia está en puntos porcentuales; en múltiplos, en % más cara o más barata que la industria. Verde = mejor que la industria. Está en la ficha (pestaña “Contra la industria”) y en el botón “Promedios de la industria”.",
+      watch: "Algunas métricas de Damodaran se definen distinto: deuda/EBITDA bruta (no neta), crecimiento del resultado neto (no del EPS), PEG con crecimiento esperado. Se aclara en cada renglón. Los datos son anuales: la empresa puede estar en TTM y la industria a enero.",
+      example: (v) => v.row.dam_industry ? `${v.row.dam_industry} (${v.row.dam_region === "us" ? "EE.UU." : "global"}${v.row.dam_match === "sic" ? ", aproximada" : ""})` : "Sin industria asignada",
     }],
   },
   {

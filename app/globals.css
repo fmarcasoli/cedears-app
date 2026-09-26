@@ -293,3 +293,6 @@ td.best { font-weight: 600; color: var(--ink); background: rgb(var(--celeste-was
 .gloss-parts strong { display: block; font-size: 13.5px; }
 .gloss-h select { max-width: 420px; }
 .pv.wide { min-width: 0; text-align: left; white-space: nowrap; }
+td.vs-good { color: var(--pos); }
+td.vs-bad { color: var(--neg); }
+ul.note { padding-left: 18px; }

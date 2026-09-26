@@ -3,15 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import type { Company, Period, YearRow } from "@/lib/data";
 import { money, num, pct } from "@/lib/format";
-import { COL, COMPARE, mmyy, rankable, type Basis, type MKey, type View } from "@/lib/metrics";
-import { sectorMedian, sectorOf, sectorPosition, type SectorStat } from "@/lib/sector";
+import { COL, mmyy, type Basis, type MKey, type View } from "@/lib/metrics";
+import { BENCH, BLOCKS, benchValue, regionLabel, versus } from "@/lib/industry";
+import type { Bench, Industries } from "@/lib/data";
 import { Chart } from "./charts";
 import { ProfileBig } from "./profile";
 
 type Tab = "evol" | "sector" | "roe" | "changed" | "alerts";
 const TABS: { id: Tab; label: string }[] = [
   { id: "evol", label: "Evolución" },
-  { id: "sector", label: "Contra el sector" },
+  { id: "sector", label: "Contra la industria" },
   { id: "roe", label: "De dónde sale el ROE" },
   { id: "changed", label: "Qué cambió" },
   { id: "alerts", label: "Alertas" },
@@ -49,8 +50,10 @@ export function useModal(onClose: () => void) {
   return ref;
 }
 
-export default function CompanySheet({ byma, view, basis, peers, onClose }: {
-  byma: string; view: View | null; basis: Basis; peers: SectorStat | undefined; onClose: () => void;
+type BenchMeta = Industries["meta"] | null;
+
+export default function CompanySheet({ byma, view, basis, bench, benchMeta, onClose }: {
+  byma: string; view: View | null; basis: Basis; bench: Bench | null; benchMeta: BenchMeta; onClose: () => void;
 }) {
   const ref = useModal(onClose);
   const [c, setC] = useState<Company | null>(null);
@@ -79,15 +82,15 @@ export default function CompanySheet({ byma, view, basis, peers, onClose }: {
             <p className="hint">Cargando ficha…</p>
           </>
         ) : (
-          <Body c={c} view={view} basis={basis} peers={peers} tab={tab} setTab={setTab} />
+          <Body c={c} view={view} basis={basis} bench={bench} benchMeta={benchMeta} tab={tab} setTab={setTab} />
         )}
       </div>
     </dialog>
   );
 }
 
-function Body({ c, view, basis, peers, tab, setTab }: {
-  c: Company; view: View | null; basis: Basis; peers: SectorStat | undefined; tab: Tab; setTab: (t: Tab) => void;
+function Body({ c, view, basis, bench, benchMeta, tab, setTab }: {
+  c: Company; view: View | null; basis: Basis; bench: Bench | null; benchMeta: BenchMeta; tab: Tab; setTab: (t: Tab) => void;
 }) {
   const last = c.rows[c.rows.length - 1];
   const negEq = (view?.neg_equity) ?? ((val(c.ttm ?? last, "equity") ?? 1) <= 0);
@@ -144,7 +147,7 @@ function Body({ c, view, basis, peers, tab, setTab }: {
       </div>
       <div role="tabpanel">
         {tab === "evol" && <Evolution c={c} />}
-        {tab === "sector" && <VsSector view={view} peers={peers} />}
+        {tab === "sector" && <VsIndustry view={view} bench={bench} meta={benchMeta} />}
         {tab === "roe" && <DuPont c={c} />}
         {tab === "changed" && <Changed c={c} />}
         {tab === "alerts" && <Alerts c={c} />}
@@ -258,49 +261,43 @@ function Evolution({ c }: { c: Company }) {
 
 // ─────────────────────────── Contra el sector ───────────────────────────
 
-function VsSector({ view, peers }: { view: View | null; peers: SectorStat | undefined }) {
-  if (!view || !peers) return <p className="hint">Sin datos de sector para esta empresa.</p>;
-  const pos = (k: MKey) => sectorPosition(peers, k, rankable(view, k));
-  const word = (k: MKey, p: number) => {
-    const n = Math.round(p * 100);
-    if (!COL[k].shade) return `más grande que el ${n}%`;
-    return `mejor que el ${n}%`;
-  };
+function VsIndustry({ view, bench, meta }: { view: View | null; bench: Bench | null; meta: BenchMeta }) {
+  if (!view || !bench || !meta)
+    return <p className="hint">Sin industria asignada (ETFs y fideicomisos no tienen) o sin datos de Damodaran en esta corrida.</p>;
+  const r = view.row;
+  const n = typeof bench.n === "number" ? bench.n.toLocaleString("es-AR") : "–";
   return (
     <section>
       <p className="lead">
-        {view.row.byma} contra la mediana de {sectorOf(view.row)} ({peers.n} empresas del universo de CEDEARs
-        {view.row.industry ? `; industria: ${view.row.industry}` : ""}). “Mejor que el 70%” significa que supera
-        a 7 de cada 10 empresas del sector con dato; en deuda y valuación, mejor es más bajo.
+        {r.byma} contra la industria <strong>{r.dam_industry}</strong> ({regionLabel(r)}, {n} empresas), con datos
+        de {meta.source} al {meta.updated ?? "–"}. No es el promedio de los CEDEARs: es toda la industria.
+        {r.dam_match === "sic" && " Industria asignada por código SIC (la empresa no figura en el listado de Damodaran): tomala como aproximada."}
       </p>
       <div className="tablebox">
         <table>
           <thead>
             <tr>
               <th className="l sticky">Indicador</th>
-              <th>{view.row.byma}</th>
-              <th>Mediana sector</th>
-              <th className="l">Posición en el sector</th>
+              <th>{r.byma}</th>
+              <th>Industria</th>
+              <th className="l">Diferencia</th>
             </tr>
           </thead>
           <tbody>
-            {COMPARE.map((blk) => (
+            {BLOCKS.map((blk) => (
               <SectorBlock key={blk.title} title={blk.title}>
-                {blk.rows.map(({ key }) => {
-                  const col = COL[key], x = view[key], m = sectorMedian(peers, key), p = pos(key);
+                {blk.keys.map((key) => {
+                  const col = COL[key], x = view[key], ind = benchValue(bench, key);
                   const negEq = key === "de" && view.neg_equity && x != null;
+                  const vs = negEq ? { text: "PN negativo", better: null } : versus(key, x, ind);
+                  const note = BENCH.find((b) => b.key === key)?.note;
                   return (
                     <tr key={key}>
-                      <td className="l sticky" title={col.tip}>{col.label}</td>
+                      <td className="l sticky" title={note ?? col.tip}>{col.label}{note && <span className="muted"> *</span>}</td>
                       <td className={negEq ? "negeq" : x != null && x < 0 ? "neg" : ""}>{col.fmt(x)}{negEq ? "*" : ""}</td>
-                      <td>{col.fmt(m)}</td>
-                      <td className="l">
-                        {p == null ? <span className="muted">–</span> : (
-                          <span className="pbar" title={word(key, p)}>
-                            <span className="track"><span className="fill" style={{ width: `${Math.max(Math.round(p * 100), 2)}%` }} /></span>
-                            <span className="pv wide">{word(key, p)}</span>
-                          </span>
-                        )}
+                      <td className={ind != null && ind < 0 ? "neg" : ""}>{col.fmt(ind)}</td>
+                      <td className={`l ${vs.better === true ? "vs-good" : vs.better === false ? "vs-bad" : ""}`}>
+                        {vs.text}{vs.better != null && vs.text !== "–" && <span className="muted"> · {vs.better ? "mejor" : "peor"}</span>}
                       </td>
                     </tr>
                   );
@@ -310,11 +307,12 @@ function VsSector({ view, peers }: { view: View | null; peers: SectorStat | unde
           </tbody>
         </table>
       </div>
-      <p className="note">
-        Sector según Nasdaq (para las que Nasdaq no clasifica, según el código SIC de la SEC). La comparación es
-        contra las empresas del universo de CEDEARs, no contra todo el mercado: en sectores chicos la mediana se
-        mueve mucho con cada empresa. * Patrimonio neto negativo: deuda/PN no se compara.
-      </p>
+      <ul className="note">
+        {BENCH.filter((b) => b.note).map((b) => <li key={b.key}>* {COL[b.key].label}: {b.note}</li>)}
+        <li>Los valores de la industria son agregados de Damodaran (actualización anual, enero). En industrias con pocas
+          empresas o con patrimonios negativos pueden dar valores extraños (ej. ROE de Computers/Peripherals).
+          La empresa se mide en la base elegida (TTM o último ejercicio).</li>
+      </ul>
     </section>
   );
 }
