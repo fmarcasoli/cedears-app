@@ -11,7 +11,7 @@ export const BENCH: { key: MKey; bench: string; note?: string }[] = [
   { key: "rev_cagr5", bench: "rev_cagr5" },
   { key: "eps_cagr5", bench: "ni_cagr5", note: "Industria: crecimiento del resultado neto, no del EPS." },
   { key: "de", bench: "de", note: "Industria: deuda contable / patrimonio, derivada de su deuda sobre capital." },
-  { key: "nd_ebitda", bench: "debt_ebitda", note: "Industria: deuda BRUTA / EBITDA (no resta la caja); la nuestra es neta." },
+  { key: "debt_ebitda", bench: "debt_ebitda" },
   { key: "inv_turnover", bench: "inv_turnover" },
   { key: "ar_turnover", bench: "ar_turnover" },
   { key: "pe", bench: "pe", note: "Industria: capitalización total / resultado de las empresas con ganancias." },
@@ -23,7 +23,7 @@ export const BENCH: { key: MKey; bench: string; note?: string }[] = [
 export const BLOCKS: { title: string; keys: MKey[] }[] = [
   { title: "Rentabilidad", keys: ["gross_margin", "op_margin", "net_margin", "roe"] },
   { title: "Crecimiento (5 años)", keys: ["rev_cagr5", "eps_cagr5"] },
-  { title: "Deuda", keys: ["de", "nd_ebitda"] },
+  { title: "Deuda", keys: ["de", "debt_ebitda"] },
   { title: "Eficiencia", keys: ["inv_turnover", "ar_turnover"] },
   { title: "Valuación", keys: ["pe", "peg", "pb", "ps"] },
 ];

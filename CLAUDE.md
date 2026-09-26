@@ -65,6 +65,11 @@ No las cambies sin motivo; cada una salió de un bug real.
   diluidas ≈ capitalización; si no (ADR), cap / resultado neto. P/VL = cap / PN, P/Ventas = cap /
   ingresos; con denominador <= 0 no hay múltiplo. PEG = PER / CAGR 3a del resultado neto en
   moneda de origen (histórico, no proyectado). Si Nasdaq falla, la valuación queda en null.
+- **Pilares del perfil**: puntaje contra la industria real (Damodaran), no percentil de CEDEARs:
+  50 + 50 x (empresa - industria) / max(|industria|, piso), acotado 0-100 (50 = igual, 100 = el
+  doble de bueno). Crecimiento: ventas y EPS 5a; Rentabilidad: mg. bruto, operativo, ROE; Solidez:
+  deuda/PN y deuda BRUTA/EBITDA; Calidad: caja libre/RN contra 1 (Damodaran no la publica).
+  Sin datos de industria en la corrida, vuelve al percentil del universo.
 - **Sectores e industria**: `sector_group` = sector de Nasdaq (filtro). La COMPARACIÓN es contra la
   industria real de Damodaran (NYU Stern, `scripts/industry.py`, ~6.000 empresas EE.UU. / ~48.000
   global, actualización anual en enero), NUNCA contra el promedio de los CEDEARs: el usuario quiere

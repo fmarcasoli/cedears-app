@@ -1,12 +1,12 @@
 import { PILLARS, type Profile } from "@/lib/metrics";
 
-/** Barra corta de un pilar: percentil 0-100 en celeste, número al lado. */
+/** Barra corta de un pilar: puntaje 0-100 contra su industria (50 = igual), número al lado. */
 export function PillarBar({ value, label }: { value: number | null; label: string }) {
   if (value == null)
     return <span className="pbar empty" title={`${label}: faltan más de la mitad de sus métricas`}>–</span>;
   const v = Math.round(value);
   return (
-    <span className="pbar" title={`${label}: percentil ${v}`} role="img" aria-label={`${label}: percentil ${v}`}>
+    <span className="pbar" title={`${label}: ${v} (50 = igual que su industria)`} role="img" aria-label={`${label}: ${v} sobre 100`}>
       <span className="track"><span className="fill" style={{ width: `${Math.max(v, 2)}%` }} /></span>
       <span className="pv">{v}</span>
     </span>
@@ -36,7 +36,7 @@ export function ProfileBig({ profile }: { profile: Profile | null }) {
         );
       })}
       <p className="note">
-        Percentil 0-100 contra las empresas no financieras del universo, en la base elegida.
+        50 = igual que su industria real (Damodaran); 100 = el doble de buena o más; 0 = el doble de mala o peor.
         {PILLARS.some((p) => profile[p.key] == null) && " Guion: el pilar no tiene al menos la mitad de sus métricas."}
       </p>
     </div>

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Industries, Row } from "@/lib/data";
 import {
-  COL, LISTS, PILLARS, PROFILE_NOTE, VIEWS, buildViews, rankable,
+  COL, LISTS, PILLARS, PROFILE_NOTE, PROFILE_NOTE_FALLBACK, VIEWS, buildViews, rankable,
   type Basis, type ListId, type MKey, type PKey, type View, type ViewId,
 } from "@/lib/metrics";
 import CompanySheet from "./sheet";
@@ -103,7 +103,7 @@ export default function Screener({ rows, industries }: { rows: Row[]; industries
     setPicked((p) => (p.includes(byma) ? p.filter((x) => x !== byma) : p.length >= MAX_COMPARE ? p : [...p, byma]));
 
   const sectors = useMemo(() => Array.from(new Set(rows.map(sectorOf))).sort((a, b) => a.localeCompare(b, "es")), [rows]);
-  const all = useMemo(() => buildViews(rows, basis), [rows, basis]);
+  const all = useMemo(() => buildViews(rows, basis, industries), [rows, basis, industries]);
   const byId = useMemo(() => new Map(all.map((v) => [v.row.byma, v])), [all]);
 
   // Búsqueda y sector se aplican antes de las pestañas, así cada pestaña cuenta sobre lo buscado.
@@ -242,7 +242,7 @@ export default function Screener({ rows, industries }: { rows: Row[]; industries
           <thead>
             <tr>
               {th("byma", "CEDEAR", "l sticky")}
-              {PILLARS.map((p) => th(`p_${p.key}`, p.short, "pil", `${p.label}: ${p.tip} Percentil 0-100.`))}
+              {PILLARS.map((p) => th(`p_${p.key}`, p.short, "pil", `${p.label}: ${p.tip} ${industries ? "50 = igual que su industria." : "Percentil 0-100 contra los CEDEARs."}`))}
               {th("period", "Período")}
               {cols.map((c) => th(c.key, c.label, "", c.tip))}
               {th("sector", "Sector", "l")}
@@ -318,7 +318,7 @@ export default function Screener({ rows, industries }: { rows: Row[]; industries
 
       <details className="how">
         <summary>Cómo leer la tabla</summary>
-        <p><strong>Perfil.</strong> {PROFILE_NOTE}</p>
+        <p><strong>Perfil.</strong> {industries ? PROFILE_NOTE : PROFILE_NOTE_FALLBACK}</p>
         <ul>
           {PILLARS.map((p) => <li key={p.key}><strong>{p.label}:</strong> {p.tip}</li>)}
         </ul>

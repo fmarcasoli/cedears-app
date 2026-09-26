@@ -1,4 +1,4 @@
-import type { Balance, Row } from "./data";
+import type { Balance, Industries, Row } from "./data";
 import { money, num, pct } from "./format";
 
 export type Basis = "ttm" | "annual";
@@ -12,7 +12,7 @@ export type Metrics = {
   growth: number | null; q_yoy: number | null; q_eps_yoy: number | null; cagr3: number | null;
   gross_margin: number | null; op_margin: number | null; net_margin: number | null; roe: number | null;
   fcf_margin: number | null; fcf_ni: number | null;
-  de: number | null; nd_ebitda: number | null; current_ratio: number | null;
+  de: number | null; nd_ebitda: number | null; debt_ebitda: number | null; current_ratio: number | null;
   mcap: number | null; pe: number | null; peg: number | null; pb: number | null; ps: number | null;
   pcf: number | null;
   pretax_margin: number | null; quick_ratio: number | null;
@@ -84,6 +84,11 @@ export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
     fcf_ni: r.financial || ni == null || ni <= 0 ? null : div(fcf, ni),
     current_ratio: useTtm ? r.t_current_ratio : r.current_ratio,
     nd_ebitda: r.financial ? null : (useTtm ? r.t_nd_ebitda : r.nd_ebitda) ?? null,
+    // Deuda BRUTA / EBITDA (con arrendamientos), la misma definición que Damodaran
+    debt_ebitda: (() => {
+      const d = (useTtm ? r.bal_t : r.bal_a)?.debt ?? null, e = (useTtm ? r.t_ebitda : r.ebitda) ?? null;
+      return r.financial || d == null || e == null || e <= 0 ? null : d / e;
+    })(),
     ...fromBalance(useTtm ? r.bal_t : r.bal_a, r.financial),
     alerts: r.alerts,
   };
@@ -91,37 +96,62 @@ export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
 
 // ───────────────────────── Perfil por pilares ─────────────────────────
 
-type PMetric = { key: MKey; low?: boolean; clamp?: [number, number] };
+/**
+ * Cada métrica se compara contra su INDUSTRIA REAL (Damodaran), no contra los CEDEARs.
+ * Damodaran publica el valor de la industria, no su distribución: no hay percentil posible.
+ * Puntaje = 50 + 50 x diferencia relativa, acotado a 0-100:
+ *   50 = igual que la industria; 100 = el doble de bueno o más; 0 = el doble de malo o peor.
+ * `floor` evita dividir por un valor de industria cercano a cero (ej. crecimiento de 1%).
+ */
+type PMetric = { key: MKey; bench?: string; ref?: number; low?: boolean; floor: number };
 export const PILLARS: { key: PKey; label: string; short: string; metrics: PMetric[]; tip: string }[] = [
   {
     key: "growth", label: "Crecimiento", short: "Crec.",
-    metrics: [{ key: "growth" }, { key: "q_yoy" }, { key: "cagr3" }],
-    tip: "Crecimiento de ingresos 12 meses, último trimestre interanual y CAGR 3 años.",
+    metrics: [{ key: "rev_cagr5", bench: "rev_cagr5", floor: 0.05 }, { key: "eps_cagr5", bench: "ni_cagr5", floor: 0.05 }],
+    tip: "Crecimiento compuesto de ventas y de EPS en 5 años, contra el de su industria (en EPS, la industria es crecimiento del resultado neto).",
   },
   {
     key: "profit", label: "Rentabilidad", short: "Rent.",
-    metrics: [{ key: "gross_margin" }, { key: "op_margin" }, { key: "roe" }],
-    tip: "Margen bruto, margen operativo y ROE.",
+    metrics: [
+      { key: "gross_margin", bench: "gross_margin", floor: 0.05 }, { key: "op_margin", bench: "op_margin", floor: 0.05 },
+      { key: "roe", bench: "roe", floor: 0.05 },
+    ],
+    tip: "Margen bruto, margen operativo y ROE, contra los de su industria.",
   },
   {
     key: "solid", label: "Solidez", short: "Sol.",
-    metrics: [{ key: "de", low: true }, { key: "nd_ebitda", low: true }, { key: "current_ratio" }],
-    tip: "Deuda/PN (menos es mejor; solo con PN positivo), deuda neta/EBITDA (menos es mejor) y liquidez corriente.",
+    metrics: [{ key: "de", bench: "de", low: true, floor: 0.25 }, { key: "debt_ebitda", bench: "debt_ebitda", low: true, floor: 0.5 }],
+    tip: "Deuda/PN (solo con PN positivo) y deuda/EBITDA, contra las de su industria; menos es mejor. Deuda con arrendamientos, como la mide Damodaran.",
   },
   {
     key: "quality", label: "Calidad del resultado", short: "Cal.",
-    metrics: [{ key: "fcf_margin" }, { key: "fcf_ni", clamp: [-1, 2.5] }],
-    tip: "Margen de caja libre y caja libre sobre resultado neto (acotado entre -1 y 2,5).",
+    metrics: [{ key: "fcf_ni", ref: 1, floor: 1 }],
+    tip: "Caja libre / resultado neto contra 1: cada dólar de ganancia debería volver como un dólar de caja. Damodaran no publica este dato por industria, así que la referencia es absoluta.",
   },
 ];
 
-const PROFILE_NOTE =
-  "Cada barra es un percentil de 0 a 100 contra las empresas no financieras del universo, en la base elegida: " +
-  "se promedian los percentiles de sus métricas y solo se calcula si hay al menos la mitad de ellas. " +
-  "No hay puntaje único: los pilares no se suman.";
-export { PROFILE_NOTE };
+export const PROFILE_NOTE =
+  "Cada barra compara a la empresa contra su industria real (promedios de Damodaran, NYU Stern), en la base elegida: " +
+  "50 = igual que la industria, 100 = el doble de buena o más, 0 = el doble de mala o peor. El pilar promedia sus " +
+  "métricas y solo se calcula si hay al menos la mitad. No hay puntaje único: los pilares no se suman.";
+export const PROFILE_NOTE_FALLBACK =
+  "Esta corrida no tiene los promedios de industria: cada barra es un percentil 0-100 contra las empresas no " +
+  "financieras del universo de CEDEARs.";
 
-/** Percentil 0-100 con rango medio para empates. */
+const clamp = (x: number, a: number, b: number) => Math.min(b, Math.max(a, x));
+
+const metricValue = (v: Omit<View, "profile">, m: PMetric) => {
+  if (m.key === "de" && v.neg_equity) return null;
+  const x = v[m.key];
+  return x == null || !Number.isFinite(x) ? null : x;
+};
+
+function score(x: number, ref: number, m: PMetric) {
+  const rel = (m.low ? ref - x : x - ref) / Math.max(Math.abs(ref), m.floor);
+  return 50 + 50 * clamp(rel, -1, 1);
+}
+
+/** Percentil 0-100 con rango medio para empates (respaldo si no hay datos de industria). */
 function ranker(values: number[]) {
   const s = [...values].sort((a, b) => a - b);
   return (v: number) => {
@@ -134,30 +164,32 @@ function ranker(values: number[]) {
   };
 }
 
-const metricValue = (v: Omit<View, "profile">, m: PMetric) => {
-  if (m.key === "de" && v.neg_equity) return null;
-  const x = v[m.key];
-  if (x == null) return null;
-  return m.clamp ? Math.min(m.clamp[1], Math.max(m.clamp[0], x)) : x;
-};
-
 /** Calcula métricas + perfil de todo el universo en la base elegida. */
-export function buildViews(rows: Row[], basis: Basis): View[] {
+export function buildViews(rows: Row[], basis: Basis, industries: Industries | null = null): View[] {
   const base = rows.map((r) => metrics(r, basis));
   const pool = base.filter((v) => !v.row.financial);
   const rank = new Map<MKey, ReturnType<typeof ranker>>();
-  for (const p of PILLARS)
-    for (const m of p.metrics)
-      rank.set(m.key, ranker(pool.map((v) => metricValue(v, m)).filter((x): x is number => x != null)));
+  if (!industries)
+    for (const p of PILLARS)
+      for (const m of p.metrics)
+        rank.set(m.key, ranker(pool.map((v) => metricValue(v, m)).filter((x): x is number => x != null)));
   return base.map((v) => {
     if (v.row.financial) return { ...v, profile: null };
+    const r = v.row;
+    const bench = industries && r.dam_region && r.dam_industry ? industries[r.dam_region]?.[r.dam_industry] : null;
+    if (industries && !bench) return { ...v, profile: null };
     const profile = {} as Profile;
     for (const p of PILLARS) {
       const got = p.metrics
         .map((m) => {
           const x = metricValue(v, m);
-          const q = x == null ? null : rank.get(m.key)!(x);
-          return q == null ? null : m.low ? 100 - q : q;
+          if (x == null) return null;
+          if (!industries) {
+            const q = rank.get(m.key)!(x);
+            return q == null ? null : m.low ? 100 - q : q;
+          }
+          const ref = m.ref ?? (m.bench ? bench?.[m.bench] : null);
+          return typeof ref === "number" && Number.isFinite(ref) ? score(x, ref, m) : null;
         })
         .filter((x): x is number => x != null);
       profile[p.key] = got.length * 2 >= p.metrics.length ? got.reduce((a, b) => a + b, 0) / got.length : null;
@@ -173,15 +205,19 @@ export const LISTS: { id: ListId; label: string; crit: string; test: (v: View, m
   { id: "all", label: "Todas", crit: "Todas las empresas con fundamentals en la SEC.", test: () => true },
   {
     id: "quality", label: "Calidad compuesta",
-    crit: "Rentabilidad ≥ 70, calidad del resultado ≥ 60 y crecimiento ≥ 50 (percentiles contra no financieras).",
-    test: (v) => !!v.profile && (v.profile.profit ?? -1) >= 70 && (v.profile.quality ?? -1) >= 60 && (v.profile.growth ?? -1) >= 50,
+    crit: "Rentabilidad ≥ 65 (bastante mejor que su industria), calidad del resultado ≥ 50 (la ganancia se convierte en caja) y crecimiento ≥ 55 (crece más que su industria).",
+    test: (v) => !!v.profile && (v.profile.profit ?? -1) >= 65 && (v.profile.quality ?? -1) >= 50 && (v.profile.growth ?? -1) >= 55,
   },
   {
     id: "accel", label: "Crecimiento acelerando",
     crit: "Ingresos del último trimestre más de 10% arriba del mismo trimestre del año anterior, y al menos 3 pp por encima del crecimiento 12 meses.",
     test: (v) => v.q_yoy != null && v.growth != null && v.q_yoy > 0.1 && v.q_yoy - v.growth >= 0.03,
   },
-  { id: "solid", label: "Balance sólido", crit: "Solidez ≥ 75 (deuda/PN, deuda neta/EBITDA y liquidez corriente).", test: (v) => (v.profile?.solid ?? -1) >= 75 },
+  {
+    id: "solid", label: "Balance sólido",
+    crit: "Solidez ≥ 75 (deuda/PN y deuda/EBITDA al menos 50% por debajo de las de su industria) y liquidez corriente ≥ 1,2.",
+    test: (v) => (v.profile?.solid ?? -1) >= 75 && (v.current_ratio ?? 0) >= 1.2,
+  },
   {
     id: "review", label: "Para revisar",
     crit: "3 alertas o más, último ejercicio con más de 15 meses, o un balance presentado que la API de la SEC todavía no incorporó.",
@@ -217,6 +253,7 @@ export const COL: Record<MKey, Col> = {
       "Deuda neta = deuda financiera + arrendamientos − caja. Caja neta se muestra 0; con EBITDA negativo no se calcula. " +
       "Calculado en la moneda de origen.",
   },
+  debt_ebitda: { key: "debt_ebitda", label: "Deuda/EBITDA", fmt: times, shade: "low", tip: "Deuda BRUTA (financiera + arrendamientos) / EBITDA, sin restar la caja: la definición de Damodaran, para comparar con la industria." },
   current_ratio: { key: "current_ratio", label: "Liq. corriente", fmt: x2, shade: "high", tip: "Activo corriente / pasivo corriente." },
   mcap: { key: "mcap", label: "Cap. bursátil", fmt: money, tip: "Precio × acciones en circulación, en USD, a la fecha de la última corrida (Nasdaq)." },
   pe: { key: "pe", label: "PER", fmt: times, shade: "low", tip: "Precio / EPS diluido de la base elegida (criterio Investing). En ADRs, capitalización / resultado neto. Cuántos años de ganancias actuales paga el precio. Sin dato si hay pérdida." },
@@ -245,7 +282,7 @@ export const VIEWS: { id: ViewId; label: string; cols: MKey[] }[] = [
   { id: "summary", label: "Resumen", cols: ["revenue", "growth", "op_margin", "roe", "fcf_margin", "de", "pe", "alerts"] },
   { id: "growth", label: "Crecimiento", cols: ["revenue", "growth", "q_yoy", "cagr3", "rev_cagr5", "q_eps_yoy", "eps_ttm_yoy", "eps_cagr5"] },
   { id: "profit", label: "Rentabilidad", cols: ["gross_margin", "op_margin", "pretax_margin", "net_margin", "roe"] },
-  { id: "cash", label: "Caja y balance", cols: ["fcf", "fcf_margin", "fcf_ni", "de", "nd_ebitda", "current_ratio", "quick_ratio"] },
+  { id: "cash", label: "Caja y balance", cols: ["fcf", "fcf_margin", "fcf_ni", "de", "debt_ebitda", "nd_ebitda", "current_ratio", "quick_ratio"] },
   { id: "efficiency", label: "Eficiencia", cols: ["asset_turnover", "inv_turnover", "ar_turnover"] },
   { id: "value", label: "Valuación", cols: ["mcap", "pe", "peg", "pb", "ps", "pcf"] },
   { id: "five", label: "5 años", cols: ["rev_cagr5", "eps_cagr5", "capex_cagr5", "gm5", "om5", "ptm5", "nm5"] },
@@ -266,7 +303,7 @@ export const COMPARE: { title: string; rows: { key: MKey; best?: "high" | "low" 
     title: "Caja y balance",
     rows: [
       { key: "fcf_margin", best: "high" }, { key: "fcf_ni", best: "high" }, { key: "de", best: "low" },
-      { key: "nd_ebitda", best: "low" }, { key: "current_ratio", best: "high" }, { key: "quick_ratio", best: "high" },
+      { key: "debt_ebitda", best: "low" }, { key: "nd_ebitda", best: "low" }, { key: "current_ratio", best: "high" }, { key: "quick_ratio", best: "high" },
     ],
   },
   {

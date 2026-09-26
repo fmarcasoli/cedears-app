@@ -40,7 +40,7 @@ export default function Compare({ views, basis, onClose, onOpen }: {
               </tr>
             </thead>
             <tbody>
-              <tr className="group"><td colSpan={views.length + 1}>Perfil (percentil)</td></tr>
+              <tr className="group"><td colSpan={views.length + 1}>Perfil (50 = igual que su industria)</td></tr>
               {PILLARS.map((p) => (
                 <tr key={p.key}>
                   <td className="l sticky" title={p.tip}>{p.label}</td>
