@@ -3,7 +3,7 @@ import { COL, PILLARS, type MKey, type View } from "./metrics";
 
 /** Ficha de cada indicador para el panel "Qué son cada uno de los indicadores". */
 export type Entry = {
-  key: MKey | "profile";
+  key: MKey | "profile" | "sector";
   name: string;
   what: string;      // qué mide
   how: string;       // cómo se calcula
@@ -166,6 +166,17 @@ export const GROUPS: { title: string; entries: Entry[] }[] = [
       { key: "nm5", name: "Margen neto 5 años", what: "Margen neto típico de los últimos 5 años.", how: "Promedio simple del margen neto de los últimos 5 ejercicios.", read: "Útil para empresas cíclicas: un solo año puede engañar.", example: val("nm5") },
       { key: "capex_cagr5", name: "Crecimiento del CAPEX 5 años", what: "Cuánto aumentó la inversión en activo fijo.", how: "(CAPEX del último ejercicio / CAPEX de 5 ejercicios antes)^(1/5) − 1.", read: "No es bueno ni malo en sí: un CAPEX que crece mucho más que las ventas anticipa capacidad nueva, pero presiona la caja libre.", example: val("capex_cagr5") },
     ],
+  },
+  {
+    title: "Comparación sectorial",
+    entries: [{
+      key: "sector", name: "Contra el sector",
+      what: "Cómo está la empresa contra las demás de su sector, indicador por indicador.",
+      how: "Sector según Nasdaq (parecido a GICS; si Nasdaq no lo informa, según el código SIC de la SEC). Para cada indicador se toma la mediana de las empresas del universo de CEDEARs de ese sector y la posición de la empresa: qué porcentaje de sus pares supera.",
+      read: "“Mejor que el 80%” en margen operativo: supera a 8 de cada 10 empresas del sector. En deuda y múltiplos de valuación, mejor es más bajo. Está en la ficha (pestaña “Contra el sector”) y en el botón “Indicadores por sector”.",
+      watch: "La base es el universo de CEDEARs, no todo el mercado: Investing compara contra toda su base de la industria y sus números difieren. Con menos de 3 empresas con dato no hay mediana.",
+      example: (v) => `${v.row.sector_group || v.row.sector || "Sin sector"}${v.row.industry ? ` · ${v.row.industry}` : ""}`,
+    }],
   },
   {
     title: "Control",

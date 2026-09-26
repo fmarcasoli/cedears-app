@@ -9,6 +9,8 @@ import {
 import CompanySheet from "./sheet";
 import Compare from "./compare";
 import Glossary from "./glossary";
+import Sectors from "./sectors";
+import { sectorOf, sectorStats } from "@/lib/sector";
 import { PillarBar } from "./profile";
 
 type SortKey = MKey | "byma" | "sector" | "period" | `p_${PKey}`;
@@ -54,6 +56,7 @@ export default function Screener({ rows }: { rows: Row[] }) {
   const [open, setOpen] = useState<string | null>(null);
   const [comparing, setComparing] = useState(false);
   const [gloss, setGloss] = useState(false);
+  const [bySector, setBySector] = useState(false);
   const search = useRef<HTMLInputElement>(null);
 
   useEffect(() => setMine(loadMine()), []);
@@ -97,8 +100,10 @@ export default function Screener({ rows }: { rows: Row[] }) {
   const togglePick = (byma: string) =>
     setPicked((p) => (p.includes(byma) ? p.filter((x) => x !== byma) : p.length >= MAX_COMPARE ? p : [...p, byma]));
 
-  const sectors = useMemo(() => Array.from(new Set(rows.map((r) => r.sector).filter(Boolean))).sort(), [rows]);
+  const sectors = useMemo(() => Array.from(new Set(rows.map(sectorOf))).sort((a, b) => a.localeCompare(b, "es")), [rows]);
   const all = useMemo(() => buildViews(rows, basis), [rows, basis]);
+  // Medianas por sector sobre todo el universo (no sobre lo filtrado), en la base elegida
+  const stats = useMemo(() => sectorStats(all), [all]);
   const byId = useMemo(() => new Map(all.map((v) => [v.row.byma, v])), [all]);
 
   // Búsqueda y sector se aplican antes de las pestañas, así cada pestaña cuenta sobre lo buscado.
@@ -107,7 +112,7 @@ export default function Screener({ rows }: { rows: Row[] }) {
     return all.filter((v) => {
       const r = v.row;
       return (!s || r.byma.toLowerCase().includes(s) || r.ticker.toLowerCase().includes(s) || r.name.toLowerCase().includes(s)) &&
-        (!sector || r.sector === sector);
+        (!sector || sectorOf(r) === sector);
     });
   }, [all, q, sector]);
 
@@ -123,7 +128,7 @@ export default function Screener({ rows }: { rows: Row[] }) {
   const sorted = useMemo(() => {
     const { key, dir } = sort;
     const get = (v: View): number | string | null =>
-      key === "byma" ? v.row.byma : key === "sector" ? v.row.sector : key === "period" ? v.period
+      key === "byma" ? v.row.byma : key === "sector" ? sectorOf(v.row) : key === "period" ? v.period
         : key.startsWith("p_") ? v.profile?.[key.slice(2) as PKey] ?? null : rankable(v, key as MKey);
     return [...shown].sort((a, b) => {
       const x = get(a), y = get(b);
@@ -202,8 +207,16 @@ export default function Screener({ rows }: { rows: Row[] }) {
           onClick={() => setGloss((g) => !g)}>
           {gloss ? "Ocultar" : "Qué son cada uno de los indicadores"}
         </button>
+        <button type="button" className="gloss-btn" aria-expanded={bySector} aria-controls="sectores"
+          onClick={() => setBySector((g) => !g)}>
+          {bySector ? "Ocultar sectores" : "Indicadores por sector"}
+        </button>
         <span className="count">{sorted.length} de {rows.length} empresas</span>
       </div>
+      {bySector && (
+        <Sectors stats={stats} cols={VIEWS.find((v) => v.id === view)!.cols.filter((k) => k !== "alerts")}
+          current={sector} onPick={setSector} />
+      )}
       {gloss && (
         <Glossary views={sorted.length ? sorted : all} initial={open ?? sorted[0]?.row.byma ?? null}
           basisLabel={basis === "ttm" ? "últimos 12 meses" : "último ejercicio"} />
@@ -274,7 +287,10 @@ export default function Screener({ rows }: { rows: Row[] }) {
                       </td>
                     );
                   })}
-                  <td className="l"><span className="sub" title={r.sector}>{r.sector || "–"}</span></td>
+                  <td className="l">
+                    <span className="sub" title={r.sector}>{sectorOf(r)}</span>
+                    {(r.industry || r.sector) && <span className="sub muted" title={r.industry || r.sector}>{r.industry || r.sector}</span>}
+                  </td>
                 </tr>
               );
             })}
@@ -328,7 +344,8 @@ export default function Screener({ rows }: { rows: Row[] }) {
           onClose={() => setComparing(false)} onOpen={(b) => { setComparing(false); openSheet(b); }} />
       )}
       {open && (
-        <CompanySheet byma={open} view={byId.get(open) ?? null} basis={basis} onClose={() => openSheet(null)} />
+        <CompanySheet byma={open} view={byId.get(open) ?? null} basis={basis}
+          peers={byId.get(open) ? stats.get(sectorOf(byId.get(open)!.row)) : undefined} onClose={() => openSheet(null)} />
       )}
     </>
   );

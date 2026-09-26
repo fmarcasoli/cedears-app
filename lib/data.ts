@@ -3,6 +3,9 @@ import path from "path";
 
 export type ScreenerRow = {
   byma: string; ticker: string; name: string; sector: string; currency: string;
+  // Sector amplio (Nasdaq, en castellano; respaldo por código SIC) e industria Nasdaq.
+  // `sector` es la descripción SIC de la SEC, más fina.
+  sector_group?: string | null; industry?: string | null;
   reported_currency: string; converted: boolean;
   fy: number | null; fiscal_end: string | null; last_filed: string;
   revenue: number | null; net_income: number | null; fcf: number | null;

@@ -401,7 +401,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
 
 # ───────────────────────── CONVERSIÓN A USD ─────────────────────────
 from fx import FX  # noqa: E402
-from market import Market  # noqa: E402
+from market import SECTOR_ES, Market, sector_from_sic  # noqa: E402
 import splits  # noqa: E402
 from quarterly import (MAX_OF, _lease_in_debt, build_quarters, debt_of, ebitda_of,  # noqa: E402
                        efficiency, nd_ebitda, ttm)
@@ -605,6 +605,9 @@ def main():
         comp["ratio"] = c.get("ratio")
         comp["market_cap"], comp["price"], comp["mcap_date"] = market.market_cap(us)
         comp["sector"], sic, latest = get_sector(cik)
+        ns, ni_ = market.sector.get(us, (None, None))
+        comp["sector_group"] = SECTOR_ES.get(ns, ns) if ns else sector_from_sic(sic)
+        comp["industry"] = ni_
         # ¿La API companyfacts ya incorporó el último 10-Q/10-K presentado?
         have = max([r["end"] for r in comp["quarters"]] + [r["fiscal_end"] for r in comp["rows"]] or [""])
         comp["api_lag"] = bool(latest and have and latest["period"] > have and
@@ -640,6 +643,7 @@ def main():
         L = rows[-1] if rows else {}
         screener.append({
             "byma": byma, "ticker": us, "name": comp["name"], "sector": comp["sector"],
+            "sector_group": comp["sector_group"], "industry": comp["industry"],
             "currency": comp["currency"], "reported_currency": comp["reported_currency"],
             "converted": comp["converted"], "fy": L.get("year"), "fiscal_end": L.get("fiscal_end"),
             "last_filed": comp["last_filed"],
