@@ -124,6 +124,23 @@ SHARE_COUNT = {"shares"}
 
 
 # ─────────────────────────── DESCARGA ───────────────────────────
+
+
+def fill_q4_shares(quarters, rows):
+    """Acciones diluidas del Q4: no hay 10-Q y un promedio ponderado no se resta como un
+    flujo. Con trimestres de igual duración, el promedio anual es el promedio de los cuatro:
+    Q4 = 4 x anual - (Q1 + Q2 + Q3). AMZN Q4-2025: 10.863 M, igual que Investing."""
+    by_end = {r["fiscal_end"]: r for r in rows}
+    for i, q in enumerate(quarters):
+        fy = by_end.get(q["end"])
+        if q.get("shares") or not fy or not fy.get("shares") or i < 3:
+            continue
+        prev = quarters[i - 3:i]
+        span = (date.fromisoformat(q["end"]) - date.fromisoformat(prev[0]["end"])).days
+        if 250 <= span <= 290 and all(p.get("shares") for p in prev):
+            est = 4 * fy["shares"] - sum(p["shares"] for p in prev)
+            if 0.9 < est / fy["shares"] < 1.1:  # si no cierra, mejor vacío que inventado
+                q["shares"] = est
 def get_json(url: str, cache_name: str) -> dict:
     CACHE_DIR.mkdir(exist_ok=True)
     path = CACHE_DIR / cache_name
@@ -341,6 +358,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
 
     quarters = build_quarters(facts, taxonomies, currency or "USD", CONCEPTS, INSTANT,
                               PER_SHARE, SHARE_COUNT, pick_unit, split_events)
+    fill_q4_shares(quarters, rows)
     if quarters:
         lq = quarters[-1]
         if lq.get("rev_yoy") is not None and lq["rev_yoy"] < 0:
