@@ -165,7 +165,8 @@ const ANNUAL_ROWS: Def[] = [
   ["Dividendos pagados", "dividends", money], ["Recompras", "buybacks", money],
   ["Balance"],
   ["Activo", "assets", money], ["Patrimonio neto", "equity", money], ["Caja", "cash", money],
-  ["Deuda total", "total_debt", money], ["Deuda neta", "net_debt", money],
+  ["Deuda financiera", "fin_debt", money], ["Arrendamientos", "leases", money],
+  ["Deuda total (con arrendamientos)", "total_debt", money], ["Deuda neta", "net_debt", money],
   ["Ratios"],
   ["Margen bruto", "gross_margin", pct], ["Margen operativo", "op_margin", pct],
   ["Margen neto", "net_margin", pct], ["Margen caja libre", "fcf_margin", pct],
@@ -183,7 +184,8 @@ const QUARTER_ROWS: Def[] = [
   ["Flujo de fondos del trimestre"],
   ["Flujo operativo", "ocf", money], ["CAPEX", "capex", money], ["Caja libre", "fcf", money],
   ["Balance al cierre"],
-  ["Caja", "cash", money], ["Deuda total", "total_debt", money], ["Patrimonio neto", "equity", money],
+  ["Caja", "cash", money], ["Deuda financiera", "fin_debt", money], ["Arrendamientos", "leases", money],
+  ["Deuda total (con arrendamientos)", "total_debt", money], ["Patrimonio neto", "equity", money],
 ];
 
 function Evolution({ c }: { c: Company }) {
@@ -256,15 +258,24 @@ function Evolution({ c }: { c: Company }) {
 type DP = { year: number; margin: number | null; turn: number | null; lev: number | null; roa: number | null; roe: number | null };
 
 function dupont(c: Company): DP[] {
-  return c.rows.map((r: YearRow) => {
-    // En las convertidas, ingresos van al tipo promedio y el activo al de cierre: se vuelve a
-    // moneda de origen para que la rotación no mezcle dos tipos de cambio.
-    const fa = c.converted ? val(r, "fx_avg") : 1, fc = c.converted ? val(r, "fx_close") : 1;
+  // En las convertidas, ingresos van al tipo promedio y el activo al de cierre: se vuelve a
+  // moneda de origen para que la rotación no mezcle dos tipos de cambio.
+  const local = (r: YearRow, k: string) => {
+    const f = c.converted ? val(r, "fx_close") : 1;
+    return f ? div(val(r, k), f) : null;
+  };
+  // Saldos promedio (cierre anterior y actual), como Investing: rotación 0,87 en AMZN.
+  const avg = (i: number, k: string) => {
+    const a = local(c.rows[i], k), b = i > 0 ? local(c.rows[i - 1], k) : null;
+    return a != null && b != null ? (a + b) / 2 : a;
+  };
+  return c.rows.map((r: YearRow, i) => {
+    const fa = c.converted ? val(r, "fx_avg") : 1;
     const rev = fa ? div(val(r, "revenue"), fa) : null;
     const ni = fa ? div(val(r, "net_income"), fa) : null;
-    const assets = fc ? div(val(r, "assets"), fc) : null;
-    const eq = fc ? div(val(r, "equity"), fc) : null;
-    const posEq = eq != null && eq > 0;
+    const assets = avg(i, "assets");
+    const eq = avg(i, "equity");
+    const posEq = eq != null && eq > 0 && (local(r, "equity") ?? 0) > 0;
     const margin = c.financial ? null : div(ni, rev);
     const turn = c.financial ? null : div(rev, assets);
     const lev = posEq ? div(assets, eq) : null;
@@ -281,11 +292,19 @@ function driver(a: DP, b: DP, financial: boolean) {
     return `No se puede descomponer el cambio de FY${a.year} a FY${b.year}: hay pérdida o patrimonio negativo en alguno de los dos años.`;
   // Descomposición logarítmica: ln(ROE1/ROE0) = suma de ln(factor1/factor0).
   const contrib = parts.map(([name, x, y]) => ({ name, x: x!, y: y!, d: Math.log(y! / x!) }));
-  const top = contrib.reduce((m, p) => (Math.abs(p.d) > Math.abs(m.d) ? p : m));
-  const share = Math.abs(top.d) / (contrib.reduce((s, p) => s + Math.abs(p.d), 0) || 1);
+  // La palanca que explica el cambio es la que se movió en el mismo sentido que el ROE
+  // (si el ROE bajó y el margen subió, el margen no lo explica: lo compensó en parte).
+  const total = contrib.reduce((t, p) => t + p.d, 0);
+  const sameWay = contrib.filter((p) => Math.sign(p.d) === Math.sign(total) && p.d !== 0);
+  const pool = sameWay.length ? sameWay : contrib;
+  const top = pool.reduce((m, p) => (Math.abs(p.d) > Math.abs(m.d) ? p : m));
+  const against = contrib.filter((p) => Math.sign(p.d) === -Math.sign(total) && Math.abs(p.d) > 0.02)
+    .sort((x, y) => Math.abs(y.d) - Math.abs(x.d))[0];
   const fmt = (name: string, v: number) => (name.includes("margen") || name.includes("ROA") ? pct(v) : `${num(v)}x`);
-  return `De FY${a.year} a FY${b.year} el ROE pasó de ${pct(a.roe)} a ${pct(b.roe)}. La palanca que más explica el cambio es ` +
-    `${top.name} (de ${fmt(top.name, top.x)} a ${fmt(top.name, top.y)}), con ${Math.round(share * 100)}% del movimiento.`;
+  const move = (p: typeof top) => `${p.name} (de ${fmt(p.name, p.x)} a ${fmt(p.name, p.y)})`;
+  return `De FY${a.year} a FY${b.year} el ROE ${total >= 0 ? "subió" : "bajó"} de ${pct(a.roe)} a ${pct(b.roe)}. ` +
+    `Lo explica sobre todo ${move(top)}` +
+    (against ? `; en sentido contrario jugó ${move(against)}.` : ".");
 }
 
 function DuPont({ c }: { c: Company }) {
@@ -323,7 +342,7 @@ function DuPont({ c }: { c: Company }) {
       </div>
       <p className="note">
         ROE = margen neto × rotación de activos × apalancamiento{c.financial ? " (en financieras: ROA × apalancamiento, porque sus “ingresos” no son comparables)" : ""}.
-        Se usan saldos de cierre, no promedios, igual que en el resto del sitio. Con patrimonio neto negativo el
+        Activo y patrimonio son promedios del cierre anterior y el actual, igual que Investing. Con patrimonio neto negativo el
         apalancamiento y el ROE no tienen sentido y quedan vacíos.
         {c.converted && ` Calculado en ${c.reported_currency} para no mezclar el tipo de cambio promedio con el de cierre.`}
       </p>

@@ -83,7 +83,7 @@ def _near(series: dict, end: str, tol=7):
 
 def build_quarters(facts, taxonomies, currency, concepts, instant_keys, per_share, share_count, pick_unit,
                    split_events=()):
-    series, filed_by = {}, {}
+    series, filed_by, concept_by = {}, {}, {}
     for key, cands in concepts.items():
         merged = {}
         for concept in cands:
@@ -104,6 +104,7 @@ def build_quarters(facts, taxonomies, currency, concepts, instant_keys, per_shar
                     elif e not in merged:
                         merged[e] = v
                         filed_by.setdefault(key, {})[e] = f
+                        concept_by.setdefault(key, {})[e] = concept
         series[key] = merged
 
     ends = sorted(set(series.get("revenue", {})) | set(series.get("net_income", {})))
@@ -124,6 +125,7 @@ def build_quarters(facts, taxonomies, currency, concepts, instant_keys, per_shar
             r[key] = _near(s, e) if key in instant_keys else s.get(e)
         if r["gross_profit"] is None and r["revenue"] is not None and r["cost_of_revenue"] is not None:
             r["gross_profit"] = r["revenue"] - r["cost_of_revenue"]
+        r["_lt_has_fin_lease"] = _lease_in_debt(concept_by, e)
         q.append(r)
 
     # Splits y unidades: mismo criterio que la serie anual (scripts/splits.py)
@@ -133,6 +135,16 @@ def build_quarters(facts, taxonomies, currency, concepts, instant_keys, per_shar
 
     add_quarter_ratios(q)
     return q
+
+
+def _lease_in_debt(concept_by, end, tol=7):
+    """¿El concepto de deuda de largo plazo de ese cierre ya incluye arrendamientos financieros?"""
+    for key in ("lt_debt", "lt_debt_current"):
+        by = concept_by.get(key, {})
+        c = by.get(end) or next((v for e, v in by.items() if abs((_d(e) - _d(end)).days) <= tol), "")
+        if "CapitalLease" in c or "FinanceLease" in c:
+            return True
+    return False
 
 
 def _div(a, b):
@@ -158,13 +170,34 @@ def nd_ebitda(net_debt, ebitda):
     return 0.0 if net_debt <= 0 else net_debt / ebitda
 
 
+def _sum(vals):
+    return sum(v or 0 for v in vals) if any(v is not None for v in vals) else None
+
+
+def debt_of(r):
+    """Deuda total = financiera + arrendamientos (operativos y financieros), el criterio de
+    Investing / S&P desde ASC 842 / NIIF 16. Si la deuda de largo plazo usada ya incluye
+    los arrendamientos financieros (concepto ...CapitalLeaseObligations), no se suman de nuevo."""
+    fin = _sum([r.get("lt_debt"), r.get("lt_debt_current"), r.get("st_debt")])
+    op = r.get("op_lease")
+    if op is None:
+        op = _sum([r.get("op_lease_nc"), r.get("op_lease_c")])
+    fl = None
+    if not r.pop("_lt_has_fin_lease", False):
+        fl = r.get("fin_lease")
+        if fl is None:
+            fl = _sum([r.get("fin_lease_nc"), r.get("fin_lease_c")])
+    leases = _sum([op, fl])
+    r["fin_debt"], r["leases"] = fin, leases
+    r["total_debt"] = _sum([fin, leases])
+    r["net_debt"] = (r["total_debt"] - r["cash"]
+                     if r["total_debt"] is not None and r.get("cash") is not None else None)
+
+
 def add_quarter_ratios(q):
     for i, r in enumerate(q):
         r["fcf"] = r["ocf"] - (r["capex"] or 0) if r.get("ocf") is not None else None
-        parts = [r.get("lt_debt"), r.get("lt_debt_current"), r.get("st_debt")]
-        r["total_debt"] = sum(p or 0 for p in parts) if any(p is not None for p in parts) else None
-        r["net_debt"] = (r["total_debt"] - r["cash"]
-                         if r["total_debt"] is not None and r.get("cash") is not None else None)
+        debt_of(r)
         r["gross_margin"] = _div(r["gross_profit"], r["revenue"])
         r["op_margin"] = _div(r["operating_income"], r["revenue"])
         r["net_margin"] = _div(r["net_income"], r["revenue"])
@@ -196,15 +229,21 @@ def ttm(q):
         vals = [r.get(k) for r in last4]
         t[k] = sum(vals) if all(v is not None for v in vals) else None
     L = last4[-1]
-    for k in ("assets", "equity", "cash", "total_debt", "net_debt", "current_assets",
-              "current_liabilities"):
+    for k in ("assets", "equity", "cash", "total_debt", "fin_debt", "leases", "net_debt",
+              "current_assets", "current_liabilities"):
         t[k] = L.get(k)
+    # ROE y ROA sobre saldos promedio (inicio y cierre de los 12 meses), como Investing.
+    S = q[-5] if len(q) >= 5 and _consecutive(q[-5:]) else None
+    avg = lambda k: (S[k] + L[k]) / 2 if S and S.get(k) is not None and L.get(k) is not None else L.get(k)
+    t["equity_avg"], t["assets_avg"] = avg("equity"), avg("assets")
     t["gross_margin"] = _div(t["gross_profit"], t["revenue"])
     t["op_margin"] = _div(t["operating_income"], t["revenue"])
     t["net_margin"] = _div(t["net_income"], t["revenue"])
     t["fcf_margin"] = _div(t["fcf"], t["revenue"])
-    thin = t["equity"] is not None and (t["equity"] <= 0 or (t["assets"] and t["equity"] / t["assets"] < 0.05))
-    t["roe"] = None if thin else _div(t["net_income"], t["equity"])
+    thin = t["equity"] is not None and (t["equity"] <= 0 or (t["equity_avg"] or 0) <= 0 or (
+        t["assets_avg"] and t["equity_avg"] / t["assets_avg"] < 0.05))
+    t["roe"] = None if thin else _div(t["net_income"], t["equity_avg"])
+    t["roa"] = _div(t["net_income"], t["assets_avg"])
     t["debt_equity"] = None if thin else _div(t["total_debt"], t["equity"])
     t["current_ratio"] = _div(t["current_assets"], t["current_liabilities"])
     t["nd_ebitda"] = nd_ebitda(t["net_debt"], t["ebitda"])

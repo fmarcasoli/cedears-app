@@ -36,25 +36,28 @@ class Market:
         self.failures = 0
 
     def market_cap(self, ticker: str):
-        """(capitalización USD, fecha ISO) o (None, None)."""
+        """(capitalización USD, precio de cierre anterior USD, fecha ISO) o (None, None, None)."""
         sym = ticker.replace("-", ".")  # BRK-B -> BRK.B
         path = self.dir / f"mcap_{sym}.json"
         if path.exists() and time.time() - path.stat().st_mtime < CACHE_HOURS * 3600:
             data = json.loads(path.read_text())
-            return data.get("mcap"), data.get("date")
+            if "price" in data:
+                return data.get("mcap"), data.get("price"), data.get("date")
         if self.failures >= 15:  # Nasdaq caído o bloqueando: no insistir 300 veces
-            return None, None
+            return None, None, None
         try:
             r = self.session.get(
                 f"https://api.nasdaq.com/api/quote/{sym}/summary?assetclass=stocks", timeout=20)
             r.raise_for_status()
             summary = ((r.json() or {}).get("data") or {}).get("summaryData") or {}
             mcap = _num((summary.get("MarketCap") or {}).get("value"))
+            price = _num((summary.get("PreviousClose") or {}).get("value"))
         except Exception:
             self.failures += 1
-            return None, None
+            return None, None, None
         time.sleep(0.2)
         date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         mcap = mcap if mcap and mcap > 0 else None
-        path.write_text(json.dumps({"mcap": mcap, "date": date}))
-        return mcap, date if mcap else None
+        price = price if price and price > 0 else None
+        path.write_text(json.dumps({"mcap": mcap, "price": price, "date": date}))
+        return mcap, price, date if mcap else None

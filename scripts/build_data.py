@@ -103,13 +103,22 @@ CONCEPTS = {
         "CurrentPortionOfNoncurrentBorrowings",
     ],
     "st_debt": ["ShortTermBorrowings", "CommercialPaper", "CurrentBorrowings"],
+    # Arrendamientos (ASC 842 desde 2019 / NIIF 16): Investing y S&P los cuentan como deuda.
+    # En NIIF no se separan operativos de financieros: van todos en op_lease.
+    "op_lease": ["OperatingLeaseLiability", "LeaseLiabilities"],
+    "op_lease_nc": ["OperatingLeaseLiabilityNoncurrent", "NoncurrentLeaseLiabilities"],
+    "op_lease_c": ["OperatingLeaseLiabilityCurrent", "CurrentLeaseLiabilities"],
+    "fin_lease": ["FinanceLeaseLiability"],
+    "fin_lease_nc": ["FinanceLeaseLiabilityNoncurrent"],
+    "fin_lease_c": ["FinanceLeaseLiabilityCurrent"],
     "shares": [
         "WeightedAverageNumberOfDilutedSharesOutstanding",
         "AdjustedWeightedAverageShares",
     ],
 }
 INSTANT = {"assets", "current_assets", "current_liabilities", "liabilities",
-           "equity", "cash", "lt_debt", "lt_debt_current", "st_debt"}
+           "equity", "cash", "lt_debt", "lt_debt_current", "st_debt",
+           "op_lease", "op_lease_nc", "op_lease_c", "fin_lease", "fin_lease_nc", "fin_lease_c"}
 PER_SHARE = {"eps_diluted"}
 SHARE_COUNT = {"shares"}
 
@@ -182,6 +191,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
 
     series, currency, used = {}, None, {}
     filed_by = {}  # {key: {cierre: fecha del filing del valor usado}}, para los splits
+    concept_by = {}  # {key: {cierre: concepto usado}}, para no duplicar arrendamientos
     fiscal_ends = set()
     last_filed = ""
 
@@ -206,6 +216,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
                     if end not in merged:
                         merged[end] = val
                         filed_by.setdefault(key, {})[end] = filed
+                        concept_by.setdefault(key, {})[end] = concept
                         added = True
                     elif key in MAX_OF and val is not None and val > merged[end]:
                         merged[end] = val
@@ -243,6 +254,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
         r = {"year": y, "fiscal_end": by_year[y]}
         for key in CONCEPTS:
             r[key] = val(key, y)
+        r["_lt_has_fin_lease"] = _lease_in_debt(concept_by, by_year[y])
         if r["gross_profit"] is None and r["revenue"] is not None and r["cost_of_revenue"] is not None:
             r["gross_profit"] = r["revenue"] - r["cost_of_revenue"]
         rows.append(r)
@@ -274,17 +286,18 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
         r["op_margin"] = div(r["operating_income"], r["revenue"])
         r["net_margin"] = div(r["net_income"], r["revenue"])
         r["fcf_margin"] = div(r["fcf"], r["revenue"])
-        thin = r["equity"] is not None and (r["equity"] <= 0 or (
-            r["assets"] and r["equity"] / r["assets"] < 0.05))
-        r["roe"] = None if thin else div(r["net_income"], r["equity"])
+        # ROE y ROA sobre saldos promedio (cierre anterior y actual), como Investing.
+        avg = lambda k: ((prev[k] + r[k]) / 2 if prev and prev.get(k) is not None and r[k] is not None
+                         else r[k])
+        r["equity_avg"], r["assets_avg"] = avg("equity"), avg("assets")
+        thin = r["equity"] is not None and (r["equity"] <= 0 or (r["equity_avg"] or 0) <= 0 or (
+            r["assets_avg"] and r["equity_avg"] / r["assets_avg"] < 0.05))
+        r["roe"] = None if thin else div(r["net_income"], r["equity_avg"])
         r["thin_equity"] = bool(thin)
-        r["roa"] = div(r["net_income"], r["assets"])
+        r["roa"] = div(r["net_income"], r["assets_avg"])
         r["current_ratio"] = div(r["current_assets"], r["current_liabilities"])
-        parts = [r["lt_debt"], r["lt_debt_current"], r["st_debt"]]
-        debt = sum(p or 0 for p in parts) if any(p is not None for p in parts) else None
-        r["total_debt"] = debt
-        r["net_debt"] = debt - r["cash"] if debt is not None and r["cash"] is not None else None
-        r["debt_equity"] = div(debt, r["equity"])
+        debt_of(r)
+        r["debt_equity"] = div(r["total_debt"], r["equity"])
         r["fcf_conversion"] = div(r["fcf"], r["net_income"])
         r["ebitda"] = ebitda_of(r)
         r["nd_ebitda"] = nd_ebitda(r["net_debt"], r["ebitda"])
@@ -354,13 +367,15 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
 from fx import FX  # noqa: E402
 from market import Market  # noqa: E402
 import splits  # noqa: E402
-from quarterly import MAX_OF, build_quarters, ebitda_of, nd_ebitda, ttm  # noqa: E402
+from quarterly import MAX_OF, _lease_in_debt, build_quarters, debt_of, ebitda_of, nd_ebitda, ttm  # noqa: E402
 
 FLOW_KEYS = ("revenue", "gross_profit", "cost_of_revenue", "operating_income", "net_income",
              "da", "depreciation", "amortization", "da_total", "ebitda",
              "ocf", "capex", "dividends", "buybacks", "fcf")
 STOCK_KEYS = ("assets", "current_assets", "current_liabilities", "liabilities", "equity",
-              "cash", "lt_debt", "lt_debt_current", "st_debt", "total_debt", "net_debt")
+              "cash", "lt_debt", "lt_debt_current", "st_debt", "total_debt", "net_debt",
+              "fin_debt", "leases", "op_lease", "op_lease_nc", "op_lease_c", "fin_lease",
+              "fin_lease_nc", "fin_lease_c", "equity_avg", "assets_avg")
 
 
 def to_usd(comp: dict, fx: FX) -> None:
@@ -446,6 +461,23 @@ def ttm_fields(comp):
     return out
 
 
+def per_share_fields(comp):
+    """Precio y EPS diluido (TTM y último ejercicio) para el PER como lo calcula Investing
+    (precio / EPS). Solo si el precio de Nasdaq es por acción ordinaria: en los ADRs el
+    precio es por ADR y el EPS por ordinaria, y la UI cae a capitalización / resultado neto.
+    Se detecta comparando precio x acciones diluidas contra la capitalización."""
+    price, mcap = comp.get("price"), comp.get("market_cap")
+    q = comp.get("quarters") or []
+    rows = comp.get("rows") or []
+    shares = next((r["shares"] for r in reversed(q) if r.get("shares")), None) or \
+        next((r["shares"] for r in reversed(rows) if r.get("shares")), None)
+    same_unit = bool(price and mcap and shares and 0.8 <= price * shares / mcap <= 1.25)
+    t = comp.get("ttm") or {}
+    return {"price": price, "per_share_ok": same_unit,
+            "t_eps": t.get("eps_diluted") if same_unit else None,
+            "eps": rows[-1].get("eps_diluted") if same_unit and rows else None}
+
+
 def cagr(rows, key, n=3):
     if len(rows) <= n:
         return None
@@ -511,7 +543,7 @@ def main():
                 "El margen operativo refleja mejor el negocio.")
         comp["byma"] = byma
         comp["ratio"] = c.get("ratio")
-        comp["market_cap"], comp["mcap_date"] = market.market_cap(us)
+        comp["market_cap"], comp["price"], comp["mcap_date"] = market.market_cap(us)
         comp["sector"], sic, latest = get_sector(cik)
         # ¿La API companyfacts ya incorporó el último 10-Q/10-K presentado?
         have = max([r["end"] for r in comp["quarters"]] + [r["fiscal_end"] for r in comp["rows"]] or [""])
@@ -529,8 +561,9 @@ def main():
                     if k in r:
                         r[k] = None
                 # En financieras el apalancamiento alto es normal: ROE vale si PN > 0
-                if r.get("thin_equity") and (r["equity"] or 0) > 0 and r["net_income"] is not None:
-                    r["roe"], r["thin_equity"] = r["net_income"] / r["equity"], False
+                eq = r.get("equity_avg") or r.get("equity")
+                if r.get("thin_equity") and (r["equity"] or 0) > 0 and (eq or 0) > 0 and r["net_income"] is not None:
+                    r["roe"], r["thin_equity"] = r["net_income"] / eq, False
             comp["alerts"] = [a for a in comp["alerts"] if not a.startswith("Patrimonio neto negativo")]
             comp["alerts"] = [a for a in comp["alerts"] if not a.startswith(("Margen", "Liquidez", "Deuda", "Ingresos"))]
             comp["alerts"].append("Entidad financiera: márgenes, liquidez y deuda/PN no se calculan "
@@ -558,6 +591,7 @@ def main():
             "current_ratio": L.get("current_ratio"),
             "ebitda": L.get("ebitda"), "nd_ebitda": L.get("nd_ebitda"),
             "market_cap": comp["market_cap"], "mcap_date": comp["mcap_date"], "ni_cagr3": comp["ni_cagr3"],
+            **per_share_fields(comp),
             "financial": comp["financial"], "stale": comp["stale"], "api_lag": comp["api_lag"],
             **ttm_fields(comp),
             "alerts": len(comp["alerts"]), "missing": comp["missing"],

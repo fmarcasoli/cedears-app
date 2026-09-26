@@ -42,7 +42,11 @@ export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
   const eq = (useTtm ? r.bal_t : r.bal_a)?.equity ?? null;
   const mcap = r.market_cap ?? null;
   // Valuación: con resultado, PN o ventas <= 0 el múltiplo no se calcula (no es "barato").
-  const pe = mcap != null && ni != null && ni > 0 ? mcap / ni : null;
+  // PER = precio / EPS diluido (criterio Investing). En ADRs, capitalización / resultado neto.
+  const eps = useTtm ? r.t_eps ?? null : r.eps ?? null;
+  const pe = r.per_share_ok && r.price && eps != null
+    ? (eps > 0 ? r.price / eps : null)
+    : mcap != null && ni != null && ni > 0 ? mcap / ni : null;
   const g = r.ni_cagr3 ?? null;
   return {
     mcap, pe,
@@ -188,19 +192,19 @@ export const COL: Record<MKey, Col> = {
   gross_margin: { key: "gross_margin", label: "Mg. bruto", fmt: pct, shade: "high", tip: "Resultado bruto / ingresos. Algunas empresas no informan costo de ventas y queda vacío." },
   op_margin: { key: "op_margin", label: "Mg. operativo", fmt: pct, shade: "high", tip: "Resultado operativo / ingresos." },
   net_margin: { key: "net_margin", label: "Mg. neto", fmt: pct, shade: "high", tip: "Resultado neto / ingresos. Incluye resultados no operativos." },
-  roe: { key: "roe", label: "ROE", fmt: pct, shade: "high", tip: "Resultado neto / patrimonio neto al cierre. Vacío si el PN es negativo o menor al 5% del activo." },
+  roe: { key: "roe", label: "ROE", fmt: pct, shade: "high", tip: "Resultado neto / patrimonio neto promedio (inicio y cierre del período), como Investing. Vacío si el PN es negativo o menor al 5% del activo." },
   fcf_margin: { key: "fcf_margin", label: "Mg. caja libre", fmt: pct, shade: "high", tip: "Caja libre / ingresos." },
   fcf_ni: { key: "fcf_ni", label: "Caja libre / RN", fmt: times, shade: "high", tip: "Caja libre sobre resultado neto: cuánto del resultado se convierte en caja. Solo con resultado neto positivo; en el perfil se acota entre -1 y 2,5." },
-  de: { key: "de", label: "Deuda/PN", fmt: x2, shade: "low", tip: "Deuda financiera total / patrimonio neto. Con PN negativo se muestra con asterisco y queda fuera del sombreado y del orden." },
+  de: { key: "de", label: "Deuda/PN", fmt: x2, shade: "low", tip: "(Deuda financiera + arrendamientos) / patrimonio neto, como Investing. Con PN negativo se muestra con asterisco y queda fuera del sombreado y del orden." },
   nd_ebitda: {
     key: "nd_ebitda", label: "DN/EBITDA", fmt: times, shade: "low",
     tip: "Deuda neta / EBITDA, con EBITDA = resultado operativo + depreciaciones y amortizaciones informadas. " +
-      "Caja neta se muestra 0; con EBITDA negativo no se calcula. La deuda es solo financiera (sin arrendamientos), " +
-      "y en IFRS la depreciación del derecho de uso puede no estar incluida. Calculado en la moneda de origen.",
+      "Deuda neta = deuda financiera + arrendamientos − caja. Caja neta se muestra 0; con EBITDA negativo no se calcula. " +
+      "Calculado en la moneda de origen.",
   },
   current_ratio: { key: "current_ratio", label: "Liq. corriente", fmt: x2, shade: "high", tip: "Activo corriente / pasivo corriente." },
   mcap: { key: "mcap", label: "Cap. bursátil", fmt: money, tip: "Precio × acciones en circulación, en USD, a la fecha de la última corrida (Nasdaq)." },
-  pe: { key: "pe", label: "PER", fmt: times, shade: "low", tip: "Capitalización / resultado neto. Cuántos años de ganancias actuales paga el precio. Sin dato si hay pérdida." },
+  pe: { key: "pe", label: "PER", fmt: times, shade: "low", tip: "Precio / EPS diluido de la base elegida (criterio Investing). En ADRs, capitalización / resultado neto. Cuántos años de ganancias actuales paga el precio. Sin dato si hay pérdida." },
   peg: { key: "peg", label: "PEG", fmt: x2, shade: "low", tip: "PER / crecimiento anual del resultado neto en 3 ejercicios (en %). Histórico, no proyectado. Sin dato si el crecimiento es <= 0." },
   pb: { key: "pb", label: "P/VL", fmt: times, shade: "low", tip: "Capitalización / patrimonio neto contable. Sin dato con PN negativo." },
   ps: { key: "ps", label: "P/Ventas", fmt: times, shade: "low", tip: "Capitalización / ingresos de la base elegida (TTM o último ejercicio). No aplica a financieras." },

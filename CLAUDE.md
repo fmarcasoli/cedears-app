@@ -44,6 +44,12 @@ No las cambies sin motivo; cada una salió de un bug real.
 - **Patrimonio negativo**: es legítimo (recompras acumuladas: MCD, SBUX, PM, ABBV).
   Deuda/PN se muestra igual, marcada, pero queda fuera de rankings y sombreados.
   ROE va en null cuando el PN es negativo o menor al 5% del activo.
+- **Criterio de referencia: Investing.com** (verificado con AMZN, 2026-09). ROE y ROA sobre
+  saldos PROMEDIO (inicio y cierre del período; TTM = trimestre de hace un año y el último).
+  Deuda total = financiera + arrendamientos operativos y financieros (ASC 842 / NIIF 16); si el
+  concepto de deuda ya incluye arrendamientos financieros (...CapitalLeaseObligations) no se suman.
+  Resultado operativo: el oficial del 10-K/10-Q, NO el de Investing, que excluye extraordinarios
+  (AMZN 2022: 12.248 oficial vs 13.348; Q3-25 multa FTC).
 - **Financieras** (SIC 6000-6499): no se calculan márgenes, liquidez, deuda/PN ni
   "ingresos" comparables. Se marcan con `financial: true`.
 - **EBITDA** = resultado operativo + D&A. D&A = el MAYOR entre los conceptos combinados y
@@ -52,7 +58,8 @@ No las cambies sin motivo; cada una salió de un bug real.
   caja neta se muestra 0, EBITDA <= 0 no admite el ratio. Financieras sin EBITDA.
 - **Valuación** (PER, PEG, P/VL, P/Ventas): capitalización bursátil de Nasdaq
   (`scripts/market.py`), NO precio × acciones de la SEC: en ADRs el precio es por ADR y las
-  acciones son ordinarias. PER = cap / resultado neto, P/VL = cap / PN, P/Ventas = cap /
+  acciones son ordinarias. PER = precio / EPS diluido (como Investing) cuando precio x acciones
+  diluidas ≈ capitalización; si no (ADR), cap / resultado neto. P/VL = cap / PN, P/Ventas = cap /
   ingresos; con denominador <= 0 no hay múltiplo. PEG = PER / CAGR 3a del resultado neto en
   moneda de origen (histórico, no proyectado). Si Nasdaq falla, la valuación queda en null.
 - **Desfase de la SEC**: la API companyfacts a veces no tiene el último 10-Q ya presentado.

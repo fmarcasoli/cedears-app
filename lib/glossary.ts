@@ -80,7 +80,7 @@ export const GROUPS: { title: string; entries: Entry[] }[] = [
       { key: "gross_margin", name: "Margen bruto", what: "Cuánto queda de cada dólar vendido después del costo directo.", how: "Resultado bruto / ingresos.", read: "Alto (más de 50%) suele indicar marca, tecnología o poder de precio.", watch: "Algunas empresas no informan costo de ventas y queda vacío.", example: val("gross_margin") },
       { key: "op_margin", name: "Margen operativo", what: "Rentabilidad del negocio antes de intereses e impuestos.", how: "Resultado operativo / ingresos.", read: "Es el mejor margen para comparar negocios entre sí.", example: val("op_margin") },
       { key: "net_margin", name: "Margen neto", what: "Cuánto queda de ganancia final por cada dólar vendido.", how: "Resultado neto / ingresos.", read: "Si supera mucho al operativo, hay ganancias no operativas.", example: val("net_margin") },
-      { key: "roe", name: "ROE", what: "Rentabilidad sobre el capital de los accionistas.", how: "Resultado neto / patrimonio neto al cierre.", read: "Arriba de 15% es bueno. En la ficha, “De dónde sale el ROE” lo abre en margen × rotación × apalancamiento.", watch: "Vacío si el PN es negativo o menor al 5% del activo (recompras masivas lo inflan).", example: val("roe") },
+      { key: "roe", name: "ROE", what: "Rentabilidad sobre el capital de los accionistas.", how: "Resultado neto / patrimonio neto promedio (el del inicio y el del cierre del período, igual que Investing).", read: "Arriba de 15% es bueno. En la ficha, “De dónde sale el ROE” lo abre en margen × rotación × apalancamiento.", watch: "Vacío si el PN es negativo o menor al 5% del activo (recompras masivas lo inflan).", example: val("roe") },
     ],
   },
   {
@@ -88,8 +88,8 @@ export const GROUPS: { title: string; entries: Entry[] }[] = [
     entries: [
       { key: "fcf_margin", name: "Margen de caja libre", what: "Cuánta caja libre genera cada dólar vendido.", how: "Caja libre / ingresos.", read: "Compararlo con el margen neto: si es menor, parte de la ganancia no se cobra.", example: val("fcf_margin") },
       { key: "fcf_ni", name: "Caja libre / resultado neto", what: "Qué parte de la ganancia contable se convierte en caja.", how: "Caja libre / resultado neto.", read: "Cerca de 1x o más es sano; muy por debajo de 0,8x merece mirarse.", watch: "Solo con resultado positivo. En el perfil se acota entre -1 y 2,5.", example: (v) => v.fcf_ni == null ? null : `${money(v.fcf)} / ${money(v.net_income)} = ${x(v.fcf_ni, 2)}` },
-      { key: "de", name: "Deuda / PN", what: "Cuánta deuda financiera tiene por cada dólar de patrimonio.", how: "(Deuda de largo plazo + porción corriente + deuda de corto plazo) / patrimonio neto.", read: "Menos es mejor. Arriba de 2 es apalancamiento alto para una industrial.", watch: "Con PN negativo se muestra con asterisco y no entra en rankings.", example: val("de") },
-      { key: "nd_ebitda", name: "Deuda neta / EBITDA", what: "En cuántos años de EBITDA se pagaría la deuda neta.", how: "(Deuda − caja) / (resultado operativo + depreciaciones y amortizaciones). Calculado en la moneda de origen.", read: "Menos de 2x es cómodo; más de 4x es exigente. Caja neta se muestra 0.", watch: "Con EBITDA negativo no se calcula. No incluye arrendamientos.", example: val("nd_ebitda") },
+      { key: "de", name: "Deuda / PN", what: "Cuánta deuda financiera tiene por cada dólar de patrimonio.", how: "(Deuda de largo plazo + porción corriente + deuda de corto plazo + arrendamientos operativos y financieros) / patrimonio neto. Incluye arrendamientos como Investing y S&P desde 2019 (ASC 842 / NIIF 16).", read: "Menos es mejor. Arriba de 2 es apalancamiento alto para una industrial.", watch: "Con PN negativo se muestra con asterisco y no entra en rankings.", example: val("de") },
+      { key: "nd_ebitda", name: "Deuda neta / EBITDA", what: "En cuántos años de EBITDA se pagaría la deuda neta.", how: "(Deuda financiera + arrendamientos − caja) / (resultado operativo + depreciaciones y amortizaciones). Calculado en la moneda de origen.", read: "Menos de 2x es cómodo; más de 4x es exigente. Caja neta se muestra 0.", watch: "Con EBITDA negativo no se calcula. La deuda incluye arrendamientos; el EBITDA, la amortización de esos activos.", example: val("nd_ebitda") },
       { key: "current_ratio", name: "Liquidez corriente", what: "Capacidad de pagar las deudas del próximo año con activos del próximo año.", how: "Activo corriente / pasivo corriente.", read: "Arriba de 1 cubre; debajo de 1 depende de refinanciar o de generar caja.", watch: "Empresas con cobro contado (supermercados, restaurantes) viven bien debajo de 1.", example: val("current_ratio") },
     ],
   },
@@ -99,10 +99,16 @@ export const GROUPS: { title: string; entries: Entry[] }[] = [
       {
         key: "pe", name: "PER (precio / ganancias)",
         what: "Cuántos años de ganancias actuales está pagando el mercado.",
-        how: "Capitalización bursátil / resultado neto de la base elegida (equivale a precio / EPS).",
+        how: "Precio de la acción / EPS diluido de la base elegida (TTM = suma de los 4 últimos trimestres), igual que Investing. En los ADRs el precio es por ADR y el EPS por acción ordinaria, así que se usa capitalización / resultado neto.",
         read: "Más bajo = más barato respecto de sus ganancias. Hay que compararlo con el crecimiento y con empresas del mismo sector.",
         watch: "Sin dato si hay pérdida. Un resultado inflado por algo no operativo lo hace parecer barato.",
-        example: (v) => v.pe == null ? null : `${money(v.mcap)} / ${money(v.net_income)} = ${x(v.pe)}`,
+        example: (v) => {
+          if (v.pe == null) return null;
+          const eps = v.row.ttm_end && v.period.startsWith("TTM") ? v.row.t_eps : v.row.eps;
+          return v.row.per_share_ok && v.row.price && eps
+            ? `US$ ${v.row.price.toFixed(2)} / EPS ${eps.toFixed(2)} = ${x(v.pe, 2)}`
+            : `${money(v.mcap)} / ${money(v.net_income)} = ${x(v.pe)} (ADR: capitalización / resultado neto)`;
+        },
       },
       {
         key: "peg", name: "Relación PEG",

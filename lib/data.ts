@@ -21,6 +21,9 @@ export type ScreenerRow = {
   // Valuación: capitalización en USD (Nasdaq, fecha de la corrida) y CAGR 3a del
   // resultado neto en moneda de origen, para el PEG.
   market_cap?: number | null; mcap_date?: string | null; ni_cagr3?: number | null;
+  // PER como Investing (precio / EPS diluido). per_share_ok = el precio es por acción
+  // ordinaria (no ADR); si no, el PER se calcula como capitalización / resultado neto.
+  price?: number | null; per_share_ok?: boolean; t_eps?: number | null; eps?: number | null;
 };
 
 /** Saldos de balance que el screener.json no trae y la UI necesita (deuda/PN con PN
