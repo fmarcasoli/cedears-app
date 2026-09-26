@@ -50,6 +50,9 @@ No las cambies sin motivo; cada una salió de un bug real.
   concepto de deuda ya incluye arrendamientos financieros (...CapitalLeaseObligations) no se suman.
   Resultado operativo: el oficial del 10-K/10-Q, NO el de Investing, que excluye extraordinarios
   (AMZN 2022: 12.248 oficial vs 13.348; Q3-25 multa FTC).
+  Rotaciones (activos, inventario, cobrar) sobre saldos promedio; test ácido = (caja + inv. CP +
+  cobrar) / pasivo corriente; 5 años = CAGR y promedio simple de 5 ejercicios. Cobrar usa el
+  concepto SEC (AMZN lo mezcla con otros créditos: Investing reclasifica con notas).
 - **Financieras** (SIC 6000-6499): no se calculan márgenes, liquidez, deuda/PN ni
   "ingresos" comparables. Se marcan con `financial: true`.
 - **EBITDA** = resultado operativo + D&A. D&A = el MAYOR entre los conceptos combinados y

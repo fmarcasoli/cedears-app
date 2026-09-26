@@ -14,6 +14,12 @@ export type Metrics = {
   fcf_margin: number | null; fcf_ni: number | null;
   de: number | null; nd_ebitda: number | null; current_ratio: number | null;
   mcap: number | null; pe: number | null; peg: number | null; pb: number | null; ps: number | null;
+  pcf: number | null;
+  pretax_margin: number | null; quick_ratio: number | null;
+  asset_turnover: number | null; inv_turnover: number | null; ar_turnover: number | null;
+  eps_ttm_yoy: number | null;
+  rev_cagr5: number | null; eps_cagr5: number | null; capex_cagr5: number | null;
+  gm5: number | null; om5: number | null; ptm5: number | null; nm5: number | null;
   alerts: number;
 };
 export type MKey = keyof Metrics;
@@ -53,6 +59,15 @@ export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
     peg: pe != null && g != null && g > 0 ? pe / (g * 100) : null,
     pb: mcap != null && eq != null && eq > 0 ? mcap / eq : null,
     ps: mcap != null && !r.financial && rev != null && rev > 0 ? mcap / rev : null,
+    pcf: (() => { const o = (useTtm ? r.t_ocf : r.ocf) ?? null; return mcap != null && o != null && o > 0 ? mcap / o : null; })(),
+    pretax_margin: (useTtm ? r.t_pretax_margin : r.pretax_margin) ?? null,
+    quick_ratio: (useTtm ? r.t_quick_ratio : r.quick_ratio) ?? null,
+    asset_turnover: (useTtm ? r.t_asset_turnover : r.asset_turnover) ?? null,
+    inv_turnover: (useTtm ? r.t_inv_turnover : r.inv_turnover) ?? null,
+    ar_turnover: (useTtm ? r.t_ar_turnover : r.ar_turnover) ?? null,
+    eps_ttm_yoy: r.t_eps_growth ?? null,
+    rev_cagr5: r.rev_cagr5 ?? null, eps_cagr5: r.eps_cagr5 ?? null, capex_cagr5: r.capex_cagr5 ?? null,
+    gm5: r.gm5 ?? null, om5: r.om5 ?? null, ptm5: r.ptm5 ?? null, nm5: r.nm5 ?? null,
     row: r,
     period: useTtm ? `TTM ${mmyy(r.ttm_end!)}` : r.fy ? `FY${r.fy}` : "–",
     fallback: basis === "ttm" && !r.ttm_end,
@@ -208,16 +223,32 @@ export const COL: Record<MKey, Col> = {
   peg: { key: "peg", label: "PEG", fmt: x2, shade: "low", tip: "PER / crecimiento anual del resultado neto en 3 ejercicios (en %). Histórico, no proyectado. Sin dato si el crecimiento es <= 0." },
   pb: { key: "pb", label: "P/VL", fmt: times, shade: "low", tip: "Capitalización / patrimonio neto contable. Sin dato con PN negativo." },
   ps: { key: "ps", label: "P/Ventas", fmt: times, shade: "low", tip: "Capitalización / ingresos de la base elegida (TTM o último ejercicio). No aplica a financieras." },
+  pcf: { key: "pcf", label: "P/Flujo caja", fmt: times, shade: "low", tip: "Capitalización / flujo operativo de la base elegida. Sin dato si el flujo es negativo." },
+  pretax_margin: { key: "pretax_margin", label: "Mg. antes imp.", fmt: pct, shade: "high", tip: "Resultado antes de impuestos / ingresos. Incluye resultados financieros y no operativos." },
+  quick_ratio: { key: "quick_ratio", label: "Test ácido", fmt: x2, shade: "high", tip: "(Caja + inversiones de corto plazo + cuentas a cobrar) / pasivo corriente. Liquidez sin contar inventarios." },
+  asset_turnover: { key: "asset_turnover", label: "Rot. activos", fmt: x2, shade: "high", tip: "Ingresos / activo promedio (inicio y cierre del período)." },
+  inv_turnover: { key: "inv_turnover", label: "Rot. inventario", fmt: x2, shade: "high", tip: "Costo de ventas / inventario promedio. Cuántas veces por año se renueva el stock." },
+  ar_turnover: { key: "ar_turnover", label: "Rot. cobrar", fmt: x2, shade: "high", tip: "Ingresos / cuentas a cobrar promedio. Cuántas veces por año se cobra la cartera." },
+  eps_ttm_yoy: { key: "eps_ttm_yoy", label: "EPS 12m i.a.", fmt: pct, shade: "high", tip: "EPS diluido de los últimos 12 meses contra los 12 meses anteriores. Solo si el anterior era positivo." },
+  rev_cagr5: { key: "rev_cagr5", label: "Ventas 5a", fmt: pct, shade: "high", tip: "Crecimiento anual compuesto de ingresos en 5 ejercicios, en moneda de origen." },
+  eps_cagr5: { key: "eps_cagr5", label: "EPS 5a", fmt: pct, shade: "high", tip: "Crecimiento anual compuesto del EPS diluido en 5 ejercicios. No se calcula si alguna punta es negativa." },
+  capex_cagr5: { key: "capex_cagr5", label: "CAPEX 5a", fmt: pct, tip: "Crecimiento anual compuesto de la inversión en activo fijo en 5 ejercicios. No es bueno ni malo en sí: muestra cuánto está invirtiendo." },
+  gm5: { key: "gm5", label: "Mg. bruto 5a", fmt: pct, shade: "high", tip: "Promedio simple del margen bruto de los últimos 5 ejercicios." },
+  om5: { key: "om5", label: "Mg. oper. 5a", fmt: pct, shade: "high", tip: "Promedio simple del margen operativo de los últimos 5 ejercicios." },
+  ptm5: { key: "ptm5", label: "Mg. antes imp. 5a", fmt: pct, shade: "high", tip: "Promedio simple del margen antes de impuestos de los últimos 5 ejercicios." },
+  nm5: { key: "nm5", label: "Mg. neto 5a", fmt: pct, shade: "high", tip: "Promedio simple del margen neto de los últimos 5 ejercicios." },
   alerts: { key: "alerts", label: "Alertas", fmt: (v) => (v ? String(v) : "–"), tip: "Cantidad de alertas automáticas. El detalle está en la ficha." },
 };
 
-export type ViewId = "summary" | "growth" | "profit" | "cash" | "value";
+export type ViewId = "summary" | "growth" | "profit" | "cash" | "efficiency" | "value" | "five";
 export const VIEWS: { id: ViewId; label: string; cols: MKey[] }[] = [
   { id: "summary", label: "Resumen", cols: ["revenue", "growth", "op_margin", "roe", "fcf_margin", "de", "pe", "alerts"] },
-  { id: "growth", label: "Crecimiento", cols: ["revenue", "growth", "q_yoy", "cagr3", "q_eps_yoy"] },
-  { id: "profit", label: "Rentabilidad", cols: ["gross_margin", "op_margin", "net_margin", "roe"] },
-  { id: "cash", label: "Caja y balance", cols: ["fcf", "fcf_margin", "fcf_ni", "de", "nd_ebitda", "current_ratio"] },
-  { id: "value", label: "Valuación", cols: ["mcap", "pe", "peg", "pb", "ps"] },
+  { id: "growth", label: "Crecimiento", cols: ["revenue", "growth", "q_yoy", "cagr3", "rev_cagr5", "q_eps_yoy", "eps_ttm_yoy", "eps_cagr5"] },
+  { id: "profit", label: "Rentabilidad", cols: ["gross_margin", "op_margin", "pretax_margin", "net_margin", "roe"] },
+  { id: "cash", label: "Caja y balance", cols: ["fcf", "fcf_margin", "fcf_ni", "de", "nd_ebitda", "current_ratio", "quick_ratio"] },
+  { id: "efficiency", label: "Eficiencia", cols: ["asset_turnover", "inv_turnover", "ar_turnover"] },
+  { id: "value", label: "Valuación", cols: ["mcap", "pe", "peg", "pb", "ps", "pcf"] },
+  { id: "five", label: "5 años", cols: ["rev_cagr5", "eps_cagr5", "capex_cagr5", "gm5", "om5", "ptm5", "nm5"] },
 ];
 
 /** Valor para ordenar/sombrear: deuda/PN con PN negativo no participa. */
@@ -229,17 +260,28 @@ export const COMPARE: { title: string; rows: { key: MKey; best?: "high" | "low" 
   { title: "Crecimiento", rows: [{ key: "growth", best: "high" }, { key: "q_yoy", best: "high" }, { key: "cagr3", best: "high" }] },
   {
     title: "Rentabilidad",
-    rows: [{ key: "gross_margin", best: "high" }, { key: "op_margin", best: "high" }, { key: "net_margin", best: "high" }, { key: "roe", best: "high" }],
+    rows: [{ key: "gross_margin", best: "high" }, { key: "op_margin", best: "high" }, { key: "pretax_margin", best: "high" }, { key: "net_margin", best: "high" }, { key: "roe", best: "high" }],
   },
   {
     title: "Caja y balance",
     rows: [
       { key: "fcf_margin", best: "high" }, { key: "fcf_ni", best: "high" }, { key: "de", best: "low" },
-      { key: "nd_ebitda", best: "low" }, { key: "current_ratio", best: "high" },
+      { key: "nd_ebitda", best: "low" }, { key: "current_ratio", best: "high" }, { key: "quick_ratio", best: "high" },
     ],
   },
   {
+    title: "Eficiencia",
+    rows: [{ key: "asset_turnover", best: "high" }, { key: "inv_turnover", best: "high" }, { key: "ar_turnover", best: "high" }],
+  },
+  {
     title: "Valuación",
-    rows: [{ key: "pe", best: "low" }, { key: "peg", best: "low" }, { key: "pb", best: "low" }, { key: "ps", best: "low" }],
+    rows: [{ key: "pe", best: "low" }, { key: "peg", best: "low" }, { key: "pb", best: "low" }, { key: "ps", best: "low" }, { key: "pcf", best: "low" }],
+  },
+  {
+    title: "5 años",
+    rows: [
+      { key: "rev_cagr5", best: "high" }, { key: "eps_cagr5", best: "high" }, { key: "gm5", best: "high" },
+      { key: "om5", best: "high" }, { key: "nm5", best: "high" },
+    ],
   },
 ];

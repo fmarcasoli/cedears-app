@@ -194,6 +194,24 @@ def debt_of(r):
                      if r["total_debt"] is not None and r.get("cash") is not None else None)
 
 
+def efficiency(r, prev):
+    """Margen antes de impuestos, test ácido y rotaciones, como Investing: los saldos de
+    las rotaciones son el promedio entre el inicio y el cierre del período.
+    prev = período que cierra donde empieza este (ejercicio anterior o trimestre de hace un año)."""
+    avg = lambda k: ((prev[k] + r[k]) / 2 if prev and prev.get(k) is not None and r.get(k) is not None
+                     else r.get(k))
+    cogs = r.get("cost_of_revenue")
+    if cogs is None and r.get("revenue") is not None and r.get("gross_profit") is not None:
+        cogs = r["revenue"] - r["gross_profit"]
+    r["pretax_margin"] = _div(r.get("pretax"), r.get("revenue"))
+    quick = [r.get("cash"), r.get("st_investments"), r.get("receivables")]
+    r["quick_ratio"] = (_div(sum(v or 0 for v in quick), r.get("current_liabilities"))
+                        if r.get("cash") is not None else None)
+    r["asset_turnover"] = _div(r.get("revenue"), avg("assets"))
+    r["inv_turnover"] = _div(cogs, avg("inventory")) if r.get("inventory") else None
+    r["ar_turnover"] = _div(r.get("revenue"), avg("receivables")) if r.get("receivables") else None
+
+
 def add_quarter_ratios(q):
     for i, r in enumerate(q):
         r["fcf"] = r["ocf"] - (r["capex"] or 0) if r.get("ocf") is not None else None
@@ -215,7 +233,8 @@ def _consecutive(block):
     return all(_is_quarter((_d(b["end"]) - _d(a["end"])).days) for a, b in zip(block, block[1:]))
 
 
-TTM_FLOWS = ("revenue", "gross_profit", "operating_income", "ebitda", "da_total", "net_income", "ocf", "capex",
+TTM_FLOWS = ("revenue", "gross_profit", "cost_of_revenue", "pretax", "operating_income", "ebitda", "da_total",
+             "net_income", "ocf", "capex",
              "fcf", "dividends", "buybacks", "eps_diluted")
 
 
@@ -230,7 +249,7 @@ def ttm(q):
         t[k] = sum(vals) if all(v is not None for v in vals) else None
     L = last4[-1]
     for k in ("assets", "equity", "cash", "total_debt", "fin_debt", "leases", "net_debt",
-              "current_assets", "current_liabilities"):
+              "current_assets", "current_liabilities", "st_investments", "receivables", "inventory"):
         t[k] = L.get(k)
     # ROE y ROA sobre saldos promedio (inicio y cierre de los 12 meses), como Investing.
     S = q[-5] if len(q) >= 5 and _consecutive(q[-5:]) else None
@@ -247,6 +266,13 @@ def ttm(q):
     t["debt_equity"] = None if thin else _div(t["total_debt"], t["equity"])
     t["current_ratio"] = _div(t["current_assets"], t["current_liabilities"])
     t["nd_ebitda"] = nd_ebitda(t["net_debt"], t["ebitda"])
+    efficiency(t, S)
+    # EPS de los últimos 12 meses contra los 12 anteriores (Investing: "BPA TTM vs TTM 1 año atrás")
+    t["eps_growth"] = None
+    if len(q) >= 8 and _consecutive(q[-8:]):
+        prev_eps = [r.get("eps_diluted") for r in q[-8:-4]]
+        if None not in prev_eps and sum(prev_eps) > 0 and t["eps_diluted"] is not None:
+            t["eps_growth"] = t["eps_diluted"] / sum(prev_eps) - 1
     # crecimiento TTM contra los 12 meses anteriores
     t["rev_growth"] = None
     if len(q) >= 8 and _consecutive(q[-8:]):

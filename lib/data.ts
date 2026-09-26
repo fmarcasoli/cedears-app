@@ -24,6 +24,17 @@ export type ScreenerRow = {
   // PER como Investing (precio / EPS diluido). per_share_ok = el precio es por acción
   // ordinaria (no ADR); si no, el PER se calcula como capitalización / resultado neto.
   price?: number | null; per_share_ok?: boolean; t_eps?: number | null; eps?: number | null;
+  // Ratios adicionales con criterio Investing (anual y t_ = últimos 12 meses)
+  ocf?: number | null; t_ocf?: number | null;
+  pretax_margin?: number | null; t_pretax_margin?: number | null;
+  quick_ratio?: number | null; t_quick_ratio?: number | null;
+  asset_turnover?: number | null; t_asset_turnover?: number | null;
+  inv_turnover?: number | null; t_inv_turnover?: number | null;
+  ar_turnover?: number | null; t_ar_turnover?: number | null;
+  t_eps_growth?: number | null;
+  // 5 años: crecimientos compuestos y promedios de márgenes de los últimos 5 ejercicios
+  rev_cagr5?: number | null; eps_cagr5?: number | null; capex_cagr5?: number | null;
+  gm5?: number | null; om5?: number | null; ptm5?: number | null; nm5?: number | null;
 };
 
 /** Saldos de balance que el screener.json no trae y la UI necesita (deuda/PN con PN

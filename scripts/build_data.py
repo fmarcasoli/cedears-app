@@ -111,6 +111,22 @@ CONCEPTS = {
     "fin_lease": ["FinanceLeaseLiability"],
     "fin_lease_nc": ["FinanceLeaseLiabilityNoncurrent"],
     "fin_lease_c": ["FinanceLeaseLiabilityCurrent"],
+    # Para margen antes de impuestos, test ácido y rotaciones (criterio Investing)
+    "pretax": [
+        "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
+        "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments",
+        "ProfitLossBeforeTax",
+    ],
+    "st_investments": [
+        "ShortTermInvestments", "MarketableSecuritiesCurrent",
+        "AvailableForSaleSecuritiesDebtSecuritiesCurrent", "CurrentInvestments",
+    ],
+    "receivables": [
+        "AccountsReceivableNetCurrent", "ReceivablesNetCurrent",
+        "AccountsNotesAndLoansReceivableNetCurrent", "TradeAndOtherCurrentReceivables",
+        "CurrentTradeReceivables",
+    ],
+    "inventory": ["InventoryNet", "Inventories"],
     "shares": [
         "WeightedAverageNumberOfDilutedSharesOutstanding",
         "AdjustedWeightedAverageShares",
@@ -118,7 +134,8 @@ CONCEPTS = {
 }
 INSTANT = {"assets", "current_assets", "current_liabilities", "liabilities",
            "equity", "cash", "lt_debt", "lt_debt_current", "st_debt",
-           "op_lease", "op_lease_nc", "op_lease_c", "fin_lease", "fin_lease_nc", "fin_lease_c"}
+           "op_lease", "op_lease_nc", "op_lease_c", "fin_lease", "fin_lease_nc", "fin_lease_c",
+           "st_investments", "receivables", "inventory"}
 PER_SHARE = {"eps_diluted"}
 SHARE_COUNT = {"shares"}
 
@@ -313,6 +330,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
         r["thin_equity"] = bool(thin)
         r["roa"] = div(r["net_income"], r["assets_avg"])
         r["current_ratio"] = div(r["current_assets"], r["current_liabilities"])
+        efficiency(r, prev)
         debt_of(r)
         r["debt_equity"] = div(r["total_debt"], r["equity"])
         r["fcf_conversion"] = div(r["fcf"], r["net_income"])
@@ -385,15 +403,17 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
 from fx import FX  # noqa: E402
 from market import Market  # noqa: E402
 import splits  # noqa: E402
-from quarterly import MAX_OF, _lease_in_debt, build_quarters, debt_of, ebitda_of, nd_ebitda, ttm  # noqa: E402
+from quarterly import (MAX_OF, _lease_in_debt, build_quarters, debt_of, ebitda_of,  # noqa: E402
+                       efficiency, nd_ebitda, ttm)
 
 FLOW_KEYS = ("revenue", "gross_profit", "cost_of_revenue", "operating_income", "net_income",
-             "da", "depreciation", "amortization", "da_total", "ebitda",
+             "da", "depreciation", "amortization", "da_total", "ebitda", "pretax",
              "ocf", "capex", "dividends", "buybacks", "fcf")
 STOCK_KEYS = ("assets", "current_assets", "current_liabilities", "liabilities", "equity",
               "cash", "lt_debt", "lt_debt_current", "st_debt", "total_debt", "net_debt",
               "fin_debt", "leases", "op_lease", "op_lease_nc", "op_lease_c", "fin_lease",
-              "fin_lease_nc", "fin_lease_c", "equity_avg", "assets_avg")
+              "fin_lease_nc", "fin_lease_c", "equity_avg", "assets_avg",
+              "st_investments", "receivables", "inventory")
 
 
 def to_usd(comp: dict, fx: FX) -> None:
@@ -459,8 +479,9 @@ def get_sector(cik: int):
 # Bancos, aseguradoras y brokers (SIC 6000-6499): "ingresos", margen bruto,
 # liquidez corriente y deuda/PN no significan lo mismo que en una industrial.
 FIN_RATIOS_OFF = ("gross_margin", "op_margin", "net_margin", "fcf_margin", "ebitda", "nd_ebitda",
+                  "pretax_margin", "quick_ratio", "asset_turnover", "inv_turnover", "ar_turnover",
                   "current_ratio", "debt_equity", "rev_growth")
-FIN_SCREENER_OFF = ("revenue", "rev_cagr3", "fcf")  # "ingresos" de bancos no comparables
+FIN_SCREENER_OFF = ("revenue", "rev_cagr3", "fcf", "rev_cagr5", "capex_cagr5", "gm5", "om5", "ptm5", "nm5")  # "ingresos" de bancos no comparables
 STALE_DAYS = 450
 
 
@@ -471,7 +492,9 @@ def ttm_fields(comp):
            "q_rev_yoy": q[-1].get("rev_yoy") if q else None,
            "q_eps_yoy": q[-1].get("eps_yoy") if q else None}
     for k in ("revenue", "net_income", "fcf", "rev_growth", "gross_margin", "op_margin",
-              "net_margin", "fcf_margin", "roe", "debt_equity", "current_ratio", "ebitda", "nd_ebitda"):
+              "net_margin", "fcf_margin", "roe", "debt_equity", "current_ratio", "ebitda", "nd_ebitda",
+              "ocf", "pretax_margin", "quick_ratio", "asset_turnover", "inv_turnover", "ar_turnover",
+              "eps_growth"):
         out["t_" + k] = t.get(k) if t else None
     if comp.get("financial"):
         for k in ("t_revenue", "t_fcf", "t_rev_growth", "q_rev_yoy"):
@@ -494,6 +517,23 @@ def per_share_fields(comp):
     return {"price": price, "per_share_ok": same_unit,
             "t_eps": t.get("eps_diluted") if same_unit else None,
             "eps": rows[-1].get("eps_diluted") if same_unit and rows else None}
+
+
+FIVE_KEYS = ("rev_cagr5", "eps_cagr5", "capex_cagr5", "gm5", "om5", "ptm5", "nm5")
+
+
+def five_year(rows):
+    """Crecimientos compuestos a 5 años y promedios simples de márgenes de los últimos 5
+    ejercicios (Investing: "5YA"). En moneda de origen, antes de convertir a USD.
+    AMZN: ventas 13,18%, EPS 27,96%, margen bruto 46,39%, neto 6,4%."""
+    out = {"rev_cagr5": cagr(rows, "revenue", 5), "eps_cagr5": cagr(rows, "eps_diluted", 5),
+           "capex_cagr5": cagr(rows, "capex", 5)}
+    last5 = rows[-5:]
+    for out_key, k in (("gm5", "gross_margin"), ("om5", "op_margin"), ("ptm5", "pretax_margin"),
+                       ("nm5", "net_margin")):
+        vals = [r.get(k) for r in last5]
+        out[out_key] = sum(vals) / 5 if len(last5) == 5 and None not in vals else None
+    return out
 
 
 def cagr(rows, key, n=3):
@@ -540,6 +580,7 @@ def main():
         # Crecimiento del resultado neto para el PEG: en moneda de origen, antes de
         # convertir (así no mezcla el efecto cambiario).
         comp["ni_cagr3"] = cagr(comp["rows"], "net_income")
+        comp.update(five_year(comp["rows"]))
         try:
             to_usd(comp, fx)
         except Exception as e:  # sin tipo de cambio: queda en moneda original
@@ -548,7 +589,8 @@ def main():
         t = ttm(comp["quarters"]) if t_local else None
         if t and t_local:
             for k in ("gross_margin", "op_margin", "net_margin", "fcf_margin", "roe",
-                      "debt_equity", "current_ratio", "nd_ebitda"):
+                      "debt_equity", "current_ratio", "nd_ebitda", "pretax_margin", "quick_ratio",
+                      "asset_turnover", "inv_turnover", "ar_turnover", "eps_growth"):
                 t[k] = t_local[k]
             t["rev_growth_local"] = t_local["rev_growth"]
         comp["ttm"] = t
@@ -609,6 +651,10 @@ def main():
             "current_ratio": L.get("current_ratio"),
             "ebitda": L.get("ebitda"), "nd_ebitda": L.get("nd_ebitda"),
             "market_cap": comp["market_cap"], "mcap_date": comp["mcap_date"], "ni_cagr3": comp["ni_cagr3"],
+            "ocf": L.get("ocf"), "pretax_margin": L.get("pretax_margin"), "quick_ratio": L.get("quick_ratio"),
+            "asset_turnover": L.get("asset_turnover"), "inv_turnover": L.get("inv_turnover"),
+            "ar_turnover": L.get("ar_turnover"),
+            **{k: comp.get(k) for k in FIVE_KEYS},
             **per_share_fields(comp),
             "financial": comp["financial"], "stale": comp["stale"], "api_lag": comp["api_lag"],
             **ttm_fields(comp),
