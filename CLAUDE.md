@@ -136,3 +136,9 @@ SEC_USER_AGENT="Nombre mail@dominio" python scripts/build_data.py   # solo si to
   con presupuesto de 20 min y continue-on-error.
 - Ingresos totales: "revenue" toma el MAYOR entre Revenues y RevenueFromContractWithCustomerExcludingAssessedTax
   (MAX_OF en quarterly.py): el ASC 606 deja afuera intereses de financieras propias (MELI, GM, BRKB...).
+
+## Márgenes de industria: solo Damodaran (27-sep-2026)
+- MARGIN_KEYS (bruto, operativo, antes de impuestos, neto y sus promedios de 5 años) nunca salen de Investing:
+  su promedio simple se rompe en industrias con muchas empresas chicas en pérdida (Software −127%).
+- Damodaran (agregado) da bruto, operativo y neto. Antes de impuestos y 5 años de márgenes quedan sin referencia.
+- Reemplaza las reglas anteriores de contagio y MARGIN_GAP.

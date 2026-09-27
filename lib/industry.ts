@@ -19,6 +19,9 @@ export const BENCH_KEYS = BLOCKS.flatMap((b) => b.keys);
 
 /** Diferencias de definición cuando el dato viene de Damodaran. */
 export const DAMODARAN_NOTES: Partial<Record<MKey, string>> = {
+  gross_margin: "Márgenes de industria siempre de Damodaran: agregado (suma de resultados / suma de ventas), pesa por tamaño.",
+  op_margin: "Márgenes de industria siempre de Damodaran: resultado operativo total / ventas totales de la industria.",
+  net_margin: "Márgenes de industria siempre de Damodaran: resultado neto total / ventas totales de la industria.",
   eps_cagr5: "Damodaran: crecimiento del resultado neto, no del EPS.",
   debt_ebitda: "Damodaran: deuda bruta con arrendamientos / EBITDA.",
   pe: "Damodaran: capitalización total / resultado de las empresas con ganancias.",
