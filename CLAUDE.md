@@ -68,7 +68,8 @@ No las cambies sin motivo; cada una salió de un bug real.
 - **Pilares del perfil**: puntaje contra el valor externo de su industria (ver abajo), no percentil de CEDEARs:
   50 + 50 x (empresa - industria) / max(|industria|, piso), acotado 0-100 (50 = igual, 100 = el
   doble de bueno). Crecimiento: ventas 12m, ventas y EPS 5a; Rentabilidad: mg. bruto, operativo, ROE;
-  Solidez: deuda/PN, deuda BRUTA/EBITDA, liquidez y test ácido; Calidad: caja libre/RN contra 1.
+  Solidez: deuda/PN, deuda BRUTA/EBITDA, liquidez y test ácido; Calidad: flujo OPERATIVO/RN contra 1
+  (no caja libre: el CAPEX de crecimiento, ej. AMZN en IA, no es mala calidad de la ganancia).
   Sin datos de industria en la corrida, vuelve al percentil del universo.
 - **Industria (parámetro EXTERNO, nunca calculado acá)**: el usuario no quiere promedios propios.
   Fuente principal: columna "Industria" de Investing.com (`scripts/investing.py`, workflow semanal

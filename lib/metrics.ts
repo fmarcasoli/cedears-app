@@ -11,7 +11,7 @@ export type Metrics = {
   revenue: number | null; net_income: number | null; fcf: number | null;
   growth: number | null; q_yoy: number | null; q_eps_yoy: number | null; cagr3: number | null;
   gross_margin: number | null; op_margin: number | null; net_margin: number | null; roe: number | null;
-  fcf_margin: number | null; fcf_ni: number | null;
+  fcf_margin: number | null; fcf_ni: number | null; ocf_ni: number | null;
   de: number | null; nd_ebitda: number | null; debt_ebitda: number | null; current_ratio: number | null;
   mcap: number | null; pe: number | null; peg: number | null; pb: number | null; ps: number | null;
   pcf: number | null;
@@ -82,6 +82,9 @@ export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
     fcf_margin: useTtm ? r.t_fcf_margin : r.fcf_margin,
     // Con resultado neto <= 0 el cociente cambia de sentido: no se calcula.
     fcf_ni: r.financial || ni == null || ni <= 0 ? null : div(fcf, ni),
+    // Calidad del resultado: ¿la ganancia se cobra? Flujo operativo / resultado neto, antes del
+    // CAPEX (invertir fuerte es una decisión de inversión, no mala calidad de la ganancia).
+    ocf_ni: r.financial || ni == null || ni <= 0 ? null : div((useTtm ? r.t_ocf : r.ocf) ?? null, ni),
     current_ratio: useTtm ? r.t_current_ratio : r.current_ratio,
     nd_ebitda: r.financial ? null : (useTtm ? r.t_nd_ebitda : r.nd_ebitda) ?? null,
     // Deuda BRUTA / EBITDA (con arrendamientos), la misma definición que Damodaran
@@ -125,8 +128,8 @@ export const PILLARS: { key: PKey; label: string; short: string; metrics: PMetri
   },
   {
     key: "quality", label: "Calidad del resultado", short: "Cal.",
-    metrics: [{ key: "fcf_ni", ref: 1, floor: 1 }],
-    tip: "Caja libre / resultado neto contra 1: cada dólar de ganancia debería volver como un dólar de caja. Ninguna fuente publica este dato por industria, así que la referencia es absoluta.",
+    metrics: [{ key: "ocf_ni", ref: 1, floor: 1 }],
+    tip: "Flujo operativo / resultado neto contra 1: si la ganancia contable se cobra en efectivo. Se mide antes del CAPEX, para no castigar a las que invierten fuerte. Ninguna fuente publica este dato por industria, así que la referencia es absoluta (1 = ganancia totalmente respaldada por caja).",
   },
 ];
 
@@ -206,7 +209,7 @@ export const LISTS: { id: ListId; label: string; crit: string; test: (v: View, m
   { id: "all", label: "Todas", crit: "Todas las empresas con fundamentals en la SEC.", test: () => true },
   {
     id: "quality", label: "Calidad compuesta",
-    crit: "Rentabilidad ≥ 65 (bastante mejor que su industria), calidad del resultado ≥ 50 (la ganancia se convierte en caja) y crecimiento ≥ 55 (crece más que su industria).",
+    crit: "Rentabilidad ≥ 65 (bastante mejor que su industria), calidad del resultado ≥ 50 (la ganancia se cobra en efectivo) y crecimiento ≥ 55 (crece más que su industria).",
     test: (v) => !!v.profile && (v.profile.profit ?? -1) >= 65 && (v.profile.quality ?? -1) >= 50 && (v.profile.growth ?? -1) >= 55,
   },
   {
@@ -246,6 +249,7 @@ export const COL: Record<MKey, Col> = {
   net_margin: { key: "net_margin", label: "Mg. neto", fmt: pct, shade: "high", tip: "Resultado neto / ingresos. Incluye resultados no operativos." },
   roe: { key: "roe", label: "ROE", fmt: pct, shade: "high", tip: "Resultado neto / patrimonio neto promedio (inicio y cierre del período), como Investing. Vacío si el PN es negativo o menor al 5% del activo." },
   fcf_margin: { key: "fcf_margin", label: "Mg. caja libre", fmt: pct, shade: "high", tip: "Caja libre / ingresos." },
+  ocf_ni: { key: "ocf_ni", label: "Flujo op. / RN", fmt: times, shade: "high", tip: "Flujo operativo / resultado neto: cuánto de la ganancia contable se cobra en efectivo, antes de invertir. Cerca o arriba de 1 es sano. Solo con resultado neto positivo." },
   fcf_ni: { key: "fcf_ni", label: "Caja libre / RN", fmt: times, shade: "high", tip: "Caja libre sobre resultado neto: cuánto del resultado se convierte en caja. Solo con resultado neto positivo; en el perfil se acota entre -1 y 2,5." },
   de: { key: "de", label: "Deuda/PN", fmt: x2, shade: "low", tip: "(Deuda financiera + arrendamientos) / patrimonio neto, como Investing. Con PN negativo se muestra con asterisco y queda fuera del sombreado y del orden." },
   nd_ebitda: {
@@ -283,7 +287,7 @@ export const VIEWS: { id: ViewId; label: string; cols: MKey[] }[] = [
   { id: "summary", label: "Resumen", cols: ["revenue", "growth", "op_margin", "roe", "fcf_margin", "de", "pe", "alerts"] },
   { id: "growth", label: "Crecimiento", cols: ["revenue", "growth", "q_yoy", "cagr3", "rev_cagr5", "q_eps_yoy", "eps_ttm_yoy", "eps_cagr5"] },
   { id: "profit", label: "Rentabilidad", cols: ["gross_margin", "op_margin", "pretax_margin", "net_margin", "roe"] },
-  { id: "cash", label: "Caja y balance", cols: ["fcf", "fcf_margin", "fcf_ni", "de", "debt_ebitda", "nd_ebitda", "current_ratio", "quick_ratio"] },
+  { id: "cash", label: "Caja y balance", cols: ["fcf", "fcf_margin", "ocf_ni", "fcf_ni", "de", "debt_ebitda", "nd_ebitda", "current_ratio", "quick_ratio"] },
   { id: "efficiency", label: "Eficiencia", cols: ["asset_turnover", "inv_turnover", "ar_turnover"] },
   { id: "value", label: "Valuación", cols: ["mcap", "pe", "peg", "pb", "ps", "pcf"] },
   { id: "five", label: "5 años", cols: ["rev_cagr5", "eps_cagr5", "capex_cagr5", "gm5", "om5", "ptm5", "nm5"] },
@@ -303,7 +307,7 @@ export const COMPARE: { title: string; rows: { key: MKey; best?: "high" | "low" 
   {
     title: "Caja y balance",
     rows: [
-      { key: "fcf_margin", best: "high" }, { key: "fcf_ni", best: "high" }, { key: "de", best: "low" },
+      { key: "fcf_margin", best: "high" }, { key: "ocf_ni", best: "high" }, { key: "fcf_ni", best: "high" }, { key: "de", best: "low" },
       { key: "debt_ebitda", best: "low" }, { key: "nd_ebitda", best: "low" }, { key: "current_ratio", best: "high" }, { key: "quick_ratio", best: "high" },
     ],
   },
