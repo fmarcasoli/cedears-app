@@ -127,7 +127,9 @@ SEC_USER_AGENT="Nombre mail@dominio" python scripts/build_data.py   # solo si to
 ## Ingresos por segmento (scripts/segments.py, app/segments.tsx)
 - companyfacts no trae dimensiones: se baja el instance XBRL (<x>_htm.xml) de las últimas 9 presentaciones
   (10-Q/10-K/20-F/40-F) y se leen los ingresos con StatementBusinessSegmentsAxis (también ProductOrServiceAxis,
-  guardado pero todavía no mostrado: sus miembros se superponen, ej. Product/Service + iPhone/Mac).
+  que se superpone: partition() elige la combinación MÁS DETALLADA que suma el ingreso total al 0,05% en el
+  último período y en otro anterior; si ninguna cierra, no se muestra). Nombres que son el mismo renglón
+  ("Advertising" / "Advertising Services", nunca juntos en un período) se unifican.
 - Hechos de todas las presentaciones juntos (la más nueva pisa) y después trimestres: 3 meses directos o
   acumulado − acumulado con el mismo inicio (Q4 = anual − 9 meses). Segmento = nombre legible normalizado.
 - Caché commiteada en data/segments/<CIK>.json; salida public/data/segments/<BYMA>.json. Paso del workflow

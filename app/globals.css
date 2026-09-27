@@ -327,3 +327,4 @@ ul.note { padding-left: 18px; }
 .segs { margin-bottom: 14px; }
 .segs .tablebox { margin: 4px 0 6px; }
 .segtab td.sticky .sw { margin-right: 7px; }
+.segs > .seg, .hint > .seg { margin: 2px 0 10px; display: flex; width: fit-content; }

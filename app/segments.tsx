@@ -12,7 +12,8 @@ import { Chart } from "./charts";
 
 type Serie = { end: string; values: Record<string, number | null> };
 type Block = { members: { id: string; label: string }[]; quarters: Serie[]; annual: Serie[] };
-type SegFile = { unit: string | null; converted: boolean; filings: { form: string; filed: string; period: string }[]; seg: Block | null };
+type SegFile = { unit: string | null; converted: boolean; filings: { form: string; filed: string; period: string }[]; seg: Block | null; prod?: Block | null };
+type Kind = "seg" | "prod";
 
 // paleta categórica tomada de one618am.com (azules primero, después tonos que se distinguen)
 const PALETTE = ["#16469e", "#8fb4e3", "#2d9387", "#b3a9a9", "#6c7cb7", "#3bc3de", "#946745", "#a154a1", "#1b1b59", "#ef6421"];
@@ -27,20 +28,30 @@ const moneyAxis = (x: number) => (x === 0 ? "0" : money(x));
 
 export function Segments({ c, q }: { c: Company; q: (Period & { end: string })[] }) {
   const [data, setData] = useState<SegFile | null | "none">(null);
+  const [kind, setKind] = useState<Kind>("seg");
   useEffect(() => {
     let alive = true;
     fetch(`/data/segments/${encodeURIComponent(c.byma)}.json`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((j: SegFile) => alive && setData(j.seg ? j : "none"))
+      .then((j: SegFile) => { if (!alive) return; setData(j.seg || j.prod ? j : "none"); setKind(j.seg ? "seg" : "prod"); })
       .catch(() => alive && setData("none"));
     return () => { alive = false; };
   }, [c.byma]);
 
   if (data === null) return <p className="hint">Cargando segmentos…</p>;
   if (data === "none")
-    return <p className="hint">Sin ingresos por segmento: la empresa no los informa en el XBRL de sus 10-Q / 10-K (o todavía no se procesaron).</p>;
+    return <p className="hint">Sin ingresos por segmento ni por línea de producto: la empresa no los informa en el XBRL de sus 10-Q / 10-K (o todavía no se procesaron).</p>;
 
-  const seg = data.seg!;
+  const both = !!data.seg && !!data.prod;
+  const seg = (kind === "prod" ? data.prod : data.seg) ?? (data.seg || data.prod)!;
+  const isProd = seg === data.prod;
+  const what = isProd ? "línea de producto" : "segmento";
+  const toggle = both && (
+    <div className="seg" role="radiogroup" aria-label="Desglose de ingresos">
+      <button type="button" role="radio" aria-checked={!isProd} onClick={() => setKind("seg")}>Por segmento</button>
+      <button type="button" role="radio" aria-checked={isProd} onClick={() => setKind("prod")}>Por línea de producto</button>
+    </div>
+  );
   const quarterly = seg.quarters.length >= 4;
   const series = (quarterly ? seg.quarters : seg.annual).slice(quarterly ? -12 : -6);
   const labels = series.map((s) => (quarterly ? qLabel(s.end) : `FY${s.end.slice(0, 4)}`));
@@ -65,7 +76,8 @@ export function Segments({ c, q }: { c: Company; q: (Period & { end: string })[]
   if (cover != null && cover < 0.5)
     return (
       <p className="hint">
-        La empresa informa por segmento solo el {Math.round(cover * 100)}% de sus ingresos en el XBRL de su último
+        {toggle}
+        La empresa informa por {what} solo el {Math.round(cover * 100)}% de sus ingresos en el XBRL de su último
         {` ${data.filings[data.filings.length - 1]?.form ?? "10-Q"}`}: no alcanza para mostrar un desglose.
       </p>
     );
@@ -74,7 +86,8 @@ export function Segments({ c, q }: { c: Company; q: (Period & { end: string })[]
 
   return (
     <div className="segs">
-      <Chart title={`Ingresos por segmento${quarterly ? " (trimestre)" : " (ejercicio)"}`} labels={labels} kind="bar" stacked
+      {toggle}
+      <Chart title={`Ingresos por ${what}${quarterly ? " (trimestre)" : " (ejercicio)"}`} labels={labels} kind="bar" stacked
         fmt={money} axisFmt={moneyAxis} height={220}
         series={members.map((m, i) => ({ name: m.label, values: series.map((s) => s.values[m.id] ?? null), tone: 1 as const, color: color(i) }))}
         overlay={[{ name: "Ingresos totales", values: series.map(total), tone: 4 }]} />
@@ -82,7 +95,7 @@ export function Segments({ c, q }: { c: Company; q: (Period & { end: string })[]
         <table className="segtab">
           <thead>
             <tr>
-              <th className="l sticky">Segmento</th>
+              <th className="l sticky">{isProd ? "Línea de producto" : "Segmento"}</th>
               {cols.map((s) => <th key={s.end}>{quarterly ? qLabel(s.end) : `FY${s.end.slice(0, 4)}`}</th>)}
               <th title="Participación en la suma de los segmentos del último período">Peso</th>
               <th title={quarterly ? "Contra el mismo trimestre del año anterior" : "Contra el ejercicio anterior"}>A/A</th>
@@ -110,14 +123,15 @@ export function Segments({ c, q }: { c: Company; q: (Period & { end: string })[]
         </table>
       </div>
       <p className="note">
-        Segmentos tal como los define la empresa en su {lastF?.form ?? "10-Q"}
+        {isProd ? "Líneas de producto" : "Segmentos"} tal como los define la empresa en su {lastF?.form ?? "10-Q"}
         {lastF ? ` (presentado el ${lastF.filed})` : ""}; los nombres quedan en inglés, como en el original.
         {!quarterly && " La empresa no presenta trimestres en XBRL: se muestran ejercicios."}
         {data.converted && ` Convertido a USD desde ${data.unit}.`}
         {cover != null && cover > 1.02 &&
           ` Los segmentos suman ${Math.round(cover * 100)}% de los ingresos totales: incluyen ventas entre segmentos que la empresa elimina recién al consolidar.`}
+        {isProd && " Si la empresa informa varias clasificaciones superpuestas, se usa la más detallada que suma el total."}
         {cover != null && cover < 0.98 &&
-          ` Los segmentos cubren el ${Math.round(cover * 100)}% de los ingresos totales: el resto la empresa no lo desglosa por segmento (por ejemplo ingresos financieros o de seguros).`}
+          ` Los ${isProd ? "renglones" : "segmentos"} cubren el ${Math.round(cover * 100)}% de los ingresos totales: el resto la empresa no lo desglosa por segmento (por ejemplo ingresos financieros o de seguros).`}
       </p>
     </div>
   );

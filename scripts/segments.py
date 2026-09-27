@@ -67,8 +67,11 @@ def label(member: str) -> str:
     s = member.split(":")[-1]
     s = re.sub(r"^[A-Z]\.", "", s)   # KO: "A.PacificMember" (para ordenar) = "PacificMember"
     s = re.sub(r"(Segments?|Reportable|Operating)?Member$", "", s)
+    s = re.sub(r"(?<=[a-z])and(?=[A-Z])", "And", s)            # "HomeandAccessories"
     s = re.sub(r"Segment$", "", s)
     s = re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ", s)
+    s = re.sub(r"\bI (Phone|Pad|Pod|Mac|Cloud)\b", r"i\1", s)   # "I Phone" -> "iPhone"
+    s = s.replace("Three Six Five", "365").replace(" And ", " and ")
     return s.strip() or member
 
 
@@ -181,6 +184,59 @@ def clean(period: dict) -> dict:
     return vals
 
 
+def _near_total(end: str, tot: dict):
+    for e, v in tot.items():
+        if abs((_d(e) - _d(end)).days) <= 10:
+            return v
+    return None
+
+
+def partition(block: dict, totals: dict) -> dict | None:
+    """Líneas de producto: las empresas informan varias clasificaciones superpuestas en el mismo
+    eje (AMZN: Producto/Servicio y además tiendas online, publicidad, AWS...; AAPL: Producto y
+    además iPhone, Mac...). Se elige el conjunto de líneas MÁS DETALLADO que sume el ingreso
+    total del último período (±1,5%) y se usa ese mismo conjunto en todos los períodos.
+    Si ninguna combinación cierra, no se muestra (None): mejor nada que un desglose que no suma."""
+    from itertools import combinations
+    TOL = 0.0005  # un desglose real suma el total al millón; con más holgura aparecen coincidencias (MSFT)
+
+    def closes(p, combo, t):
+        vs = [p["values"].get(m) for m in combo]
+        return None not in vs and abs(sum(vs) / t - 1) <= TOL
+
+    for key, tkey in (("quarters", "q"), ("annual", "a")):
+        tot = totals.get(tkey) or {}
+        with_t = [(p, _near_total(p["end"], tot)) for p in block[key]]
+        with_t = [(p, t) for p, t in with_t if t]
+        for i in range(len(with_t) - 1, -1, -1):
+            p, t = with_t[i]
+            # también negativos (GOOGL: resultado de coberturas cambiarias)
+            vals = {m: v for m, v in p["values"].items() if v is not None and v != 0}
+            if len(vals) < 2 or len(vals) > 16:
+                continue
+            ms = sorted(vals)
+            earlier = with_t[:i]
+            for n in range(len(ms), 1, -1):
+                for combo in combinations(ms, n):
+                    if not closes(p, combo, t):
+                        continue
+                    # que cierre también en otro período con esas mismas líneas (si hay alguno)
+                    others = [(q, tq) for q, tq in earlier if all(q["values"].get(m) is not None for m in combo)]
+                    if others and not any(closes(q, combo, tq) for q, tq in others):
+                        continue
+                    if True:
+                        keep = set(combo)
+                        return {
+                            "members": [m for m in block["members"] if m["id"] in keep],
+                            "quarters": [{"end": x["end"], "values": {m: v for m, v in x["values"].items() if m in keep}}
+                                         for x in block["quarters"]],
+                            "annual": [{"end": x["end"], "values": {m: v for m, v in x["values"].items() if m in keep}}
+                                       for x in block["annual"]],
+                        }
+            return None   # el último período con total no cierra con ninguna combinación
+    return None
+
+
 def annual(facts: list) -> dict:
     out = {}
     for m, s, e, v in facts:
@@ -213,7 +269,7 @@ def update_cache(cik: int) -> tuple[dict, bool]:
     return cache, changed
 
 
-def build(cache: dict, fx: FX | None) -> dict | None:
+def build(cache: dict, fx: FX | None, totals: dict | None = None) -> dict | None:
     """Series para la app. Si una presentación posterior reexpresa un período, gana la más nueva."""
     fil = sorted(cache["filings"].values(), key=lambda f: f["filed"])
     unit = next((f["unit"] for f in reversed(fil) if f.get("unit")), None)
@@ -229,6 +285,23 @@ def build(cache: dict, fx: FX | None) -> dict | None:
         for f in fil:
             for m, st, e, v in f[kind]:
                 facts[(label(m), st, e)] = v
+        # Mismo renglón con nombre más corto en otra presentación (AMZN: "Advertising" en el
+        # 10-K, "Advertising Services" en los 10-Q): si un nombre empieza con el otro y nunca
+        # aparecen juntos en un mismo período, son el mismo renglón; queda el nombre más nuevo.
+        periods, newest = {}, {}
+        for (m, st, e), _ in facts.items():
+            periods.setdefault(m, set()).add((st, e))
+        for f in fil:
+            for m, *_ in f[kind]:
+                newest[label(m)] = f["filed"]
+        alias = {}
+        names = sorted(periods, key=len)
+        for i, a in enumerate(names):
+            for b in names[i + 1:]:
+                if (b.startswith(a + " ") or a.startswith(b + " ")) and not periods[a] & periods[b]:
+                    keep, drop = (a, b) if newest.get(a, "") >= newest.get(b, "") else (b, a)
+                    alias[drop] = keep
+        facts = {(alias.get(m, m), st, e): v for (m, st, e), v in facts.items()}
         flat = [[m, st, e, v] for (m, st, e), v in facts.items()]
         q = {e: clean(v) for e, v in quarters(flat).items()}
         a = {e: clean(v) for e, v in annual(flat).items()}
@@ -243,11 +316,14 @@ def build(cache: dict, fx: FX | None) -> dict | None:
         if unit and unit != "USD" and fx and fx.supported(unit):
             out["converted"] = True
             conv = lambda e, v, days: (v * r if (r := fx.average(unit, e, days=days, min_points=days // 2)) else None)  # noqa: E731
-        out[kind] = {
+        block = {
             "members": [{"id": m, "label": lb} for m, lb in members.items()],
             "quarters": [{"end": e, "values": {m: conv(e, v, 91) for m, v in q[e].items()}} for e in sorted(q)],
             "annual": [{"end": e, "values": {m: conv(e, v, 365) for m, v in a[e].items()}} for e in sorted(a)],
         }
+        if kind == "prod":
+            block = partition(block, totals or {})
+        out[kind] = block
     return out if out.get("seg") or out.get("prod") else None
 
 
@@ -281,7 +357,13 @@ def main():
                 cache, changed = json.loads(path_c.read_text()), False
             else:
                 cache, changed = update_cache(c["cik"])
-            out = build(cache, fx)
+            comp_p = ROOT / "public" / "data" / "companies" / f"{c['byma']}.json"
+            totals = None
+            if comp_p.exists():   # ingresos totales en USD (misma conversión que los segmentos)
+                comp = json.loads(comp_p.read_text(encoding="utf-8"))
+                totals = {"q": {r["end"]: r.get("revenue") for r in comp.get("quarters", []) if r.get("revenue")},
+                          "a": {r["fiscal_end"]: r.get("revenue") for r in comp.get("rows", []) if r.get("revenue")}}
+            out = build(cache, fx, totals)
         except SystemExit:
             raise
         except Exception as e:
