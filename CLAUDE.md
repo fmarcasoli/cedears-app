@@ -116,3 +116,10 @@ SEC_USER_AGENT="Nombre mail@dominio" python scripts/build_data.py   # solo si to
   (wc_of en scripts/quarterly.py; activo que sube resta, pasivo que sube suma; NIIF ya viene con signo de caja);
   FFO = flujo operativo − wc. Si la empresa no informa esos renglones, el gráfico usa flujo operativo y CAPEX.
 - N_QUARTERS = 20 para tener 17 puntos de 12 meses.
+
+## Puntaje general (lib/metrics.ts: SECTOR_WEIGHTS, general())
+- Promedio ponderado de los 4 pilares con pesos por sector_group (Crec/Rent/Sol/Cal):
+  Tecnología 35/30/15/20 · Salud 30/30/20/20 · Consumo básico 20/35/20/25 ·
+  Servicios públicos, Telecom, Inmobiliario 15/25/40/20 · Energía, Materiales 15/25/35/25 · resto 25/25/25/25.
+- Mínimo 3 pilares (el peso del faltante se reparte). Si algún pilar < 30, tope 60. Financieras: sin puntaje.
+- Elegido por el usuario el 2026-09-27; valuación queda fuera (mide salud, no precio).

@@ -24,7 +24,13 @@ export type Metrics = {
 };
 export type MKey = keyof Metrics;
 export type PKey = "growth" | "profit" | "solid" | "quality";
-export type Profile = Record<PKey, number | null>;
+export type Profile = Record<PKey, number | null> & {
+  /** Puntaje general 0-100: promedio ponderado de los pilares con los pesos de su sector (ver GENERAL). */
+  general: number | null;
+  /** true si un pilar < GENERAL_FLOOR limitó el general a GENERAL_CAP. */
+  capped: boolean;
+  weights: Record<PKey, number>;
+};
 
 export type View = Metrics & {
   row: Row; period: string; fallback: boolean;
@@ -136,10 +142,43 @@ export const PILLARS: { key: PKey; label: string; short: string; metrics: PMetri
 export const PROFILE_NOTE =
   "Cada barra compara a la empresa contra su industria real, con los valores de industria de Investing.com (y Damodaran para lo que Investing no publica), en la base elegida: " +
   "50 = igual que la industria, 100 = el doble de buena o más, 0 = el doble de mala o peor. El pilar promedia sus " +
-  "métricas y solo se calcula si hay al menos la mitad. No hay puntaje único: los pilares no se suman.";
+  "métricas y solo se calcula si hay al menos la mitad. El puntaje general pondera los pilares según el sector " +
+  "(ej. en tecnología pesa más el crecimiento, en servicios públicos la solidez) y no puede pasar de 60 si algún pilar está debajo de 30.";
 export const PROFILE_NOTE_FALLBACK =
   "Esta corrida no tiene los promedios de industria: cada barra es un percentil 0-100 contra las empresas no " +
   "financieras del universo de CEDEARs.";
+
+// ───────────────────────────── Puntaje general ─────────────────────────────
+// Pesos por grupo de sector (Crecimiento / Rentabilidad / Solidez / Calidad), en %.
+// Lo que más importa en cada tipo de negocio pesa más: en tecnología el crecimiento, en
+// servicios públicos, telecomunicaciones e inmobiliarias (mucha deuda por naturaleza) la
+// solidez, en energía y materiales (cíclicas) la solidez y la calidad de la caja.
+export const SECTOR_WEIGHTS: { groups: string[]; w: Record<PKey, number> }[] = [
+  { groups: ["Tecnología"], w: { growth: 35, profit: 30, solid: 15, quality: 20 } },
+  { groups: ["Salud"], w: { growth: 30, profit: 30, solid: 20, quality: 20 } },
+  { groups: ["Consumo básico"], w: { growth: 20, profit: 35, solid: 20, quality: 25 } },
+  { groups: ["Servicios públicos", "Telecomunicaciones", "Inmobiliario"], w: { growth: 15, profit: 25, solid: 40, quality: 20 } },
+  { groups: ["Energía", "Materiales"], w: { growth: 15, profit: 25, solid: 35, quality: 25 } },
+];
+export const DEFAULT_WEIGHTS: Record<PKey, number> = { growth: 25, profit: 25, solid: 25, quality: 25 };
+export const GENERAL_FLOOR = 30;   // pilar por debajo de esto = debilidad seria
+export const GENERAL_CAP = 60;     // ... y el general no puede pasar de acá
+export const GENERAL_MIN_PILLARS = 3;
+
+export const weightsFor = (group: string | null | undefined) =>
+  SECTOR_WEIGHTS.find((x) => group && x.groups.includes(group))?.w ?? DEFAULT_WEIGHTS;
+
+export function general(p: Record<PKey, number | null>, group: string | null | undefined) {
+  const w = weightsFor(group);
+  const have = PILLARS.filter((x) => p[x.key] != null);
+  if (have.length < GENERAL_MIN_PILLARS) return { general: null, capped: false, weights: w };
+  // si falta un pilar, su peso se reparte proporcionalmente entre los otros
+  const tot = have.reduce((a, x) => a + w[x.key], 0);
+  let g = have.reduce((a, x) => a + p[x.key]! * w[x.key], 0) / tot;
+  const capped = have.some((x) => p[x.key]! < GENERAL_FLOOR) && g > GENERAL_CAP;
+  if (capped) g = GENERAL_CAP;
+  return { general: g, capped, weights: w };
+}
 
 const clamp = (x: number, a: number, b: number) => Math.min(b, Math.max(a, x));
 
@@ -182,7 +221,7 @@ export function buildViews(rows: Row[], basis: Basis): View[] {
     const r = v.row;
     const bench = r.ind_bench ?? null;
     if (industries && !bench) return { ...v, profile: null };
-    const profile = {} as Profile;
+    const pil = {} as Record<PKey, number | null>;
     for (const p of PILLARS) {
       const got = p.metrics
         .map((m) => {
@@ -196,8 +235,9 @@ export function buildViews(rows: Row[], basis: Basis): View[] {
           return typeof ref === "number" && Number.isFinite(ref) ? score(x, ref, m) : null;
         })
         .filter((x): x is number => x != null);
-      profile[p.key] = got.length * 2 >= p.metrics.length ? got.reduce((a, b) => a + b, 0) / got.length : null;
+      pil[p.key] = got.length * 2 >= p.metrics.length ? got.reduce((a, b) => a + b, 0) / got.length : null;
     }
+    const profile: Profile = { ...pil, ...general(pil, r.sector_group) };
     return { ...v, profile };
   });
 }

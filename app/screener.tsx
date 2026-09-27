@@ -13,7 +13,7 @@ import IndustryPanel from "./industries";
 import { sectorOf } from "@/lib/sector";
 import { PillarBar } from "./profile";
 
-type SortKey = MKey | "byma" | "sector" | "period" | `p_${PKey}`;
+type SortKey = MKey | "byma" | "sector" | "period" | `p_${PKey}` | "p_general";
 const MAX_COMPARE = 4;
 const STORE_KEY = "cedears:mi-lista";
 
@@ -130,7 +130,7 @@ export default function Screener({ rows, sources }: { rows: Row[]; sources: Meta
     const { key, dir } = sort;
     const get = (v: View): number | string | null =>
       key === "byma" ? v.row.byma : key === "sector" ? sectorOf(v.row) : key === "period" ? v.period
-        : key.startsWith("p_") ? v.profile?.[key.slice(2) as PKey] ?? null : rankable(v, key as MKey);
+        : key === "p_general" ? v.profile?.general ?? null : key.startsWith("p_") ? v.profile?.[key.slice(2) as PKey] ?? null : rankable(v, key as MKey);
     return [...shown].sort((a, b) => {
       const x = get(a), y = get(b);
       if (x == null && y == null) return 0;
@@ -242,6 +242,7 @@ export default function Screener({ rows, sources }: { rows: Row[]; sources: Meta
           <thead>
             <tr>
               {th("byma", "CEDEAR", "l sticky")}
+              {th("p_general", "Gral.", "pil", "Puntaje general: promedio ponderado de los 4 pilares con pesos según el sector. Máximo 60 si algún pilar está debajo de 30.")}
               {PILLARS.map((p) => th(`p_${p.key}`, p.short, "pil", `${p.label}: ${p.tip} ${industries ? "50 = igual que su industria." : "Percentil 0-100 contra los CEDEARs."}`))}
               {th("period", "Período")}
               {cols.map((c) => th(c.key, c.label, "", c.tip))}
@@ -274,11 +275,14 @@ export default function Screener({ rows, sources }: { rows: Row[]; sources: Meta
                     </div>
                   </td>
                   {v.profile ? (
-                    PILLARS.map((p) => (
-                      <td key={p.key} className="pil"><PillarBar value={v.profile![p.key]} label={p.label} /></td>
-                    ))
+                    <>
+                      <td className="pil gen"><PillarBar value={v.profile.general} label={v.profile.capped ? "General (limitado por un pilar débil)" : "General"} /></td>
+                      {PILLARS.map((p) => (
+                        <td key={p.key} className="pil"><PillarBar value={v.profile![p.key]} label={p.label} /></td>
+                      ))}
+                    </>
                   ) : (
-                    <td colSpan={PILLARS.length} className="fin" title="Bancos, aseguradoras y brokers: los pilares no son comparables con el resto">Financiera</td>
+                    <td colSpan={PILLARS.length + 1} className="fin" title="Bancos, aseguradoras y brokers: los pilares no son comparables con el resto">Financiera</td>
                   )}
                   <td className={v.fallback ? "fb" : warn ? "neg" : ""}
                     title={r.api_lag ? "Hay un balance más nuevo que la API de la SEC todavía no incorporó"
@@ -308,7 +312,7 @@ export default function Screener({ rows, sources }: { rows: Row[]; sources: Meta
               );
             })}
             {sorted.length === 0 && (
-              <tr><td className="l empty" colSpan={cols.length + PILLARS.length + 3}>
+              <tr><td className="l empty" colSpan={cols.length + PILLARS.length + 4}>
                 {list === "mine" && mine.size === 0 ? "Todavía no marcaste ninguna empresa con la estrella." : "No hay empresas con estos filtros."}
               </td></tr>
             )}

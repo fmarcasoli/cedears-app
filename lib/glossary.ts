@@ -1,9 +1,9 @@
 import { money, pct } from "./format";
-import { COL, PILLARS, type MKey, type View } from "./metrics";
+import { COL, DEFAULT_WEIGHTS, GENERAL_CAP, GENERAL_FLOOR, PILLARS, SECTOR_WEIGHTS, type MKey, type View } from "./metrics";
 
 /** Ficha de cada indicador para el panel "Qué son cada uno de los indicadores". */
 export type Entry = {
-  key: MKey | "profile" | "sector";
+  key: MKey | "profile" | "sector" | "general";
   name: string;
   what: string;      // qué mide
   how: string;       // cómo se calcula
@@ -27,6 +27,17 @@ export const GROUPS: { title: string; entries: Entry[] }[] = [
       read: "50 = igual que su industria; 75 = 50% mejor; 100 = el doble de buena o más; 25 = 50% peor. Los pilares no se suman: una empresa puede ser 90 en rentabilidad y 20 en solidez.",
       watch: "Los valores de industria de Investing se actualizan una vez por semana; la empresa está en la base elegida. Con menos de la mitad de las métricas, el pilar queda en blanco. Las financieras y las empresas sin industria asignada no tienen perfil.",
       example: (v) => v.profile ? PILLARS.map((p) => `${p.label} ${v.profile![p.key] == null ? "–" : Math.round(v.profile![p.key]!)}`).join(" · ") : "Financiera: sin perfil.",
+    }, {
+      key: "general", name: "Puntaje general",
+      what: "Un solo número 0-100 que resume los cuatro pilares, dando más peso a lo que más importa en cada tipo de negocio.",
+      how: `Promedio ponderado de los pilares con los pesos del sector. Si falta un pilar, su peso se reparte entre los otros (hacen falta al menos 3). Si algún pilar está debajo de ${GENERAL_FLOOR}, el general no puede pasar de ${GENERAL_CAP}: una debilidad seria no se compensa con el resto.`,
+      parts: [
+        ...SECTOR_WEIGHTS.map((x) => ({ name: x.groups.join(", "), text: PILLARS.map((p) => `${p.label} ${x.w[p.key]}%`).join(" · ") })),
+        { name: "Resto de los sectores", text: PILLARS.map((p) => `${p.label} ${DEFAULT_WEIGHTS[p.key]}%`).join(" · ") },
+      ],
+      read: "Igual que los pilares: 50 = en línea con su industria, arriba de 65 = claramente mejor, debajo de 35 = claramente peor. Mide la salud del negocio, no si la acción está barata.",
+      watch: "Los pesos son un criterio, no un dato de mercado: miran siempre los pilares para entender de dónde sale el número. Las financieras no tienen puntaje general.",
+      example: (v) => v.profile?.general != null ? `${Math.round(v.profile.general)}${v.profile.capped ? " (limitado por un pilar débil)" : ""}` : "Sin puntaje general.",
     }],
   },
   {

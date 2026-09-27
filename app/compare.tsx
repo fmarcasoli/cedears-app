@@ -41,6 +41,12 @@ export default function Compare({ views, basis, onClose, onOpen }: {
             </thead>
             <tbody>
               <tr className="group"><td colSpan={views.length + 1}>Perfil (50 = igual que su industria)</td></tr>
+              <tr>
+                <td className="l sticky"><strong>Puntaje general</strong></td>
+                {views.map((v) => (
+                  <td key={v.row.byma}>{v.profile ? <PillarBar value={v.profile.general} label="General" /> : <span className="muted">Financiera</span>}</td>
+                ))}
+              </tr>
               {PILLARS.map((p) => (
                 <tr key={p.key}>
                   <td className="l sticky" title={p.tip}>{p.label}</td>
