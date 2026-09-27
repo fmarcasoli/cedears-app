@@ -8,9 +8,11 @@ import { BLOCKS, DAMODARAN_NOTES, benchSource, benchValue, versus } from "@/lib/
 import type { Meta } from "@/lib/data";
 import { Chart } from "./charts";
 import { ProfileBig } from "./profile";
+import { Vista } from "./vista";
 
-type Tab = "evol" | "sector" | "roe" | "changed" | "alerts";
+type Tab = "vista" | "evol" | "sector" | "roe" | "changed" | "alerts";
 const TABS: { id: Tab; label: string }[] = [
+  { id: "vista", label: "Vista" },
   { id: "evol", label: "Evolución" },
   { id: "sector", label: "Contra la industria" },
   { id: "roe", label: "De dónde sale el ROE" },
@@ -58,11 +60,11 @@ export default function CompanySheet({ byma, view, basis, sources, onClose }: {
   const ref = useModal(onClose);
   const [c, setC] = useState<Company | null>(null);
   const [err, setErr] = useState(false);
-  const [tab, setTab] = useState<Tab>("evol");
+  const [tab, setTab] = useState<Tab>("vista");
 
   useEffect(() => {
     let alive = true;
-    setC(null); setErr(false); setTab("evol");
+    setC(null); setErr(false); setTab("vista");
     fetch(`/data/companies/${encodeURIComponent(byma)}.json`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((j: Company) => alive && setC(j))
@@ -146,6 +148,7 @@ function Body({ c, view, basis, sources, tab, setTab }: {
         ))}
       </div>
       <div role="tabpanel">
+        {tab === "vista" && <Vista c={c} />}
         {tab === "evol" && <Evolution c={c} />}
         {tab === "sector" && <VsIndustry view={view} sources={sources} />}
         {tab === "roe" && <DuPont c={c} />}

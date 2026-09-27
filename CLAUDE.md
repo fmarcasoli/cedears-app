@@ -108,3 +108,11 @@ SEC_USER_AGENT="Nombre mail@dominio" python scripts/build_data.py   # solo si to
 - No commitees `public/data/` en un PR de código: esos archivos los escribe el cron.
 - Nunca pongas claves ni el mail del `SEC_USER_AGENT` en el código: van como secret.
 - Next.js pineado en 16.3.5. Versiones viejas quedan bloqueadas por Vercel por CVE.
+
+## Vista (pestaña de la ficha, app/vista.tsx)
+- Últimos 6 trimestres + variación T/T y A/A; azul = mejoró, rojo = empeoró (deuda neta/EBITDA invertido, CAPEX neutro).
+- Renglones de 12 meses: deuda neta / EBITDA 12m, EBITDA 12m / intereses 12m, (caja + inversiones CP) / (deuda CP + porción corriente LP).
+- Caja libre 12m = FFO + capital de trabajo − CAPEX. `wc` sale de los renglones IncreaseDecreaseIn* del flujo
+  (wc_of en scripts/quarterly.py; activo que sube resta, pasivo que sube suma; NIIF ya viene con signo de caja);
+  FFO = flujo operativo − wc. Si la empresa no informa esos renglones, el gráfico usa flujo operativo y CAPEX.
+- N_QUARTERS = 20 para tener 17 puntos de 12 meses.

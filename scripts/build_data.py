@@ -130,6 +130,33 @@ CONCEPTS = {
         "CurrentTradeReceivables",
     ],
     "inventory": ["InventoryNet", "Inventories"],
+    # ---- Intereses (para EBITDA / intereses)
+    "interest": [
+        "InterestExpense", "InterestExpenseNonoperating", "InterestExpenseDebt",
+        "InterestAndDebtExpense", "InterestExpenseBorrowings", "FinanceCosts",
+    ],
+    # ---- Capital de trabajo del flujo de fondos (para separar FFO de capital de trabajo).
+    # US-GAAP informa la variación del saldo (activo que sube = usa caja); cada clave es un
+    # renglón distinto del flujo y se suman con su signo en wc_of() (scripts/quarterly.py).
+    "wc_opcap": ["IncreaseDecreaseInOperatingCapital"],
+    "wc_ar": ["IncreaseDecreaseInAccountsReceivable", "IncreaseDecreaseInReceivables",
+              "IncreaseDecreaseInAccountsAndOtherReceivables",
+              "IncreaseDecreaseInAccountsReceivableAndOtherOperatingAssets"],
+    "wc_inv": ["IncreaseDecreaseInInventories", "IncreaseDecreaseInRetailRelatedInventories"],
+    "wc_oa": ["IncreaseDecreaseInOtherOperatingAssets", "IncreaseDecreaseInPrepaidDeferredExpenseAndOtherAssets",
+              "IncreaseDecreaseInOtherCurrentAssets", "IncreaseDecreaseInPrepaidExpense"],
+    "wc_ap": ["IncreaseDecreaseInAccountsPayable", "IncreaseDecreaseInAccountsPayableTrade",
+              "IncreaseDecreaseInAccountsPayableAndAccruedLiabilities"],
+    "wc_accr": ["IncreaseDecreaseInAccruedLiabilitiesAndOtherOperatingLiabilities",
+                "IncreaseDecreaseInAccruedLiabilities", "IncreaseDecreaseInEmployeeRelatedLiabilities"],
+    "wc_defrev": ["IncreaseDecreaseInContractWithCustomerLiability", "IncreaseDecreaseInDeferredRevenue"],
+    "wc_ol": ["IncreaseDecreaseInOtherOperatingLiabilities", "IncreaseDecreaseInOtherCurrentLiabilities"],
+    # NIIF ya lo informa con el signo del efecto en caja
+    "wc_ifrs_ar": ["AdjustmentsForDecreaseIncreaseInTradeAndOtherReceivables",
+                   "AdjustmentsForDecreaseIncreaseInTradeAccountReceivable"],
+    "wc_ifrs_inv": ["AdjustmentsForDecreaseIncreaseInInventories"],
+    "wc_ifrs_ap": ["AdjustmentsForIncreaseDecreaseInTradeAndOtherPayables",
+                   "AdjustmentsForIncreaseDecreaseInTradeAccountPayable"],
     "shares": [
         "WeightedAverageNumberOfDilutedSharesOutstanding",
         "AdjustedWeightedAverageShares",
@@ -319,6 +346,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
     prev = None
     for r in rows:
         r["fcf"] = r["ocf"] - (r["capex"] or 0) if r["ocf"] is not None else None
+        wc_of(r)
         r["gross_margin"] = div(r["gross_profit"], r["revenue"])
         r["op_margin"] = div(r["operating_income"], r["revenue"])
         r["net_margin"] = div(r["net_income"], r["revenue"])
@@ -408,11 +436,11 @@ from market import SECTOR_ES, Market, sector_from_sic  # noqa: E402
 from industry import Industries  # noqa: E402
 import splits  # noqa: E402
 from quarterly import (MAX_OF, _lease_in_debt, build_quarters, debt_of, ebitda_of,  # noqa: E402
-                       efficiency, nd_ebitda, ttm)
+                       efficiency, nd_ebitda, ttm, wc_of)
 
 FLOW_KEYS = ("revenue", "gross_profit", "cost_of_revenue", "operating_income", "net_income",
              "da", "depreciation", "amortization", "da_total", "ebitda", "pretax",
-             "ocf", "capex", "dividends", "buybacks", "fcf")
+             "ocf", "capex", "dividends", "buybacks", "fcf", "interest", "wc", "ffo")
 STOCK_KEYS = ("assets", "current_assets", "current_liabilities", "liabilities", "equity",
               "cash", "lt_debt", "lt_debt_current", "st_debt", "total_debt", "net_debt",
               "fin_debt", "leases", "op_lease", "op_lease_nc", "op_lease_c", "fin_lease",

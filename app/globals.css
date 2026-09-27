@@ -13,6 +13,7 @@
   --down: 205 60 60;
   --s1: #2c6a92;
   --s2: #7fb0d1;
+  --s3: #b3a9a9;
   --track: #ddd4d4;
   color-scheme: light;
 }
@@ -31,6 +32,7 @@
     --down: 230 85 85;
     --s1: #8cc4e6;
     --s2: #3d7aa3;
+    --s3: #6e6363;
     --track: #3f3535;
     color-scheme: dark;
   }
@@ -240,6 +242,12 @@ td.best { font-weight: 600; color: var(--ink); background: rgb(var(--celeste-was
 .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
 .sw.t1, .bar.t1 { background: var(--s1); fill: var(--s1); }
 .sw.t2, .bar.t2 { background: var(--s2); fill: var(--s2); }
+.sw.t3, .bar.t3 { background: var(--s3); fill: var(--s3); }
+.sw.t4 { background: var(--ink); height: 3px; vertical-align: 3px; }
+.chart .line.t2 { stroke: var(--s2); }
+.chart .line.t4 { stroke: var(--ink); stroke-width: 1.75; }
+.chart .dot.t4 { fill: var(--ink); stroke: var(--surface); stroke-width: 1.5; }
+.chart .val { font-size: 10.5px; fill: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
 .chart svg { display: block; overflow: visible; touch-action: pan-y; }
 .chart .axis { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
 .chart .gridl { stroke: var(--line); stroke-width: 1; opacity: .7; }
@@ -307,3 +315,25 @@ td.best { font-weight: 600; color: var(--ink); background: rgb(var(--celeste-was
 td.vs-good { color: var(--pos); }
 td.vs-bad { color: var(--neg); }
 ul.note { padding-left: 18px; }
+
+/* Vista (tablero trimestral de la ficha) */
+.vista .lead .up, .dv.up { color: rgb(var(--up)); }
+.vista .lead .down, .dv.down { color: rgb(var(--down)); }
+.vtab .vhead th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 0; padding-bottom: 0; }
+.vtab th.vvar, .vtab td.dv { background: rgb(var(--celeste-wash) / 0.06); }
+.vtab thead th.vvar { background: rgb(var(--celeste-wash) / 0.10); }
+.vtab td.dv { font-weight: 600; min-width: 64px; }
+.vtab td.dv:first-of-type, .vtab th.vvar:first-of-type { border-left: 1px solid var(--line); }
+.vtoggle { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.vtoggle:focus-visible { outline: 2px solid var(--celeste); outline-offset: 2px; }
+.vtoggle .chev { display: inline-block; font-size: 13px; line-height: 1; width: 10px; color: var(--muted); transition: transform .15s; }
+.vtoggle[aria-expanded="true"] .chev { transform: rotate(90deg); color: var(--celeste); }
+.vtoggle:hover { color: var(--celeste); }
+.vrow.open td { font-weight: 600; }
+.vdetail > td { padding: 0; text-align: left; white-space: normal; background: var(--paper); }
+/* el detalle queda fijo a la izquierda y del ancho visible, aunque la tabla se desplace */
+.vdetail-in { position: sticky; left: 0; padding: 8px 14px 4px; }
+.vdetail-in .note { margin: 4px 0 8px; }
+.vcharts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px 28px; margin-top: 18px; }
+.vcharts .note { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) { .vtoggle .chev { transition: none; } }

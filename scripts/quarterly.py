@@ -18,7 +18,7 @@ import splits
 
 FORMS = {"10-Q", "10-Q/A", "10-K", "10-K/A", "10-KT", "6-K", "6-K/A",
          "20-F", "20-F/A", "40-F", "40-F/A"}
-N_QUARTERS = 16  # 4 años: 3 para mostrar + 1 para comparar interanual
+N_QUARTERS = 20  # 5 años: 4 de series de 12 meses (Vista) + 1 para comparar interanual
 # Conceptos donde, si una empresa etiqueta varios, gana el mayor y no el primero:
 # algunas usan el concepto combinado para un componente (MCD etiqueta como
 # DepreciationDepletionAndAmortization 0,46 B y el total de 2,2 B como
@@ -212,9 +212,28 @@ def efficiency(r, prev):
     r["ar_turnover"] = _div(r.get("revenue"), avg("receivables")) if r.get("receivables") else None
 
 
+WC_MINUS = ("wc_ar", "wc_inv", "wc_oa")                    # activo que sube = usa caja
+WC_PLUS = ("wc_ap", "wc_accr", "wc_defrev", "wc_ol", "wc_ifrs_ar", "wc_ifrs_inv", "wc_ifrs_ap")
+
+
+def wc_of(r):
+    """Efecto del capital de trabajo en el flujo operativo (negativo = consumió caja) y
+    FFO = flujo operativo antes de capital de trabajo. None si la empresa no informa renglones."""
+    if r.get("wc_opcap") is not None:
+        wc = -r["wc_opcap"]
+    else:
+        parts = [(-r[k] if k in WC_MINUS else r[k]) for k in WC_MINUS + WC_PLUS if r.get(k) is not None]
+        wc = sum(parts) if parts else None
+    for k in ("wc_opcap",) + WC_MINUS + WC_PLUS:
+        r.pop(k, None)
+    r["wc"] = wc
+    r["ffo"] = r["ocf"] - wc if wc is not None and r.get("ocf") is not None else None
+
+
 def add_quarter_ratios(q):
     for i, r in enumerate(q):
         r["fcf"] = r["ocf"] - (r["capex"] or 0) if r.get("ocf") is not None else None
+        wc_of(r)
         debt_of(r)
         r["gross_margin"] = _div(r["gross_profit"], r["revenue"])
         r["op_margin"] = _div(r["operating_income"], r["revenue"])
@@ -234,7 +253,7 @@ def _consecutive(block):
 
 
 TTM_FLOWS = ("revenue", "gross_profit", "cost_of_revenue", "pretax", "operating_income", "ebitda", "da_total",
-             "net_income", "ocf", "capex",
+             "net_income", "ocf", "capex", "interest", "wc", "ffo",
              "fcf", "dividends", "buybacks", "eps_diluted")
 
 
