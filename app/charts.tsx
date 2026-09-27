@@ -23,7 +23,9 @@ function niceTicks(min: number, max: number, count = 4) {
   const mag = 10 ** Math.floor(Math.log10(raw));
   const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw)!;
   const out: number[] = [];
-  for (let v = Math.floor(min / step) * step; v <= max + step * 1e-9; v += step) out.push(+v.toFixed(10));
+  // de la primera marca <= mínimo a la primera >= máximo: las barras nunca se salen del área
+  const top = Math.ceil(max / step - 1e-9) * step;
+  for (let v = Math.floor(min / step + 1e-9) * step; v <= top + step * 1e-9; v += step) out.push(+v.toFixed(10));
   return out;
 }
 

@@ -11,31 +11,11 @@
   --neg: #b23a3a;
   --up: 24 124 191;
   --down: 205 60 60;
-  --s1: #2c6a92;
-  --s2: #7fb0d1;
+  --s1: #16469e;
+  --s2: #8fb4e3;
   --s3: #b3a9a9;
   --track: #ddd4d4;
   color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #2a2424;
-    --surface: #312b2b;
-    --ink: #ece6e6;
-    --muted: #b0a5a5;
-    --line: #473e3e;
-    --celeste: #7fb8dc;
-    --celeste-wash: 127 184 220;
-    --pos: #6cc28e;
-    --neg: #ec7f7f;
-    --up: 70 150 225;
-    --down: 230 85 85;
-    --s1: #8cc4e6;
-    --s2: #3d7aa3;
-    --s3: #6e6363;
-    --track: #3f3535;
-    color-scheme: dark;
-  }
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--paper); color: var(--ink); }

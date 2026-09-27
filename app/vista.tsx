@@ -207,11 +207,13 @@ function Delta({ a, b, kind, lowerBetter, neutral }: { a: number | null; b: numb
     txt = `${d >= 0 ? "+" : ""}${d.toFixed(1)}x`;
   }
   const good = lowerBetter ? d < 0 : d > 0;
-  return <td className={`dv ${neutral || Math.abs(d) < 1e-9 ? "" : good ? "up" : "down"}`}>{txt}</td>;
+  const zero = /^[+-]?0(\.0)?(%|x| pp)$/.test(txt);   // lo que se ve como 0 no se pinta
+  return <td className={`dv ${neutral || zero ? "" : good ? "up" : "down"}`}>{zero ? txt.replace(/^[+-]/, "") : txt}</td>;
 }
 
 export function Vista({ c }: { c: Company }) {
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<Set<string>>(() => new Set());
+  const toggle = (k: string) => setOpen((o) => { const n = new Set(o); if (n.has(k)) n.delete(k); else n.add(k); return n; });
   // el detalle se dibuja del ancho visible de la tabla (no del ancho desplazable)
   const box = useRef<HTMLDivElement>(null);
   const [boxW, setBoxW] = useState(600);
@@ -246,7 +248,7 @@ export function Vista({ c }: { c: Company }) {
   return (
     <section className="vista">
       <p className="lead">
-        Últimos 6 trimestres en USD. Tocá un renglón para abrir su detalle con gráficos de 3 años.
+        Últimos 6 trimestres en USD. Tocá un renglón para abrir su detalle con gráficos de 3 años (podés abrir varios a la vez).
         Variación: <span className="up">azul</span> mejoró, <span className="down">rojo</span> empeoró (el CAPEX no se pinta: invertir más no es bueno ni malo en sí).
       </p>
       <div className="tablebox" ref={box}>
@@ -270,14 +272,14 @@ export function Vista({ c }: { c: Company }) {
                 <tr className="group"><td colSpan={cols.length + 3}><span>{sec.title}</span></td></tr>
                 {sec.rows.map((r) => {
                   const f = fmtOf(r.kind);
-                  const isOpen = open === r.key;
+                  const isOpen = open.has(r.key);
                   const cur = r.get(q, i0);
                   return (
                     <Fragment key={r.key}>
                       <tr className={`vrow${isOpen ? " open" : ""}`}>
                         <td className="l sticky">
                           <button type="button" className="vtoggle" aria-expanded={isOpen} title={r.tip}
-                            onClick={() => setOpen(isOpen ? null : r.key)}>
+                            onClick={() => toggle(r.key)}>
                             <span className="chev" aria-hidden>▸</span>{r.label}
                           </button>
                         </td>
