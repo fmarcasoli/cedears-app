@@ -194,10 +194,35 @@ const QUARTER_ROWS: Def[] = [
   ["Deuda total (con arrendamientos)", "total_debt", money], ["Patrimonio neto", "equity", money],
 ];
 
+// Mapa de calor de la tabla: cada renglón tiene su propia escala (la variación más grande del
+// renglón es el color más intenso). Azul = mejoró, rojo = empeoró. Se compara contra el mismo
+// trimestre del año anterior (evita la estacionalidad) o contra el ejercicio anterior.
+const RATE_KEYS = new Set(["rev_growth", "rev_yoy", "eps_yoy"]);          // ya son variaciones: se pinta el valor
+const LOWER_BETTER = new Set(["fin_debt", "leases", "total_debt", "net_debt", "debt_equity", "nd_ebitda"]);
+
+function heatRow(all: Period[], shown: number, lag: number, key: string): (number | null)[] {
+  const from = all.length - shown;
+  const d = all.slice(from).map((p, i) => {
+    const v = val(p, key);
+    if (v == null) return null;
+    if (RATE_KEYS.has(key)) return v;
+    const prev = val(all[from + i - lag], key);
+    return prev == null ? null : v - prev;
+  }).map((x) => (x != null && LOWER_BETTER.has(key) ? -x : x));
+  const max = Math.max(0, ...d.map((x) => Math.abs(x ?? 0)));
+  return d.map((x) => (x == null || max === 0 ? null : x / max));
+}
+
+const heatStyle = (h: number | null) =>
+  h == null || h === 0 ? undefined
+    : { backgroundColor: `rgb(var(${h > 0 ? "--up" : "--down"}) / ${(0.07 + 0.43 * Math.abs(h)).toFixed(2)})` };
+
 function Evolution({ c }: { c: Company }) {
   const hasQ = (c.quarters?.length ?? 0) >= 4;
   const [freq, setFreq] = useState<"q" | "a">(hasQ ? "q" : "a");
+  const all: Period[] = freq === "q" ? c.quarters : c.rows;
   const P: Period[] = freq === "q" ? c.quarters.slice(-12) : c.rows;
+  const lag = freq === "q" ? 4 : 1;
   const labels = freq === "q" ? c.quarters.slice(-12).map((q) => mmyy(q.end)) : c.rows.map((r) => `FY${r.year}`);
   const s = (k: string) => P.map((p) => val(p, k));
   const defs = freq === "q" ? QUARTER_ROWS : ANNUAL_ROWS;
@@ -231,6 +256,11 @@ function Evolution({ c }: { c: Company }) {
       </p>
       <details>
         <summary>Tabla completa</summary>
+        <p className="note heat-note">
+          <span className="sw up" /> mejoró <span className="sw down" /> empeoró, contra {freq === "q" ? "el mismo trimestre del año anterior" : "el ejercicio anterior"}.
+          Cada renglón tiene su propia escala: el color más intenso es su mayor variación. En deuda se invierte (bajar es azul);
+          los renglones de crecimiento se pintan por su propio valor.
+        </p>
         <div className="tablebox">
           <table>
             <thead>
@@ -241,16 +271,19 @@ function Evolution({ c }: { c: Company }) {
             </thead>
             <tbody>
               {defs.map((d) => d.length === 1 ? (
-                <tr key={d[0]} className="group"><td colSpan={labels.length + 1}>{d[0]}</td></tr>
-              ) : (
-                <tr key={d[1]}>
-                  <td className="l sticky">{d[0]}</td>
-                  {P.map((p, i) => {
-                    const v = val(p, d[1]);
-                    return <td key={i} className={v != null && v < 0 ? "neg" : ""}>{d[2](v)}</td>;
-                  })}
-                </tr>
-              ))}
+                <tr key={d[0]} className="group"><td colSpan={labels.length + 1}><span>{d[0]}</span></td></tr>
+              ) : (() => {
+                const heat = heatRow(all, P.length, lag, d[1]);
+                return (
+                  <tr key={d[1]}>
+                    <td className="l sticky">{d[0]}</td>
+                    {P.map((p, i) => {
+                      const v = val(p, d[1]);
+                      return <td key={i} className={v != null && v < 0 ? "neg" : ""} style={heatStyle(heat[i])}>{d[2](v)}</td>;
+                    })}
+                  </tr>
+                );
+              })())}
             </tbody>
           </table>
         </div>
