@@ -62,6 +62,13 @@ export function Segments({ c, q }: { c: Company; q: (Period & { end: string })[]
     const d = (Date.parse(last.end) - Date.parse(s.end)) / 864e5;
     return d > 350 && d < 380;
   });
+  if (cover != null && cover < 0.5)
+    return (
+      <p className="hint">
+        La empresa informa por segmento solo el {Math.round(cover * 100)}% de sus ingresos en el XBRL de su último
+        {` ${data.filings[data.filings.length - 1]?.form ?? "10-Q"}`}: no alcanza para mostrar un desglose.
+      </p>
+    );
   const cols = series.slice(-6);
   const lastF = data.filings[data.filings.length - 1];
 
@@ -107,8 +114,10 @@ export function Segments({ c, q }: { c: Company; q: (Period & { end: string })[]
         {lastF ? ` (presentado el ${lastF.filed})` : ""}; los nombres quedan en inglés, como en el original.
         {!quarterly && " La empresa no presenta trimestres en XBRL: se muestran ejercicios."}
         {data.converted && ` Convertido a USD desde ${data.unit}.`}
-        {cover != null && Math.abs(cover - 1) > 0.02 &&
-          ` Los segmentos suman ${Math.round(cover * 100)}% de los ingresos totales: la diferencia son ventas entre segmentos, eliminaciones o partidas corporativas que la empresa informa aparte.`}
+        {cover != null && cover > 1.02 &&
+          ` Los segmentos suman ${Math.round(cover * 100)}% de los ingresos totales: incluyen ventas entre segmentos que la empresa elimina recién al consolidar.`}
+        {cover != null && cover < 0.98 &&
+          ` Los segmentos cubren el ${Math.round(cover * 100)}% de los ingresos totales: el resto la empresa no lo desglosa por segmento (por ejemplo ingresos financieros o de seguros).`}
       </p>
     </div>
   );

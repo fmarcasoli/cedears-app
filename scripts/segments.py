@@ -152,6 +152,35 @@ def quarters(facts: list) -> dict:
     return out
 
 
+TOTAL_RE = re.compile(r"\b(total|aggregat\w*|consolidated|reportable segments?)\b", re.I)
+
+
+def clean(period: dict) -> dict:
+    """Saca de un período los renglones que no son segmentos sino sumas de otros:
+    totales por nombre (COP "Total", MDT "Total Reportable", CAT "Reportable Segment Aggregation")
+    y grupos que valen lo mismo que la suma de otros segmentos del período (INTC informa
+    "CCG + Datacenter" además de cada uno)."""
+    vals = {m: v for m, v in period.items() if v is not None and not TOTAL_RE.search(m)}
+    changed = True
+    while changed:
+        changed = False
+        for m, v in sorted(vals.items(), key=lambda x: -abs(x[1])):
+            others = [(k, x) for k, x in vals.items() if k != m and x > 0]
+            if v <= 0 or len(others) < 2 or len(others) > 12:
+                continue
+            for mask in range(3, 1 << len(others)):
+                if bin(mask).count("1") < 2:
+                    continue
+                tot = sum(x for i, (_, x) in enumerate(others) if mask >> i & 1)
+                if abs(tot - v) <= 0.0005 * v:   # XBRL: un grupo real coincide al millón; más holgura da falsos positivos (CAT)
+                    del vals[m]
+                    changed = True
+                    break
+            if changed:
+                break
+    return vals
+
+
 def annual(facts: list) -> dict:
     out = {}
     for m, s, e, v in facts:
@@ -201,7 +230,8 @@ def build(cache: dict, fx: FX | None) -> dict | None:
             for m, st, e, v in f[kind]:
                 facts[(label(m), st, e)] = v
         flat = [[m, st, e, v] for (m, st, e), v in facts.items()]
-        q, a = quarters(flat), annual(flat)
+        q = {e: clean(v) for e, v in quarters(flat).items()}
+        a = {e: clean(v) for e, v in annual(flat).items()}
         if not q and not a:
             out[kind] = None
             continue
@@ -225,8 +255,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--solo", help="BYMA separados por coma")
     ap.add_argument("--minutos", type=float, default=float(os.environ.get("SEG_MINUTES", 20)))
+    ap.add_argument("--sin-descargar", action="store_true", help="rearmar la salida solo desde la caché")
     args = ap.parse_args()
-    if "@" not in UA:
+    if "@" not in UA and not args.sin_descargar:
         sys.exit("Falta SEC_USER_AGENT (ej: 'Nombre Apellido tu@mail.com').")
     cedears = [c for c in json.loads((ROOT / "data" / "cedears.json").read_text(encoding="utf-8")) if c.get("cik")]
     if args.solo:
@@ -243,7 +274,13 @@ def main():
             break
         done += 1
         try:
-            cache, changed = update_cache(c["cik"])
+            if args.sin_descargar:
+                path_c = CACHE / f"{c['cik']}.json"
+                if not path_c.exists():
+                    continue
+                cache, changed = json.loads(path_c.read_text()), False
+            else:
+                cache, changed = update_cache(c["cik"])
             out = build(cache, fx)
         except SystemExit:
             raise
