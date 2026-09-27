@@ -537,6 +537,8 @@ PLAUSIBLE = {
     "pe": (0.1, 300), "ps": (0.01, 100), "pb": (0.01, 200), "pcf": (0.1, 300),
     "debt_ebitda": (0, 30), "peg": (0.01, 20),
 }
+# Distancia máxima (en puntos) entre márgenes de industria que deberían ser parecidos
+MARGIN_GAP = 0.15
 # Damodaran -> nuestras métricas (respaldo para lo que Investing no publica o no pasa el filtro)
 DAM_KEYS = {"gross_margin": "gross_margin", "op_margin": "op_margin", "net_margin": "net_margin",
             "roe": "roe", "rev_cagr5": "rev_cagr5", "eps_cagr5": "ni_cagr5", "de": "de",
@@ -561,6 +563,19 @@ def industry_bench(byma, comp, inv, industries):
                           ("net_margin", "nm5")):
         if ttm_k in dropped and five_k in vals and five_k not in dropped:
             dropped.append(five_k)
+    # Coherencia: el promedio simple de Investing a veces se rompe solo en un período o en un
+    # renglón (AAPL, Computers: operativo TTM 26,8% y 5 años −4%; antes de impuestos TTM 4,7%
+    # con operativo 26,8%). El margen agregado de una industria no se mueve 15 puntos así.
+    def far(a, b):
+        return (a in vals and b in vals and a not in dropped and b not in dropped
+                and abs(vals[a] - vals[b]) > MARGIN_GAP)
+    if far("pretax_margin", "op_margin"):
+        dropped.append("pretax_margin")
+    for ttm_k, five_k in (("gross_margin", "gm5"), ("op_margin", "om5"), ("pretax_margin", "ptm5"),
+                          ("net_margin", "nm5")):
+        if five_k not in dropped and (ttm_k in dropped or far(ttm_k, five_k)):
+            if five_k in vals:
+                dropped.append(five_k)
     for k, v in vals.items():
         if k not in dropped:
             bench[k], src[k] = v, "investing"
