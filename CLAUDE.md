@@ -77,6 +77,8 @@ No las cambies sin motivo; cada una salió de un bug real.
   `data/investing_map.json` (del buscador de acciones de Investing; editable a mano). Lo que Investing
   no publica (deuda/EBITDA, PEG) o publica fuera de rango (PLAUSIBLE en build_data: sus promedios
   simples dan absurdos como margen −129%) sale de Damodaran (`scripts/industry.py`), marcado ᴰ.
+  Si un margen TTM de la industria se descarta, su promedio de 5 años también (mismo promedio roto).
+  Software & IT Services (42 CEDEARs) tiene los márgenes rotos en Investing: usa Damodaran.
   `sector_group` (Nasdaq) queda solo para el filtro de sector.
 - **Desfase de la SEC**: la API companyfacts a veces no tiene el último 10-Q ya presentado.
   Se detecta contra el endpoint `submissions` y se marca `api_lag`.

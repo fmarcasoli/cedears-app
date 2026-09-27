@@ -550,11 +550,20 @@ def industry_bench(byma, comp, inv, industries):
     ok = lambda k, v: isinstance(v, (int, float)) and PLAUSIBLE.get(k, (-1e9, 1e9))[0] <= v <= PLAUSIBLE.get(k, (-1e9, 1e9))[1]
     bench, src, dropped = {}, {}, []
     row = (inv.get("rows") or {}).get(byma)
-    for k, v in ((row or {}).get("values") or {}).items():
-        if ok(k, v):
-            bench[k], src[k] = v, "investing"
-        else:
+    vals = dict((row or {}).get("values") or {})
+    for k, v in vals.items():
+        if not ok(k, v):
             dropped.append(k)
+    # Si el margen de 12 meses de la industria es absurdo, su promedio de 5 años sale del mismo
+    # promedio roto aunque caiga "en rango" (GOOGL, Software & IT Services: operativo TTM −130%,
+    # 5 años −31%): se descartan juntos.
+    for ttm_k, five_k in (("gross_margin", "gm5"), ("op_margin", "om5"), ("pretax_margin", "ptm5"),
+                          ("net_margin", "nm5")):
+        if ttm_k in dropped and five_k in vals and five_k not in dropped:
+            dropped.append(five_k)
+    for k, v in vals.items():
+        if k not in dropped:
+            bench[k], src[k] = v, "investing"
     dam = (industries.bench.get(comp.get("dam_region"), {}).get(comp.get("dam_industry"))
            if industries and comp.get("dam_industry") else None) or {}
     for ours, dk in DAM_KEYS.items():
