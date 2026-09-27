@@ -60,6 +60,26 @@ export default function Screener({ rows, sources }: { rows: Row[]; sources: Meta
   const [byIndustry, setByIndustry] = useState(false);
   const [industry, setIndustry] = useState(""); // "region|industria" de Damodaran
   const search = useRef<HTMLInputElement>(null);
+  // La tabla no tiene scroll vertical propio (scrollea la página entera). Como el contenedor
+  // desplaza en horizontal, position: sticky no puede fijar el encabezado a la ventana: se lo
+  // baja con un translateY mientras la tabla está a la vista.
+  const gridBox = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let raf = 0;
+    const place = () => {
+      raf = 0;
+      const box = gridBox.current, head = box?.querySelector("thead");
+      if (!box || !head) return;
+      const r = box.getBoundingClientRect();
+      const hy = Math.max(0, Math.min(-r.top, r.height - head.getBoundingClientRect().height));
+      box.style.setProperty("--hy", `${hy}px`);
+    };
+    const on = () => { if (!raf) raf = requestAnimationFrame(place); };
+    window.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    on();
+    return () => { window.removeEventListener("scroll", on); window.removeEventListener("resize", on); cancelAnimationFrame(raf); };
+  }, []);
 
   useEffect(() => setMine(loadMine()), []);
 
@@ -237,7 +257,7 @@ export default function Screener({ rows, sources }: { rows: Row[]; sources: Meta
         </p>
       )}
 
-      <div className="tablebox">
+      <div className="tablebox" ref={gridBox}>
         <table className="grid">
           <thead>
             <tr>

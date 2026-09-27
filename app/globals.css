@@ -120,7 +120,8 @@ button { font: inherit; color: inherit; }
 .crit { color: var(--muted); font-size: 13px; margin: 2px 0 12px; }
 .seg button:disabled { opacity: .45; cursor: not-allowed; }
 
-.grid .tablebox, .tablebox:has(> table.grid) { max-height: calc(100vh - 150px); }
+/* sin scroll vertical propio: scrollea la página; el encabezado lo baja FloatingHead (--hy) */
+table.grid thead th { transform: translateY(var(--hy, 0px)); }
 table.grid thead th { z-index: 2; }
 table.grid thead th.sticky { z-index: 3; }
 table.grid td.sticky { min-width: 200px; max-width: 250px; }
@@ -249,7 +250,6 @@ td.best { font-weight: 600; color: var(--ink); background: rgb(var(--celeste-was
   table.grid td.sticky { min-width: 132px; max-width: 150px; }
   table.grid td.sticky .sub { max-width: 13ch; }
   .first { gap: 4px; }
-  .grid .tablebox, .tablebox:has(> table.grid) { max-height: calc(100dvh - 120px); }
   .sheet-in, .cmp-in { padding: 14px 14px 28px; }
   .prow { grid-template-columns: 110px 1fr 3ch; }
   .tray { padding: 8px 12px; }
