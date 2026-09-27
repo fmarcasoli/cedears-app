@@ -237,7 +237,7 @@ td.best { font-weight: 600; color: var(--ink); background: rgb(var(--celeste-was
 .chart .dot { fill: var(--s1); stroke: var(--paper); stroke-width: 2; }
 .chart .hoverband { fill: rgb(var(--celeste-wash) / 0.08); }
 .tip {
-  position: absolute; top: 24px; width: 150px; pointer-events: none; z-index: 3;
+  position: absolute; top: 24px; width: 180px; pointer-events: none; z-index: 3;
   background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px;
   font-size: 12px; display: grid; gap: 1px; box-shadow: 0 4px 12px rgb(0 0 0 / .12); font-variant-numeric: tabular-nums;
 }

@@ -29,6 +29,8 @@ function niceTicks(min: number, max: number, count = 4) {
   return out;
 }
 
+const TIP_W = 180; // ancho del cartel (mismo valor que .tip en globals.css)
+
 /** Path de una barra con las puntas de dato redondeadas (4px) y la base recta. */
 function barPath(x: number, w: number, y0: number, y1: number) {
   const h = Math.abs(y1 - y0);
@@ -147,7 +149,10 @@ export function Chart({
         })}
       </svg>
       {hover != null && (
-        <div className="tip" style={{ left: Math.min(Math.max(cx(hover) - 70, 0), W - 150) }}>
+        // al costado de la columna (a la derecha, o a la izquierda si no entra): nunca tapa lo que se mira
+        <div className="tip" style={{
+          left: cx(hover) + band / 2 + 8 + TIP_W <= W ? cx(hover) + band / 2 + 8 : Math.max(0, cx(hover) - band / 2 - 8 - TIP_W),
+        }}>
           <strong>{labels[hover]}</strong>
           {[...series, ...(kind === "bar" ? overlay : [])].map((s) => (
             <span key={s.name}>{series.length + overlay.length > 1 && <i className={`sw t${s.tone}`} />}{s.name}: {fmt(s.values[hover] ?? null)}</span>
