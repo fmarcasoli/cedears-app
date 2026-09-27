@@ -54,6 +54,10 @@ STOP = {"inc", "corp", "corporation", "co", "company", "ltd", "limited", "plc", 
         "lp", "llc", "incorporated", "ads", "class", "cl", "new", "publ", "com"}
 
 
+MAX_STREAK = 8     # fallas seguidas = Investing está bloqueando: cortar
+MAX_MINUTES = 75   # el workflow tiene 120; así siempre queda tiempo para guardar y commitear
+
+
 def session():
     from curl_cffi import requests as cr
     return cr.Session(impersonate="chrome120")
@@ -212,23 +216,36 @@ def main():
         return
     prev = json.loads(OUT_FILE.read_text(encoding="utf-8")) if OUT_FILE.exists() else {"rows": {}}
     rows, ok, fail = dict(prev.get("rows", {})), 0, 0
+    # Si Investing empieza a bloquear, cada página tarda minutos en reintentos: sin estos cortes
+    # la corrida se colgó 2 horas y el workflow la canceló sin guardar nada (27-sep-2026).
+    t0, streak = time.time(), 0
     for i, (byma, m) in enumerate(sorted(mp.items()), 1):
         if not m.get("slug"):
             continue
+        if streak >= MAX_STREAK:
+            print(f"Corte: {streak} fallas seguidas (bloqueo de Investing). Se guarda lo obtenido.")
+            break
+        if time.time() - t0 > MAX_MINUTES * 60:
+            print(f"Corte: más de {MAX_MINUTES} minutos. Se guarda lo obtenido.")
+            break
         vals = ratios(s, m["slug"])
         time.sleep(PAUSE)
         if vals:
             rows[byma] = {"industry": m.get("industry"), "values": vals}
             ok += 1
+            streak = 0
         else:
             fail += 1  # se conserva el valor anterior
+            streak += 1
         if i % 25 == 0:
             print(f"  {i} páginas: {ok} ok, {fail} fallas")
     if ok == 0:
         sys.exit("Investing no respondió (¿bloqueo de Cloudflare?): se conserva el archivo anterior.")
     OUT_FILE.write_text(json.dumps({
         "meta": {"source": "Investing.com (columna Industria de la página de ratios)",
-                 "updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"), "ok": ok, "fallas": fail},
+                 "updated": datetime.now(timezone.utc).strftime("%Y-%m-%d") if ok >= 0.8 * len(rows)
+                 else (prev.get("meta") or {}).get("updated"),   # corrida parcial: no aparenta estar al día
+                 "ok": ok, "fallas": fail},
         "rows": rows}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"Listo: {ok} empresas con industria de Investing, {fail} fallas.")
 
