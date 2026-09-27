@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { Company, Period, YearRow } from "@/lib/data";
 import { money, num, pct } from "@/lib/format";
 import { COL, mmyy, type Basis, type MKey, type View } from "@/lib/metrics";
-import { BENCH, BLOCKS, benchValue, regionLabel, versus } from "@/lib/industry";
-import type { Bench, Industries } from "@/lib/data";
+import { BLOCKS, DAMODARAN_NOTES, benchSource, benchValue, versus } from "@/lib/industry";
+import type { Meta } from "@/lib/data";
 import { Chart } from "./charts";
 import { ProfileBig } from "./profile";
 
@@ -50,10 +50,10 @@ export function useModal(onClose: () => void) {
   return ref;
 }
 
-type BenchMeta = Industries["meta"] | null;
+type Sources = Meta["industry_sources"];
 
-export default function CompanySheet({ byma, view, basis, bench, benchMeta, onClose }: {
-  byma: string; view: View | null; basis: Basis; bench: Bench | null; benchMeta: BenchMeta; onClose: () => void;
+export default function CompanySheet({ byma, view, basis, sources, onClose }: {
+  byma: string; view: View | null; basis: Basis; sources: Sources; onClose: () => void;
 }) {
   const ref = useModal(onClose);
   const [c, setC] = useState<Company | null>(null);
@@ -82,15 +82,15 @@ export default function CompanySheet({ byma, view, basis, bench, benchMeta, onCl
             <p className="hint">Cargando ficha…</p>
           </>
         ) : (
-          <Body c={c} view={view} basis={basis} bench={bench} benchMeta={benchMeta} tab={tab} setTab={setTab} />
+          <Body c={c} view={view} basis={basis} sources={sources} tab={tab} setTab={setTab} />
         )}
       </div>
     </dialog>
   );
 }
 
-function Body({ c, view, basis, bench, benchMeta, tab, setTab }: {
-  c: Company; view: View | null; basis: Basis; bench: Bench | null; benchMeta: BenchMeta; tab: Tab; setTab: (t: Tab) => void;
+function Body({ c, view, basis, sources, tab, setTab }: {
+  c: Company; view: View | null; basis: Basis; sources: Sources; tab: Tab; setTab: (t: Tab) => void;
 }) {
   const last = c.rows[c.rows.length - 1];
   const negEq = (view?.neg_equity) ?? ((val(c.ttm ?? last, "equity") ?? 1) <= 0);
@@ -147,7 +147,7 @@ function Body({ c, view, basis, bench, benchMeta, tab, setTab }: {
       </div>
       <div role="tabpanel">
         {tab === "evol" && <Evolution c={c} />}
-        {tab === "sector" && <VsIndustry view={view} bench={bench} meta={benchMeta} />}
+        {tab === "sector" && <VsIndustry view={view} sources={sources} />}
         {tab === "roe" && <DuPont c={c} />}
         {tab === "changed" && <Changed c={c} />}
         {tab === "alerts" && <Alerts c={c} />}
@@ -261,17 +261,18 @@ function Evolution({ c }: { c: Company }) {
 
 // ─────────────────────────── Contra el sector ───────────────────────────
 
-function VsIndustry({ view, bench, meta }: { view: View | null; bench: Bench | null; meta: BenchMeta }) {
-  if (!view || !bench || !meta)
-    return <p className="hint">Sin industria asignada (ETFs y fideicomisos no tienen) o sin datos de Damodaran en esta corrida.</p>;
+function VsIndustry({ view, sources }: { view: View | null; sources: Sources }) {
+  if (!view || !view.row.ind_bench)
+    return <p className="hint">Sin valores de industria para esta empresa (ETFs y fideicomisos no tienen, o ninguna fuente la cubre).</p>;
   const r = view.row;
-  const n = typeof bench.n === "number" ? bench.n.toLocaleString("es-AR") : "–";
+  const inv = sources?.investing, dam = sources?.damodaran;
+  const usedDam = BLOCKS.some((b) => b.keys.some((k) => benchSource(r, k) === "damodaran"));
   return (
     <section>
       <p className="lead">
-        {r.byma} contra la industria <strong>{r.dam_industry}</strong> ({regionLabel(r)}, {n} empresas), con datos
-        de {meta.source} al {meta.updated ?? "–"}. No es el promedio de los CEDEARs: es toda la industria.
-        {r.dam_match === "sic" && " Industria asignada por código SIC (la empresa no figura en el listado de Damodaran): tomala como aproximada."}
+        {r.byma} contra su industria <strong>{r.ind_name}</strong>. Los valores de la industria vienen de afuera:
+        {" "}Investing.com (columna “Industria”{inv?.updated ? `, al ${inv.updated}` : ""})
+        {usedDam && <>, y Damodaran{dam?.updated ? ` (${dam.updated})` : ""} para los renglones marcados con ᴰ</>}.
       </p>
       <div className="tablebox">
         <table>
@@ -284,34 +285,39 @@ function VsIndustry({ view, bench, meta }: { view: View | null; bench: Bench | n
             </tr>
           </thead>
           <tbody>
-            {BLOCKS.map((blk) => (
-              <SectorBlock key={blk.title} title={blk.title}>
-                {blk.keys.map((key) => {
-                  const col = COL[key], x = view[key], ind = benchValue(bench, key);
-                  const negEq = key === "de" && view.neg_equity && x != null;
-                  const vs = negEq ? { text: "PN negativo", better: null } : versus(key, x, ind);
-                  const note = BENCH.find((b) => b.key === key)?.note;
-                  return (
-                    <tr key={key}>
-                      <td className="l sticky" title={note ?? col.tip}>{col.label}{note && <span className="muted"> *</span>}</td>
-                      <td className={negEq ? "negeq" : x != null && x < 0 ? "neg" : ""}>{col.fmt(x)}{negEq ? "*" : ""}</td>
-                      <td className={ind != null && ind < 0 ? "neg" : ""}>{col.fmt(ind)}</td>
-                      <td className={`l ${vs.better === true ? "vs-good" : vs.better === false ? "vs-bad" : ""}`}>
-                        {vs.text}{vs.better != null && vs.text !== "–" && <span className="muted"> · {vs.better ? "mejor" : "peor"}</span>}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </SectorBlock>
-            ))}
+            {BLOCKS.map((blk) => {
+              const keys = blk.keys.filter((k) => benchValue(r, k) != null);
+              if (!keys.length) return null;
+              return (
+                <SectorBlock key={blk.title} title={blk.title}>
+                  {keys.map((key) => {
+                    const col = COL[key], x = view[key], ind = benchValue(r, key), src = benchSource(r, key);
+                    const negEq = key === "de" && view.neg_equity && x != null;
+                    const vs = negEq ? { text: "PN negativo", better: null } : versus(key, x, ind);
+                    const note = src === "damodaran" ? DAMODARAN_NOTES[key] : undefined;
+                    return (
+                      <tr key={key}>
+                        <td className="l sticky" title={note ?? col.tip}>{col.label}</td>
+                        <td className={negEq ? "negeq" : x != null && x < 0 ? "neg" : ""}>{col.fmt(x)}{negEq ? "*" : ""}</td>
+                        <td className={ind != null && ind < 0 ? "neg" : ""} title={note}>
+                          {col.fmt(ind)}{src === "damodaran" && <span className="muted"> ᴰ</span>}
+                        </td>
+                        <td className={`l ${vs.better === true ? "vs-good" : vs.better === false ? "vs-bad" : ""}`}>
+                          {vs.text}{vs.better != null && vs.text !== "–" && <span className="muted"> · {vs.better ? "mejor" : "peor"}</span>}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </SectorBlock>
+              );
+            })}
           </tbody>
         </table>
       </div>
       <ul className="note">
-        {BENCH.filter((b) => b.note).map((b) => <li key={b.key}>* {COL[b.key].label}: {b.note}</li>)}
-        <li>Los valores de la industria son agregados de Damodaran (actualización anual, enero). En industrias con pocas
-          empresas o con patrimonios negativos pueden dar valores extraños (ej. ROE de Computers/Peripherals).
-          La empresa se mide en la base elegida (TTM o último ejercicio).</li>
+        <li>La empresa se mide con nuestros datos (SEC) en la base elegida; la industria, con el dato publicado por la fuente.</li>
+        {usedDam && <li>ᴰ Damodaran define algunas métricas distinto: pasá el mouse por el valor para ver la diferencia.</li>}
+        {r.ind_dropped?.length ? <li>Investing publicó valores de industria fuera de rango razonable para: {r.ind_dropped.map((k) => COL[k as MKey]?.label ?? k).join(", ")}. Son promedios simples que distorsionan las empresas chicas con pérdidas; no se usaron.</li> : null}
       </ul>
     </section>
   );

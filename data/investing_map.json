@@ -1,0 +1,1369 @@
+{
+ "AAL": {
+  "industry": "Passenger Transportation Services",
+  "slug": "american-airlines-group"
+ },
+ "AAP": {
+  "buscado": true,
+  "industry": "Specialty Retailers",
+  "slug": "advance-auto-parts"
+ },
+ "AAPL": {
+  "industry": "Computers, Phones & Household Electronics",
+  "slug": "apple-computer-inc"
+ },
+ "ABBV": {
+  "industry": "Pharmaceuticals",
+  "slug": "abbvie-inc"
+ },
+ "ABEV": {
+  "industry": "Beverages",
+  "slug": "ambev-prf-adr"
+ },
+ "ABNB": {
+  "industry": "Software & IT Services",
+  "slug": "airbnb-inc"
+ },
+ "ABT": {
+  "industry": "Healthcare Equipment & Supplies",
+  "slug": "abbott-laboratories"
+ },
+ "ACN": {
+  "industry": "Software & IT Services",
+  "slug": "accenture-ltd"
+ },
+ "ADBE": {
+  "industry": "Software & IT Services",
+  "slug": "adobe-sys-inc"
+ },
+ "ADI": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "analog-devices"
+ },
+ "ADP": {
+  "industry": "Professional & Commercial Services",
+  "slug": "auto-data-process"
+ },
+ "AEG": {
+  "buscado": true,
+  "industry": "Insurance",
+  "slug": "aegon-nv"
+ },
+ "AEM": {
+  "industry": "Metals & Mining",
+  "slug": "agnico-eagle-mines"
+ },
+ "AI": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "AIG": {
+  "industry": "Insurance",
+  "slug": "american-intl-group"
+ },
+ "AKO.B": {
+  "industry": "Beverages",
+  "slug": "andina-b-adr"
+ },
+ "ALAB": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "astera-labs"
+ },
+ "AMAT": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "applied-matls-inc"
+ },
+ "AMD": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "adv-micro-device"
+ },
+ "AMGN": {
+  "industry": "Pharmaceuticals",
+  "slug": "amgen-inc"
+ },
+ "AMX": {
+  "industry": "Telecommunications Services",
+  "slug": "america-movil"
+ },
+ "AMZN": {
+  "industry": "Diversified Retail",
+  "slug": "amazon-com-inc"
+ },
+ "ANET": {
+  "industry": "Communications & Networking",
+  "slug": "arista-networks"
+ },
+ "ANF": {
+  "industry": "Specialty Retailers",
+  "slug": "aberc-fitch-a"
+ },
+ "ARCO": {
+  "buscado": true,
+  "industry": "Hotels & Entertainment Services",
+  "slug": "arcos-dorados-holdings-inc"
+ },
+ "ARM": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "arm"
+ },
+ "ASML": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "asml-holdings"
+ },
+ "ASR": {
+  "industry": "Transport Infrastructure",
+  "slug": "grupo-aeroportuario-sur-adr"
+ },
+ "ASTS": {
+  "industry": "Telecommunications Services",
+  "slug": "new-providence-acquisition-corp-n"
+ },
+ "AVGO": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "avago-technologies"
+ },
+ "AVY": {
+  "industry": "Containers & Packaging",
+  "slug": "avery-dennison"
+ },
+ "AXP": {
+  "industry": "Banking Services",
+  "slug": "american-express"
+ },
+ "AZN": {
+  "industry": "Pharmaceuticals",
+  "slug": "astrazeneca?cid=1239374"
+ },
+ "B": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "BA": {
+  "industry": "Aerospace & Defense",
+  "slug": "boeing-co"
+ },
+ "BABA": {
+  "industry": "Software & IT Services",
+  "slug": "alibaba"
+ },
+ "BAK": {
+  "buscado": true,
+  "industry": "Chemicals",
+  "slug": "braskem"
+ },
+ "BBV": {
+  "industry": "Banking Services",
+  "slug": "banco-bilbao-viscaya-argentaria-sa"
+ },
+ "BCS": {
+  "buscado": true,
+  "industry": "Banking Services",
+  "slug": "barclays-plc"
+ },
+ "BHP": {
+  "industry": "Metals & Mining",
+  "slug": "bhp-billiton-ltd-nyse-exch"
+ },
+ "BIDU": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "baidu.com"
+ },
+ "BIIB": {
+  "industry": "Pharmaceuticals",
+  "slug": "biogen-idec-inc"
+ },
+ "BIOX": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "BKNG": {
+  "industry": "Hotels & Entertainment Services",
+  "slug": "priceline.com-inc"
+ },
+ "BKR": {
+  "industry": "Oil & Gas Related Equipment and Services",
+  "slug": "baker-hughes"
+ },
+ "BMNR": {
+  "industry": "Financial Technology (Fintech) & Infrastructure",
+  "slug": "bitmine-immersion-tech"
+ },
+ "BMY": {
+  "industry": "Pharmaceuticals",
+  "slug": "bristol-myer-squiib"
+ },
+ "BNY": {
+  "industry": "Investment Banking & Investment Services",
+  "slug": "bk-of-ny"
+ },
+ "BP": {
+  "industry": "Oil & Gas",
+  "slug": "bp-plc"
+ },
+ "BRKB": {
+  "industry": "Consumer Goods Conglomerates",
+  "slug": "berkshire-hathaway"
+ },
+ "BSBR": {
+  "buscado": true,
+  "industry": "Banking Services",
+  "slug": "banco-santander-brazil-adr"
+ },
+ "BX": {
+  "industry": "Investment Banking & Investment Services",
+  "slug": "the-blackstone-group"
+ },
+ "C": {
+  "industry": "Investment Banking & Investment Services",
+  "slug": "citigroup"
+ },
+ "CAAP": {
+  "industry": "Transport Infrastructure",
+  "slug": "corporacion-america-airports"
+ },
+ "CAH": {
+  "industry": "Pharmaceuticals",
+  "slug": "cardinal-health"
+ },
+ "CAR": {
+  "industry": "Passenger Transportation Services",
+  "slug": "avis-budget"
+ },
+ "CAT": {
+  "industry": "Machinery, Tools, Heavy Vehicles, Trains & Ships",
+  "slug": "caterpillar"
+ },
+ "CCJ": {
+  "industry": "Uranium",
+  "slug": "cameco-corp"
+ },
+ "CCL": {
+  "industry": "Hotels & Entertainment Services",
+  "slug": "carnival-corp-exch"
+ },
+ "CDE": {
+  "industry": "Metals & Mining",
+  "slug": "coeur-dalene-mines-corp"
+ },
+ "CEG": {
+  "industry": "Electrical Utilities & IPPs",
+  "slug": "constellation-energy"
+ },
+ "CL": {
+  "industry": "Personal & Household Products & Services",
+  "slug": "colgate-palmo"
+ },
+ "CLS": {
+  "industry": "Electronic Equipment & Parts",
+  "slug": "celestica?cid=21014"
+ },
+ "COIN": {
+  "industry": "Financial Technology (Fintech) & Infrastructure",
+  "slug": "coinbase-global"
+ },
+ "COP": {
+  "industry": "Oil & Gas",
+  "slug": "conoco-phillips"
+ },
+ "CORN": {
+  "industry": null,
+  "slug": null
+ },
+ "COST": {
+  "industry": "Diversified Retail",
+  "slug": "costco-whsl-corp-new"
+ },
+ "CRM": {
+  "industry": "Software & IT Services",
+  "slug": "salesforce-com"
+ },
+ "CRWD": {
+  "industry": "Software & IT Services",
+  "slug": "crowdstrike-holdings-inc"
+ },
+ "CRWV": {
+  "industry": "Software & IT Services",
+  "slug": "coreweave"
+ },
+ "CSCO": {
+  "industry": "Communications & Networking",
+  "slug": "cisco-sys-inc"
+ },
+ "CVS": {
+  "industry": "Healthcare Providers & Services",
+  "slug": "cvs-corp"
+ },
+ "CVX": {
+  "industry": "Oil & Gas",
+  "slug": "chevron"
+ },
+ "CX": {
+  "industry": "Construction Materials",
+  "slug": "cemex-sab-de-cv-adr"
+ },
+ "DAL": {
+  "industry": "Passenger Transportation Services",
+  "slug": "delta-air-lines-new"
+ },
+ "DD": {
+  "industry": "Chemicals",
+  "slug": "du-pont"
+ },
+ "DE": {
+  "industry": "Machinery, Tools, Heavy Vehicles, Trains & Ships",
+  "slug": "deere---co"
+ },
+ "DECK": {
+  "industry": "Textiles & Apparel",
+  "slug": "deckers-outdoor-corp"
+ },
+ "DELL": {
+  "industry": "Computers, Phones & Household Electronics",
+  "slug": "dell-inc"
+ },
+ "DEO": {
+  "industry": "Beverages",
+  "slug": "diageo-plc"
+ },
+ "DHR": {
+  "industry": "Healthcare Equipment & Supplies",
+  "slug": "danaher-corp"
+ },
+ "DIA": {
+  "industry": null,
+  "slug": null
+ },
+ "DISN": {
+  "industry": "Media & Publishing",
+  "slug": "disney"
+ },
+ "DOCU": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "docusign-inc"
+ },
+ "DOW": {
+  "industry": "Chemicals",
+  "slug": "dow-chemical"
+ },
+ "E": {
+  "industry": "Oil & Gas",
+  "slug": "eni-spa"
+ },
+ "EBAY": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "ebay-inc"
+ },
+ "ECL": {
+  "industry": "Chemicals",
+  "slug": "ecolab-inc"
+ },
+ "EFX": {
+  "industry": "Professional & Commercial Services",
+  "slug": "equifax-inc"
+ },
+ "ELPC": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "EMBJ": {
+  "industry": "Aerospace & Defense",
+  "slug": "embraer-sa"
+ },
+ "EQNR": {
+  "industry": "Oil & Gas",
+  "slug": "statoil-asa"
+ },
+ "ERIC": {
+  "industry": "Communications & Networking",
+  "slug": "ericsson-l-m-tel-co-exch"
+ },
+ "ETHA": {
+  "industry": null,
+  "slug": null
+ },
+ "ETSY": {
+  "industry": "Diversified Retail",
+  "slug": "etsy-inc"
+ },
+ "F": {
+  "industry": "Automobiles & Auto Parts",
+  "slug": "ford-motor-co"
+ },
+ "FCX": {
+  "industry": "Metals & Mining",
+  "slug": "freeport-mcm"
+ },
+ "FDX": {
+  "industry": "Freight & Logistics Services",
+  "slug": "fedex-corp"
+ },
+ "FISV": {
+  "industry": "Professional & Commercial Services",
+  "slug": "fiserv-inc"
+ },
+ "FMX": {
+  "industry": "Food & Drug Retailing",
+  "slug": "fomento-economico-mexicano"
+ },
+ "FNMA": {
+  "buscado": true,
+  "industry": "Banking Services",
+  "slug": "fannie-mae"
+ },
+ "FSLR": {
+  "industry": "Renewable Energy",
+  "slug": "first-solar-inc"
+ },
+ "GE": {
+  "industry": "Aerospace & Defense",
+  "slug": "general-electric"
+ },
+ "GEV": {
+  "industry": "Electrical Utilities & IPPs",
+  "slug": "ge-vernova-llc"
+ },
+ "GFI": {
+  "industry": "Metals & Mining",
+  "slug": "gold-fields-lts"
+ },
+ "GGB": {
+  "buscado": true,
+  "industry": "Metals & Mining",
+  "slug": "gerdau-sa-adr"
+ },
+ "GILD": {
+  "industry": "Pharmaceuticals",
+  "slug": "gilead-sciences-inc"
+ },
+ "GLD": {
+  "industry": null,
+  "slug": null
+ },
+ "GLNG": {
+  "industry": "Oil & Gas Related Equipment and Services",
+  "slug": "golar-lng-ltd"
+ },
+ "GLOB": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "globant-sa"
+ },
+ "GLW": {
+  "industry": "Electronic Equipment & Parts",
+  "slug": "corning-inc"
+ },
+ "GM": {
+  "industry": "Automobiles & Auto Parts",
+  "slug": "gen-motors"
+ },
+ "GOOGL": {
+  "industry": "Software & IT Services",
+  "slug": "google-inc"
+ },
+ "GPRK": {
+  "buscado": true,
+  "industry": "Oil & Gas",
+  "slug": "geopark-lim"
+ },
+ "GRMN": {
+  "industry": "Communications & Networking",
+  "slug": "garmin-ltd"
+ },
+ "GS": {
+  "industry": "Investment Banking & Investment Services",
+  "slug": "goldman-sachs-group"
+ },
+ "GSG": {
+  "industry": null,
+  "slug": null
+ },
+ "GSK": {
+  "industry": "Pharmaceuticals",
+  "slug": "glaxosmithklein-exch"
+ },
+ "GT": {
+  "buscado": true,
+  "industry": "Automobiles & Auto Parts",
+  "slug": "goodyear-tire"
+ },
+ "HAL": {
+  "industry": "Oil & Gas Related Equipment and Services",
+  "slug": "halliburton-co"
+ },
+ "HD": {
+  "industry": "Specialty Retailers",
+  "slug": "home-depot"
+ },
+ "HIMS": {
+  "industry": "Healthcare Providers & Services",
+  "slug": "oaktree-acquisition-corp"
+ },
+ "HL": {
+  "buscado": true,
+  "industry": "Metals & Mining",
+  "slug": "hecla-mining-comp"
+ },
+ "HMC": {
+  "industry": "Automobiles & Auto Parts",
+  "slug": "honda"
+ },
+ "HMY": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "HOG": {
+  "buscado": true,
+  "industry": "Automobiles & Auto Parts",
+  "slug": "harley-davidson"
+ },
+ "HON": {
+  "industry": "Consumer Goods Conglomerates",
+  "slug": "honeywell-intl"
+ },
+ "HOOD": {
+  "industry": "Financial Technology (Fintech) & Infrastructure",
+  "slug": "robinhood-markets"
+ },
+ "HPQ": {
+  "industry": "Computers, Phones & Household Electronics",
+  "slug": "hewlett-pack"
+ },
+ "HSBC": {
+  "industry": "Banking Services",
+  "slug": "hsbc-holdings-plc"
+ },
+ "HSY": {
+  "industry": "Food & Tobacco",
+  "slug": "hershey-co"
+ },
+ "HUT": {
+  "industry": "Financial Technology (Fintech) & Infrastructure",
+  "slug": "hut-8-mining?cid=1079918"
+ },
+ "HWM": {
+  "industry": "Aerospace & Defense",
+  "slug": "howmet-aerospace-inc"
+ },
+ "IBIT": {
+  "industry": null,
+  "slug": null
+ },
+ "IBKR": {
+  "industry": "Investment Banking & Investment Services",
+  "slug": "interactive-broke"
+ },
+ "IBM": {
+  "industry": "Software & IT Services",
+  "slug": "ibm"
+ },
+ "IBN": {
+  "buscado": true,
+  "industry": "Banking Services",
+  "slug": "icici-bank"
+ },
+ "IFF": {
+  "industry": "Food & Tobacco",
+  "slug": "intl-flav---frag"
+ },
+ "INFY": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "infosy-tech"
+ },
+ "ING": {
+  "buscado": true,
+  "industry": "Banking Services",
+  "slug": "ing-group-nv"
+ },
+ "INTC": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "intel-corp"
+ },
+ "IP": {
+  "industry": "Containers & Packaging",
+  "slug": "intl-paper-co"
+ },
+ "IREN": {
+  "industry": "Financial Technology (Fintech) & Infrastructure",
+  "slug": "iris-energy"
+ },
+ "ISRG": {
+  "industry": "Healthcare Equipment & Supplies",
+  "slug": "intuitive-surgical-inc"
+ },
+ "ITUB": {
+  "buscado": true,
+  "industry": "Banking Services",
+  "slug": "itau-unibanco-holding-sa-adr"
+ },
+ "JCI": {
+  "industry": "Machinery, Tools, Heavy Vehicles, Trains & Ships",
+  "slug": "johnson-controls"
+ },
+ "JD": {
+  "industry": "Diversified Retail",
+  "slug": "jd.com-inc-adr"
+ },
+ "JMIA": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "jumia-technologies-ag"
+ },
+ "JNJ": {
+  "industry": "Pharmaceuticals",
+  "slug": "johnson-johnson"
+ },
+ "JOYY": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "JPM": {
+  "industry": "Banking Services",
+  "slug": "jp-morgan-chase"
+ },
+ "KB": {
+  "buscado": true,
+  "industry": "Banking Services",
+  "slug": "kb-financial-group-inc"
+ },
+ "KEEL": {
+  "industry": "Financial Technology (Fintech) & Infrastructure",
+  "slug": "bitfarms-ltd?cid=1173542"
+ },
+ "KEP": {
+  "buscado": true,
+  "industry": "Electrical Utilities & IPPs",
+  "slug": "korea-electric-power-corp"
+ },
+ "KGC": {
+  "industry": "Metals & Mining",
+  "slug": "kinross-gold"
+ },
+ "KLAC": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "kla-tencor-corp"
+ },
+ "KMB": {
+  "industry": "Personal & Household Products & Services",
+  "slug": "kimberly-clark"
+ },
+ "KO": {
+  "industry": "Beverages",
+  "slug": "coca-cola-co"
+ },
+ "KOFM": {
+  "industry": "Beverages",
+  "slug": "coca-cola-femsa-adr"
+ },
+ "LAC": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "LAR": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "LIN": {
+  "industry": "Chemicals",
+  "slug": "linde-plc?cid=1208282"
+ },
+ "LLY": {
+  "industry": "Pharmaceuticals",
+  "slug": "eli-lilly-and-co"
+ },
+ "LMT": {
+  "industry": "Aerospace & Defense",
+  "slug": "lockheed-martin"
+ },
+ "LND": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "LRCX": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "lam-research-corp"
+ },
+ "LVS": {
+  "industry": "Hotels & Entertainment Services",
+  "slug": "las-vegas-sands"
+ },
+ "LYG": {
+  "buscado": true,
+  "industry": "Banking Services",
+  "slug": "lloyds-banking-group-plc"
+ },
+ "MA": {
+  "industry": "Software & IT Services",
+  "slug": "mastercard-cl-a"
+ },
+ "MCD": {
+  "industry": "Hotels & Entertainment Services",
+  "slug": "mcdonalds"
+ },
+ "MDLZ": {
+  "industry": "Food & Tobacco",
+  "slug": "mondelez-international-inc"
+ },
+ "MDT": {
+  "industry": "Healthcare Equipment & Supplies",
+  "slug": "medtronic"
+ },
+ "MELI": {
+  "industry": "Software & IT Services",
+  "slug": "mercadolibre"
+ },
+ "META": {
+  "industry": "Software & IT Services",
+  "slug": "facebook-inc"
+ },
+ "MFG": {
+  "industry": "Banking Services",
+  "slug": "mizuho"
+ },
+ "MMM": {
+  "industry": "Consumer Goods Conglomerates",
+  "slug": "3m-co"
+ },
+ "MO": {
+  "industry": "Food & Tobacco",
+  "slug": "altria-group"
+ },
+ "MOS": {
+  "industry": "Chemicals",
+  "slug": "mosaic-company"
+ },
+ "MP": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "MRK": {
+  "industry": "Pharmaceuticals",
+  "slug": "merck---co"
+ },
+ "MRNA": {
+  "industry": "Pharmaceuticals",
+  "slug": "moderna"
+ },
+ "MRSH": {
+  "industry": "Insurance",
+  "slug": "marsh---mclennan"
+ },
+ "MRVL": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "marvell-technology-group-ltd"
+ },
+ "MS": {
+  "industry": "Investment Banking & Investment Services",
+  "slug": "morgan-stanley"
+ },
+ "MSFT": {
+  "industry": "Software & IT Services",
+  "slug": "microsoft-corp"
+ },
+ "MSI": {
+  "industry": "Communications & Networking",
+  "slug": "motorola-inc"
+ },
+ "MSTR": {
+  "industry": "Software & IT Services",
+  "slug": "microstrategy-inc"
+ },
+ "MU": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "micron-tech"
+ },
+ "MUFG": {
+  "industry": "Banking Services",
+  "slug": "mits-ufj-financial-grp"
+ },
+ "MUX": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "NBIS": {
+  "industry": "Professional & Commercial Services",
+  "slug": "yandex-nv"
+ },
+ "NEE": {
+  "industry": "Electrical Utilities & IPPs",
+  "slug": "nextera-energy-inc"
+ },
+ "NEM": {
+  "industry": "Metals & Mining",
+  "slug": "newmont-mining"
+ },
+ "NFLX": {
+  "industry": "Software & IT Services",
+  "slug": "netflix,-inc."
+ },
+ "NG": {
+  "buscado": true,
+  "industry": "Metals & Mining",
+  "slug": "novagold-resources-inc"
+ },
+ "NGG": {
+  "industry": "Multiline Utilities",
+  "slug": "national-grid-transco-plc"
+ },
+ "NIO": {
+  "industry": "Automobiles & Auto Parts",
+  "slug": "nio-inc"
+ },
+ "NKE": {
+  "industry": "Textiles & Apparel",
+  "slug": "nike"
+ },
+ "NMR": {
+  "industry": "Investment Banking & Investment Services",
+  "slug": "nomura-holdings"
+ },
+ "NOKA": {
+  "industry": "Communications & Networking",
+  "slug": "nokia-corp-exch"
+ },
+ "NOW": {
+  "industry": "Software & IT Services",
+  "slug": "servicenow-inc"
+ },
+ "NTES": {
+  "industry": "Software & IT Services",
+  "slug": "netease.com"
+ },
+ "NTRA": {
+  "industry": "Healthcare Providers & Services",
+  "slug": "natera-inc"
+ },
+ "NU": {
+  "buscado": true,
+  "industry": "Banking Services",
+  "slug": "nu-holdings"
+ },
+ "NUE": {
+  "industry": "Metals & Mining",
+  "slug": "nucor"
+ },
+ "NVDA": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "nvidia-corp"
+ },
+ "NVO": {
+  "industry": "Pharmaceuticals",
+  "slug": "novo-nordis"
+ },
+ "NVS": {
+  "industry": "Pharmaceuticals",
+  "slug": "novartis-ag"
+ },
+ "NXE": {
+  "industry": "Uranium",
+  "slug": "nexgen-energy-ltd.?cid=52433"
+ },
+ "O": {
+  "industry": "Residential & Commercial REITs",
+  "slug": "realty-income"
+ },
+ "OKLO": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "ONDS": {
+  "industry": "Communications & Networking",
+  "slug": "ondas"
+ },
+ "ORCL": {
+  "industry": "Software & IT Services",
+  "slug": "oracle-corp"
+ },
+ "ORLY": {
+  "industry": "Specialty Retailers",
+  "slug": "oreilly-automotive"
+ },
+ "OXY": {
+  "industry": "Oil & Gas",
+  "slug": "occidental-petro"
+ },
+ "PAAS": {
+  "industry": "Metals & Mining",
+  "slug": "pan-american-silver-corp"
+ },
+ "PAC": {
+  "industry": "Transport Infrastructure",
+  "slug": "grupo-aeroportuario-del-pacifico"
+ },
+ "PAGS": {
+  "buscado": true,
+  "industry": "Professional & Commercial Services",
+  "slug": "pagseguro-digital"
+ },
+ "PANW": {
+  "industry": "Software & IT Services",
+  "slug": "palo-alto-netwrk"
+ },
+ "PATH": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "uipath"
+ },
+ "PBI": {
+  "industry": "Office Equipment",
+  "slug": "pitney-bowes-inc"
+ },
+ "PBR": {
+  "industry": "Oil & Gas",
+  "slug": "petroleo-bras"
+ },
+ "PCAR": {
+  "industry": "Machinery, Tools, Heavy Vehicles, Trains & Ships",
+  "slug": "paccar-inc"
+ },
+ "PDD": {
+  "industry": "Software & IT Services",
+  "slug": "pinduoduo"
+ },
+ "PEP": {
+  "industry": "Beverages",
+  "slug": "pepsico"
+ },
+ "PFE": {
+  "industry": "Pharmaceuticals",
+  "slug": "pfizer"
+ },
+ "PG": {
+  "industry": "Personal & Household Products & Services",
+  "slug": "procter-gamble"
+ },
+ "PHG": {
+  "industry": "Healthcare Equipment & Supplies",
+  "slug": "koninklijke-philips-nv"
+ },
+ "PINS": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "pinterest-inc"
+ },
+ "PLD": {
+  "industry": "Residential & Commercial REITs",
+  "slug": "prologis"
+ },
+ "PLTR": {
+  "industry": "Software & IT Services",
+  "slug": "palantir-technologies-inc"
+ },
+ "PM": {
+  "industry": "Food & Tobacco",
+  "slug": "philip-morris-intl"
+ },
+ "PSX": {
+  "industry": "Oil & Gas",
+  "slug": "phillips-66-ltd"
+ },
+ "PYPL": {
+  "industry": "Professional & Commercial Services",
+  "slug": "paypal-holdings-inc"
+ },
+ "QCOM": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "qualcomm-inc"
+ },
+ "RACE": {
+  "industry": "Automobiles & Auto Parts",
+  "slug": "ferrari-nv"
+ },
+ "RBLX": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "roblox-corp"
+ },
+ "RGTI": {
+  "buscado": true,
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "rigetti-computing-inc"
+ },
+ "RIO": {
+  "industry": "Metals & Mining",
+  "slug": "rio-tinto-plc-exch"
+ },
+ "RIOT": {
+  "industry": "Financial Technology (Fintech) & Infrastructure",
+  "slug": "venaxis"
+ },
+ "RKLB": {
+  "industry": "Aerospace & Defense",
+  "slug": "vector-acquisition"
+ },
+ "ROKU": {
+  "industry": "Media & Publishing",
+  "slug": "roku"
+ },
+ "ROST": {
+  "industry": "Specialty Retailers",
+  "slug": "ross-stores-inc"
+ },
+ "RTX": {
+  "industry": "Aerospace & Defense",
+  "slug": "united-tech"
+ },
+ "SAN": {
+  "industry": "Banking Services",
+  "slug": "b-santander-s-a"
+ },
+ "SAP": {
+  "industry": "Software & IT Services",
+  "slug": "sap-ag-ads-exch"
+ },
+ "SATL": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "SBS": {
+  "industry": "Water & Related Utilities",
+  "slug": "sabesp"
+ },
+ "SBUX": {
+  "industry": "Hotels & Entertainment Services",
+  "slug": "starbucks-corp"
+ },
+ "SCCO": {
+  "industry": "Metals & Mining",
+  "slug": "southern-copper-corp."
+ },
+ "SCHW": {
+  "industry": "Investment Banking & Investment Services",
+  "slug": "charles-schwab"
+ },
+ "SDA": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "SE": {
+  "industry": "Software & IT Services",
+  "slug": "sea-limited"
+ },
+ "SHEL": {
+  "industry": "Oil & Gas",
+  "slug": "royal-dutch-shell-a-plc"
+ },
+ "SHOP": {
+  "industry": "Software & IT Services",
+  "slug": "shopify-inc"
+ },
+ "SHW": {
+  "industry": "Chemicals",
+  "slug": "sherwinwilliams"
+ },
+ "SID": {
+  "buscado": true,
+  "industry": "Metals & Mining",
+  "slug": "national-steel-comp"
+ },
+ "SLB": {
+  "industry": "Oil & Gas Related Equipment and Services",
+  "slug": "schlumberger-ltd"
+ },
+ "SLV": {
+  "industry": null,
+  "slug": null
+ },
+ "SNA": {
+  "buscado": true,
+  "industry": "Machinery, Tools, Heavy Vehicles, Trains & Ships",
+  "slug": "snapon-inc"
+ },
+ "SNAP": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "snap-inc"
+ },
+ "SNDK": {
+  "industry": "Computers, Phones & Household Electronics",
+  "slug": "sandisk-corp"
+ },
+ "SNOW": {
+  "industry": "Software & IT Services",
+  "slug": "snowflake-inc"
+ },
+ "SONY": {
+  "industry": "Computers, Phones & Household Electronics",
+  "slug": "sony"
+ },
+ "SOYB": {
+  "industry": null,
+  "slug": null
+ },
+ "SPCE": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "SPCX": {
+  "industry": "Telecommunications Services",
+  "slug": "spacex"
+ },
+ "SPGI": {
+  "industry": "Professional & Commercial Services",
+  "slug": "mcgraw-hill"
+ },
+ "SPOT": {
+  "industry": "Software & IT Services",
+  "slug": "spotify-technology"
+ },
+ "SPY": {
+  "industry": null,
+  "slug": null
+ },
+ "STLA": {
+  "industry": "Automobiles & Auto Parts",
+  "slug": "fiat?cid=941888"
+ },
+ "STNE": {
+  "industry": "Financial Technology (Fintech) & Infrastructure",
+  "slug": "stoneco-ltd"
+ },
+ "SUZ": {
+  "industry": "Paper & Forest Products",
+  "slug": "suzano-papel-adr"
+ },
+ "SWKS": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "skyworks-solutions-inc"
+ },
+ "SYY": {
+  "industry": "Food & Drug Retailing",
+  "slug": "sysco-corp"
+ },
+ "T": {
+  "industry": "Telecommunications Services",
+  "slug": "at-t"
+ },
+ "TCOM": {
+  "industry": "Hotels & Entertainment Services",
+  "slug": "ctrip.com-international"
+ },
+ "TEAM": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "atlassian-corp-plc"
+ },
+ "TEM": {
+  "industry": "Biotechnology & Medical Research",
+  "slug": "tempus-ai"
+ },
+ "TEN": {
+  "buscado": true,
+  "industry": "Oil & Gas Related Equipment and Services",
+  "slug": "tsakos-energy-navigation-ltd"
+ },
+ "TGT": {
+  "industry": "Diversified Retail",
+  "slug": "target"
+ },
+ "TIMB": {
+  "industry": "Telecommunications Services",
+  "slug": "tim-participacoes"
+ },
+ "TJX": {
+  "industry": "Diversified Retail",
+  "slug": "tjx-co-inc"
+ },
+ "TLN": {
+  "buscado": true,
+  "industry": "Electrical Utilities & IPPs",
+  "slug": "talen-energy-corp"
+ },
+ "TM": {
+  "industry": "Automobiles & Auto Parts",
+  "slug": "toyota"
+ },
+ "TMO": {
+  "industry": "Healthcare Equipment & Supplies",
+  "slug": "thermo-fisher-sc"
+ },
+ "TMUS": {
+  "industry": "Telecommunications Services",
+  "slug": "metropcs-communications"
+ },
+ "TRIP": {
+  "buscado": true,
+  "industry": "Hotels & Entertainment Services",
+  "slug": "tripadvisor"
+ },
+ "TRVV": {
+  "industry": "Insurance",
+  "slug": "the-travelers-co"
+ },
+ "TSLA": {
+  "industry": "Automobiles & Auto Parts",
+  "slug": "tesla-motors"
+ },
+ "TSM": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "taiwan-semicond.manufacturing-co"
+ },
+ "TTE": {
+  "industry": "Oil & Gas",
+  "slug": "total?cid=29466"
+ },
+ "TV": {
+  "industry": "Media & Publishing",
+  "slug": "grupo-televisa-sa-adr"
+ },
+ "TWLO": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "twilio-inc-a"
+ },
+ "TXN": {
+  "industry": "Semiconductors & Semiconductor Equipment",
+  "slug": "texas-instru"
+ },
+ "TXR": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "UAL": {
+  "industry": "Passenger Transportation Services",
+  "slug": "united-continenta"
+ },
+ "UBER": {
+  "industry": "Software & IT Services",
+  "slug": "uber-technologies-inc"
+ },
+ "UGP": {
+  "buscado": true,
+  "industry": null,
+  "slug": null
+ },
+ "UL": {
+  "industry": "Personal & Household Products & Services",
+  "slug": "unilever-adr"
+ },
+ "UNH": {
+  "industry": "Healthcare Providers & Services",
+  "slug": "united-health-group"
+ },
+ "UNP": {
+  "industry": "Freight & Logistics Services",
+  "slug": "union-pacific"
+ },
+ "UPST": {
+  "buscado": true,
+  "industry": "Banking Services",
+  "slug": "upstart-holdings-inc"
+ },
+ "URBN": {
+  "industry": "Specialty Retailers",
+  "slug": "urban-outfitters"
+ },
+ "USB": {
+  "buscado": true,
+  "industry": "Banking Services",
+  "slug": "us-bancorp"
+ },
+ "USO": {
+  "industry": null,
+  "slug": null
+ },
+ "V": {
+  "industry": "Professional & Commercial Services",
+  "slug": "visa-inc"
+ },
+ "VALE": {
+  "industry": "Metals & Mining",
+  "slug": "vale-s.a.--americ"
+ },
+ "VIST": {
+  "buscado": true,
+  "industry": null,
+  "slug": "vist-financial"
+ },
+ "VIV": {
+  "industry": "Telecommunications Services",
+  "slug": "telefonica-brasil-sa-adr"
+ },
+ "VOD": {
+  "industry": "Telecommunications Services",
+  "slug": "vodafone-group-plc-exch"
+ },
+ "VRSN": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "verisign-inc"
+ },
+ "VRTX": {
+  "industry": "Pharmaceuticals",
+  "slug": "vertex-pharm"
+ },
+ "VST": {
+  "industry": "Electrical Utilities & IPPs",
+  "slug": "vistra-energy-corp"
+ },
+ "VZ": {
+  "industry": "Telecommunications Services",
+  "slug": "verizon-communications"
+ },
+ "WDC": {
+  "industry": "Computers, Phones & Household Electronics",
+  "slug": "western-digital"
+ },
+ "WELL": {
+  "industry": "Residential & Commercial REITs",
+  "slug": "health-care-reit"
+ },
+ "WFC": {
+  "industry": "Banking Services",
+  "slug": "wells-fargo"
+ },
+ "WMT": {
+  "industry": "Food & Drug Retailing",
+  "slug": "wal-mart-stores"
+ },
+ "XOM": {
+  "industry": "Oil & Gas",
+  "slug": "exxon-mobil"
+ },
+ "XP": {
+  "buscado": true,
+  "industry": "Investment Banking & Investment Services",
+  "slug": "xp-inc"
+ },
+ "XPEV": {
+  "industry": "Automobiles & Auto Parts",
+  "slug": "xpeng-inc"
+ },
+ "XROX": {
+  "industry": "Office Equipment",
+  "slug": "xerox-corp"
+ },
+ "XYZ": {
+  "industry": "Professional & Commercial Services",
+  "slug": "square-inc"
+ },
+ "YELP": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "yelp"
+ },
+ "ZM": {
+  "buscado": true,
+  "industry": "Software & IT Services",
+  "slug": "zoom-video-communications"
+ }
+}

@@ -523,6 +523,47 @@ def per_share_fields(comp):
             "eps": rows[-1].get("eps_diluted") if same_unit and rows else None}
 
 
+# Rangos plausibles de un promedio de INDUSTRIA. Investing usa promedios simples y en industrias
+# con muchas empresas chicas da valores absurdos (ej. margen operativo -129% en "Software & IT
+# Services"): fuera de rango, esa métrica cae a Damodaran o queda sin comparación.
+PLAUSIBLE = {
+    "gross_margin": (-0.5, 1), "op_margin": (-0.5, 0.8), "pretax_margin": (-0.5, 0.8),
+    "net_margin": (-0.5, 0.8), "roe": (-1, 1.5), "roa": (-0.5, 0.5),
+    "gm5": (-0.5, 1), "om5": (-0.5, 0.8), "ptm5": (-0.5, 0.8), "nm5": (-0.5, 0.8),
+    "rev_cagr5": (-0.5, 1.5), "eps_cagr5": (-0.9, 3), "capex_cagr5": (-0.9, 3),
+    "growth": (-0.5, 2), "q_yoy": (-0.5, 3), "q_eps_yoy": (-5, 10), "eps_ttm_yoy": (-5, 10),
+    "de": (0, 10), "lt_de": (0, 10), "current_ratio": (0.1, 10), "quick_ratio": (0.05, 10),
+    "asset_turnover": (0.01, 10), "inv_turnover": (0.1, 500), "ar_turnover": (0.1, 500),
+    "pe": (0.1, 300), "ps": (0.01, 100), "pb": (0.01, 200), "pcf": (0.1, 300),
+    "debt_ebitda": (0, 30), "peg": (0.01, 20),
+}
+# Damodaran -> nuestras métricas (respaldo para lo que Investing no publica o no pasa el filtro)
+DAM_KEYS = {"gross_margin": "gross_margin", "op_margin": "op_margin", "net_margin": "net_margin",
+            "roe": "roe", "rev_cagr5": "rev_cagr5", "eps_cagr5": "ni_cagr5", "de": "de",
+            "debt_ebitda": "debt_ebitda", "inv_turnover": "inv_turnover", "ar_turnover": "ar_turnover",
+            "pe": "pe", "peg": "peg", "pb": "pb", "ps": "ps"}
+
+
+def industry_bench(byma, comp, inv, industries):
+    """Referencia de la industria por métrica, de fuentes externas: Investing (columna
+    Industria) y, para lo que falte, Damodaran. Nunca un promedio calculado por nosotros."""
+    ok = lambda k, v: isinstance(v, (int, float)) and PLAUSIBLE.get(k, (-1e9, 1e9))[0] <= v <= PLAUSIBLE.get(k, (-1e9, 1e9))[1]
+    bench, src, dropped = {}, {}, []
+    row = (inv.get("rows") or {}).get(byma)
+    for k, v in ((row or {}).get("values") or {}).items():
+        if ok(k, v):
+            bench[k], src[k] = v, "investing"
+        else:
+            dropped.append(k)
+    dam = (industries.bench.get(comp.get("dam_region"), {}).get(comp.get("dam_industry"))
+           if industries and comp.get("dam_industry") else None) or {}
+    for ours, dk in DAM_KEYS.items():
+        if ours not in bench and ok(ours, dam.get(dk)):
+            bench[ours], src[ours] = dam[dk], "damodaran"
+    return {"ind_name": (row or {}).get("industry") or comp.get("dam_industry"),
+            "ind_bench": bench or None, "ind_src": src or None, "ind_dropped": dropped or None}
+
+
 FIVE_KEYS = ("rev_cagr5", "eps_cagr5", "capex_cagr5", "gm5", "om5", "ptm5", "nm5")
 
 
@@ -562,6 +603,8 @@ def main():
         print(f"Sin datos de industria (Damodaran): {e}")
         industries = None
     used_ind = set()
+    inv_file = ROOT / "data" / "investing_industry.json"
+    inv = json.loads(inv_file.read_text(encoding="utf-8")) if inv_file.exists() else {"meta": None, "rows": {}}
     global IND_OVERRIDES
     IND_OVERRIDES = {k: v for k, v in json.loads(IND_OVERRIDES_FILE.read_text(encoding="utf-8")).items()
                      if not k.startswith("_")} if IND_OVERRIDES_FILE.exists() else {}
@@ -674,6 +717,7 @@ def main():
             "byma": byma, "ticker": us, "name": comp["name"], "sector": comp["sector"],
             "sector_group": comp["sector_group"], "industry": comp["industry"],
             "dam_industry": comp["dam_industry"], "dam_region": comp["dam_region"], "dam_match": comp["dam_match"],
+            **industry_bench(byma, comp, inv, industries),
             "currency": comp["currency"], "reported_currency": comp["reported_currency"],
             "converted": comp["converted"], "fy": L.get("year"), "fiscal_end": L.get("fiscal_end"),
             "last_filed": comp["last_filed"],
@@ -703,10 +747,12 @@ def main():
         "total_cedears": len(cedears), "with_sec": len(targets),
         "ok": len(screener), "errors": errors,
         "with_market_cap": sum(1 for r in screener if r["market_cap"]),
+        "industry_sources": {
+            "investing": inv.get("meta"),
+            "damodaran": {"source": "Aswath Damodaran, NYU Stern", "updated": industries.updated} if industries else None,
+        },
         "without_sec": [c["byma"] for c in cedears if not c.get("cik")],
     }
-    if industries:
-        industries.dump(OUT_DIR / "industries.json", used_ind)
     (OUT_DIR / "screener.json").write_text(
         json.dumps({"meta": meta, "rows": screener}, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8")

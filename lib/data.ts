@@ -9,6 +9,10 @@ export type ScreenerRow = {
   // Industria de Damodaran (NYU Stern) para comparar contra la industria real, región
   // us | global y cómo se asignó: ticker | nombre | sic (aproximada).
   dam_industry?: string | null; dam_region?: "us" | "global" | null; dam_match?: "ticker" | "nombre" | "sic" | "manual" | null;
+  // Referencia EXTERNA de la industria por métrica (nunca calculada por nosotros):
+  // Investing.com (columna "Industria") y, para lo que falte, Damodaran.
+  ind_name?: string | null; ind_bench?: Record<string, number> | null;
+  ind_src?: Record<string, "investing" | "damodaran"> | null; ind_dropped?: string[] | null;
   reported_currency: string; converted: boolean;
   fy: number | null; fiscal_end: string | null; last_filed: string;
   revenue: number | null; net_income: number | null; fcf: number | null;
@@ -48,14 +52,10 @@ export type ScreenerRow = {
 export type Balance = { equity: number | null; debt: number | null };
 export type Row = ScreenerRow & { cik: number | null; bal_a: Balance; bal_t: Balance | null };
 
-export type Bench = Record<string, number | null>;
-export type Industries = {
-  meta: { source: string; updated: string | null; url: string };
-  us: Record<string, Bench>; global: Record<string, Bench>;
-};
-
+export type SourceMeta = { source: string; updated: string | null } | null;
 export type Meta = {
   generated: string; total_cedears: number; with_sec: number; ok: number;
+  industry_sources?: { investing: SourceMeta; damodaran: SourceMeta };
   errors: { byma: string; error: string }[]; without_sec: string[];
 };
 export type Period = Record<string, number | string | null>;
@@ -76,14 +76,6 @@ const DATA_DIR = path.join(process.cwd(), "public", "data");
 export async function getScreener(): Promise<{ meta: Meta; rows: ScreenerRow[] }> {
   const raw = await fs.readFile(path.join(DATA_DIR, "screener.json"), "utf-8");
   return JSON.parse(raw);
-}
-
-export async function getIndustries(): Promise<Industries | null> {
-  try {
-    return JSON.parse(await fs.readFile(path.join(DATA_DIR, "industries.json"), "utf-8"));
-  } catch {
-    return null; // corrida vieja del ETL, o Damodaran no respondió
-  }
 }
 
 export async function getCompany(byma: string): Promise<Company | null> {

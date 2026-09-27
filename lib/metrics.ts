@@ -1,4 +1,4 @@
-import type { Balance, Industries, Row } from "./data";
+import type { Balance, Row } from "./data";
 import { money, num, pct } from "./format";
 
 export type Basis = "ttm" | "annual";
@@ -103,35 +103,35 @@ export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
  *   50 = igual que la industria; 100 = el doble de bueno o más; 0 = el doble de malo o peor.
  * `floor` evita dividir por un valor de industria cercano a cero (ej. crecimiento de 1%).
  */
-type PMetric = { key: MKey; bench?: string; ref?: number; low?: boolean; floor: number };
+type PMetric = { key: MKey; ref?: number; low?: boolean; floor: number };
 export const PILLARS: { key: PKey; label: string; short: string; metrics: PMetric[]; tip: string }[] = [
   {
     key: "growth", label: "Crecimiento", short: "Crec.",
-    metrics: [{ key: "rev_cagr5", bench: "rev_cagr5", floor: 0.05 }, { key: "eps_cagr5", bench: "ni_cagr5", floor: 0.05 }],
-    tip: "Crecimiento compuesto de ventas y de EPS en 5 años, contra el de su industria (en EPS, la industria es crecimiento del resultado neto).",
+    metrics: [{ key: "growth", floor: 0.05 }, { key: "rev_cagr5", floor: 0.05 }, { key: "eps_cagr5", floor: 0.05 }],
+    tip: "Crecimiento de ventas 12 meses, ventas 5 años y EPS 5 años, contra los de su industria.",
   },
   {
     key: "profit", label: "Rentabilidad", short: "Rent.",
-    metrics: [
-      { key: "gross_margin", bench: "gross_margin", floor: 0.05 }, { key: "op_margin", bench: "op_margin", floor: 0.05 },
-      { key: "roe", bench: "roe", floor: 0.05 },
-    ],
+    metrics: [{ key: "gross_margin", floor: 0.05 }, { key: "op_margin", floor: 0.05 }, { key: "roe", floor: 0.05 }],
     tip: "Margen bruto, margen operativo y ROE, contra los de su industria.",
   },
   {
     key: "solid", label: "Solidez", short: "Sol.",
-    metrics: [{ key: "de", bench: "de", low: true, floor: 0.25 }, { key: "debt_ebitda", bench: "debt_ebitda", low: true, floor: 0.5 }],
-    tip: "Deuda/PN (solo con PN positivo) y deuda/EBITDA, contra las de su industria; menos es mejor. Deuda con arrendamientos, como la mide Damodaran.",
+    metrics: [
+      { key: "de", low: true, floor: 0.25 }, { key: "debt_ebitda", low: true, floor: 0.5 },
+      { key: "current_ratio", floor: 0.25 }, { key: "quick_ratio", floor: 0.25 },
+    ],
+    tip: "Deuda/PN y deuda/EBITDA (menos es mejor), liquidez corriente y test ácido, contra los de su industria.",
   },
   {
     key: "quality", label: "Calidad del resultado", short: "Cal.",
     metrics: [{ key: "fcf_ni", ref: 1, floor: 1 }],
-    tip: "Caja libre / resultado neto contra 1: cada dólar de ganancia debería volver como un dólar de caja. Damodaran no publica este dato por industria, así que la referencia es absoluta.",
+    tip: "Caja libre / resultado neto contra 1: cada dólar de ganancia debería volver como un dólar de caja. Ninguna fuente publica este dato por industria, así que la referencia es absoluta.",
   },
 ];
 
 export const PROFILE_NOTE =
-  "Cada barra compara a la empresa contra su industria real (promedios de Damodaran, NYU Stern), en la base elegida: " +
+  "Cada barra compara a la empresa contra su industria real, con los valores de industria de Investing.com (y Damodaran para lo que Investing no publica), en la base elegida: " +
   "50 = igual que la industria, 100 = el doble de buena o más, 0 = el doble de mala o peor. El pilar promedia sus " +
   "métricas y solo se calcula si hay al menos la mitad. No hay puntaje único: los pilares no se suman.";
 export const PROFILE_NOTE_FALLBACK =
@@ -165,7 +165,8 @@ function ranker(values: number[]) {
 }
 
 /** Calcula métricas + perfil de todo el universo en la base elegida. */
-export function buildViews(rows: Row[], basis: Basis, industries: Industries | null = null): View[] {
+export function buildViews(rows: Row[], basis: Basis): View[] {
+  const industries = rows.some((r) => r.ind_bench);  // datos viejos sin referencia de industria: percentil
   const base = rows.map((r) => metrics(r, basis));
   const pool = base.filter((v) => !v.row.financial);
   const rank = new Map<MKey, ReturnType<typeof ranker>>();
@@ -176,7 +177,7 @@ export function buildViews(rows: Row[], basis: Basis, industries: Industries | n
   return base.map((v) => {
     if (v.row.financial) return { ...v, profile: null };
     const r = v.row;
-    const bench = industries && r.dam_region && r.dam_industry ? industries[r.dam_region]?.[r.dam_industry] : null;
+    const bench = r.ind_bench ?? null;
     if (industries && !bench) return { ...v, profile: null };
     const profile = {} as Profile;
     for (const p of PILLARS) {
@@ -188,7 +189,7 @@ export function buildViews(rows: Row[], basis: Basis, industries: Industries | n
             const q = rank.get(m.key)!(x);
             return q == null ? null : m.low ? 100 - q : q;
           }
-          const ref = m.ref ?? (m.bench ? bench?.[m.bench] : null);
+          const ref = m.ref ?? bench?.[m.key];
           return typeof ref === "number" && Number.isFinite(ref) ? score(x, ref, m) : null;
         })
         .filter((x): x is number => x != null);

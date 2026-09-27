@@ -65,18 +65,18 @@ No las cambies sin motivo; cada una salió de un bug real.
   diluidas ≈ capitalización; si no (ADR), cap / resultado neto. P/VL = cap / PN, P/Ventas = cap /
   ingresos; con denominador <= 0 no hay múltiplo. PEG = PER / CAGR 3a del resultado neto en
   moneda de origen (histórico, no proyectado). Si Nasdaq falla, la valuación queda en null.
-- **Pilares del perfil**: puntaje contra la industria real (Damodaran), no percentil de CEDEARs:
+- **Pilares del perfil**: puntaje contra el valor externo de su industria (ver abajo), no percentil de CEDEARs:
   50 + 50 x (empresa - industria) / max(|industria|, piso), acotado 0-100 (50 = igual, 100 = el
-  doble de bueno). Crecimiento: ventas y EPS 5a; Rentabilidad: mg. bruto, operativo, ROE; Solidez:
-  deuda/PN y deuda BRUTA/EBITDA; Calidad: caja libre/RN contra 1 (Damodaran no la publica).
+  doble de bueno). Crecimiento: ventas 12m, ventas y EPS 5a; Rentabilidad: mg. bruto, operativo, ROE;
+  Solidez: deuda/PN, deuda BRUTA/EBITDA, liquidez y test ácido; Calidad: caja libre/RN contra 1.
   Sin datos de industria en la corrida, vuelve al percentil del universo.
-- **Sectores e industria**: `sector_group` = sector de Nasdaq (filtro). La COMPARACIÓN es contra la
-  industria real de Damodaran (NYU Stern, `scripts/industry.py`, ~6.000 empresas EE.UU. / ~48.000
-  global, actualización anual en enero), NUNCA contra el promedio de los CEDEARs: el usuario quiere
-  saber qué tan sana es la empresa frente a su industria. Asignación: ticker de EE.UU. > nombre >
-  `data/industry_overrides.json` (editable) > código SIC (aproximada). ETFs y fideicomisos, sin industria.
-  Damodaran define distinto algunas métricas (deuda/EBITDA bruta, crecimiento del RN, PEG esperado):
-  se aclara en la UI.
+- **Industria (parámetro EXTERNO, nunca calculado acá)**: el usuario no quiere promedios propios.
+  Fuente principal: columna "Industria" de Investing.com (`scripts/investing.py`, workflow semanal
+  `update-industry.yml`; curl_cffi porque Cloudflare bloquea requests). Mapa ticker -> página en
+  `data/investing_map.json` (del buscador de acciones de Investing; editable a mano). Lo que Investing
+  no publica (deuda/EBITDA, PEG) o publica fuera de rango (PLAUSIBLE en build_data: sus promedios
+  simples dan absurdos como margen −129%) sale de Damodaran (`scripts/industry.py`), marcado ᴰ.
+  `sector_group` (Nasdaq) queda solo para el filtro de sector.
 - **Desfase de la SEC**: la API companyfacts a veces no tiene el último 10-Q ya presentado.
   Se detecta contra el endpoint `submissions` y se marca `api_lag`.
 - **Montos**: en el JSON de salida están en unidades (USD), no en millones. Si armás un

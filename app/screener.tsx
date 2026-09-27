@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Industries, Row } from "@/lib/data";
+import type { Meta, Row } from "@/lib/data";
 import {
   COL, LISTS, PILLARS, PROFILE_NOTE, PROFILE_NOTE_FALLBACK, VIEWS, buildViews, rankable,
   type Basis, type ListId, type MKey, type PKey, type View, type ViewId,
@@ -11,7 +11,6 @@ import Compare from "./compare";
 import Glossary from "./glossary";
 import IndustryPanel from "./industries";
 import { sectorOf } from "@/lib/sector";
-import { benchOf } from "@/lib/industry";
 import { PillarBar } from "./profile";
 
 type SortKey = MKey | "byma" | "sector" | "period" | `p_${PKey}`;
@@ -45,7 +44,8 @@ function percentileFn(views: View[], key: MKey) {
   };
 }
 
-export default function Screener({ rows, industries }: { rows: Row[]; industries: Industries | null }) {
+export default function Screener({ rows, sources }: { rows: Row[]; sources: Meta["industry_sources"] }) {
+  const industries = rows.some((r) => r.ind_bench);
   const [q, setQ] = useState("");
   const [sector, setSector] = useState("");
   const [basis, setBasis] = useState<Basis>("ttm");
@@ -103,7 +103,7 @@ export default function Screener({ rows, industries }: { rows: Row[]; industries
     setPicked((p) => (p.includes(byma) ? p.filter((x) => x !== byma) : p.length >= MAX_COMPARE ? p : [...p, byma]));
 
   const sectors = useMemo(() => Array.from(new Set(rows.map(sectorOf))).sort((a, b) => a.localeCompare(b, "es")), [rows]);
-  const all = useMemo(() => buildViews(rows, basis, industries), [rows, basis, industries]);
+  const all = useMemo(() => buildViews(rows, basis), [rows, basis]);
   const byId = useMemo(() => new Map(all.map((v) => [v.row.byma, v])), [all]);
 
   // Búsqueda y sector se aplican antes de las pestañas, así cada pestaña cuenta sobre lo buscado.
@@ -113,7 +113,7 @@ export default function Screener({ rows, industries }: { rows: Row[]; industries
       const r = v.row;
       return (!s || r.byma.toLowerCase().includes(s) || r.ticker.toLowerCase().includes(s) || r.name.toLowerCase().includes(s)) &&
         (!sector || sectorOf(r) === sector) &&
-        (!industry || `${r.dam_region}|${r.dam_industry}` === industry);
+        (!industry || r.ind_name === industry);
     });
   }, [all, q, sector, industry]);
 
@@ -211,19 +211,19 @@ export default function Screener({ rows, industries }: { rows: Row[]; industries
         {industries && (
           <button type="button" className="gloss-btn" aria-expanded={byIndustry} aria-controls="industrias"
             onClick={() => setByIndustry((g) => !g)}>
-            {byIndustry ? "Ocultar industrias" : "Promedios de la industria"}
+            {byIndustry ? "Ocultar industrias" : "Valores de la industria"}
           </button>
         )}
         <span className="count">{sorted.length} de {rows.length} empresas</span>
       </div>
       {industry && (
         <p className="hint">
-          Industria: <strong>{industry.split("|")[1]}</strong>{" "}
+          Industria: <strong>{industry}</strong>{" "}
           <button type="button" className="ghost" onClick={() => setIndustry("")}>Quitar filtro ×</button>
         </p>
       )}
       {byIndustry && industries && (
-        <IndustryPanel data={industries} rows={shown.map((v) => v.row)}
+        <IndustryPanel rows={shown.map((v) => v.row)} sources={sources}
           cols={VIEWS.find((v) => v.id === view)!.cols} current={industry} onPick={setIndustry} />
       )}
       {gloss && (
@@ -298,9 +298,9 @@ export default function Screener({ rows, industries }: { rows: Row[]; industries
                   })}
                   <td className="l">
                     <span className="sub" title={r.sector}>{sectorOf(r)}</span>
-                    {(r.dam_industry || r.industry || r.sector) && (
-                      <span className="sub muted" title={r.dam_industry ? `Industria (Damodaran): ${r.dam_industry}` : r.industry || r.sector}>
-                        {r.dam_industry || r.industry || r.sector}
+                    {(r.ind_name || r.industry || r.sector) && (
+                      <span className="sub muted" title={r.ind_name ? `Industria: ${r.ind_name}` : r.industry || r.sector}>
+                        {r.ind_name || r.industry || r.sector}
                       </span>
                     )}
                   </td>
@@ -358,8 +358,7 @@ export default function Screener({ rows, industries }: { rows: Row[]; industries
       )}
       {open && (
         <CompanySheet byma={open} view={byId.get(open) ?? null} basis={basis}
-          bench={byId.get(open) ? benchOf(industries, byId.get(open)!.row) : null}
-          benchMeta={industries?.meta ?? null} onClose={() => openSheet(null)} />
+          sources={sources} onClose={() => openSheet(null)} />
       )}
     </>
   );
