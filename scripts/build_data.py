@@ -526,7 +526,7 @@ def ttm_fields(comp):
     for k in ("revenue", "net_income", "fcf", "rev_growth", "gross_margin", "op_margin",
               "net_margin", "fcf_margin", "roe", "debt_equity", "current_ratio", "ebitda", "nd_ebitda",
               "ocf", "pretax_margin", "quick_ratio", "asset_turnover", "inv_turnover", "ar_turnover",
-              "eps_growth"):
+              "eps_growth", "operating_income", "interest"):
         out["t_" + k] = t.get(k) if t else None
     if comp.get("financial"):
         for k in ("t_revenue", "t_fcf", "t_rev_growth", "q_rev_yoy"):
@@ -551,59 +551,52 @@ def per_share_fields(comp):
             "eps": rows[-1].get("eps_diluted") if same_unit and rows else None}
 
 
-# Rangos plausibles de un promedio de INDUSTRIA. Investing usa promedios simples y en industrias
-# con muchas empresas chicas da valores absurdos (ej. margen operativo -129% en "Software & IT
-# Services"): fuera de rango, esa métrica cae a Damodaran o queda sin comparación.
-PLAUSIBLE = {
-    "gross_margin": (-0.5, 1), "op_margin": (-0.5, 0.8), "pretax_margin": (-0.5, 0.8),
-    "net_margin": (-0.5, 0.8), "roe": (-1, 1.5), "roa": (-0.5, 0.5),
-    "gm5": (-0.5, 1), "om5": (-0.5, 0.8), "ptm5": (-0.5, 0.8), "nm5": (-0.5, 0.8),
-    "rev_cagr5": (-0.5, 1.5), "eps_cagr5": (-0.9, 3), "capex_cagr5": (-0.9, 3),
-    "growth": (-0.5, 2), "q_yoy": (-0.5, 3), "q_eps_yoy": (-5, 10), "eps_ttm_yoy": (-5, 10),
-    "de": (0, 10), "lt_de": (0, 10), "current_ratio": (0.1, 10), "quick_ratio": (0.05, 10),
-    "asset_turnover": (0.01, 10), "inv_turnover": (0.1, 500), "ar_turnover": (0.1, 500),
-    "pe": (0.1, 300), "ps": (0.01, 100), "pb": (0.01, 200), "pcf": (0.1, 300),
-    "debt_ebitda": (0, 30), "peg": (0.01, 20),
-}
-# Márgenes de industria: solo Damodaran (ver industry_bench)
-MARGIN_KEYS = ("gross_margin", "op_margin", "pretax_margin", "net_margin", "gm5", "om5", "ptm5", "nm5")
-# Damodaran -> nuestras métricas (respaldo para lo que Investing no publica o no pasa el filtro)
+# Industria: SOLO Damodaran (NYU Stern), decisión del usuario del 27-sep-2026. Sus métricas son
+# agregadas (suma de resultados / suma de ventas de la industria): pesan por tamaño y no las rompen
+# las empresas chicas con pérdidas, como pasaba con los promedios simples de Investing.
+# Nuestras métricas se calculan con definiciones estándar compatibles con las suyas.
+# {nuestra métrica: columna de Damodaran (scripts/industry.py)}
 DAM_KEYS = {"gross_margin": "gross_margin", "op_margin": "op_margin", "net_margin": "net_margin",
-            "roe": "roe", "rev_cagr5": "rev_cagr5", "eps_cagr5": "ni_cagr5", "de": "de",
-            "debt_ebitda": "debt_ebitda", "inv_turnover": "inv_turnover", "ar_turnover": "ar_turnover",
+            "roe": "roe", "rev_cagr5": "rev_cagr5", "ni_cagr5": "ni_cagr5", "de": "de",
+            "debt_ebitda": "debt_ebitda", "interest_cov": "interest_coverage",
+            "inv_turnover": "inv_turnover", "ar_turnover": "ar_turnover",
             "pe": "pe", "peg": "peg", "pb": "pb", "ps": "ps"}
 
 
-def industry_bench(byma, comp, inv, industries):
-    """Referencia de la industria por métrica, de fuentes externas: Investing (columna
-    Industria) y, para lo que falte, Damodaran. Nunca un promedio calculado por nosotros."""
-    ok = lambda k, v: isinstance(v, (int, float)) and PLAUSIBLE.get(k, (-1e9, 1e9))[0] <= v <= PLAUSIBLE.get(k, (-1e9, 1e9))[1]
-    bench, src, dropped = {}, {}, []
-    row = (inv.get("rows") or {}).get(byma)
-    vals = dict((row or {}).get("values") or {})
-    # Márgenes: SIEMPRE de Damodaran (decisión del usuario, 27-sep-2026). Investing publica el
-    # promedio simple de las empresas de la industria y en industrias con muchas empresas chicas
-    # en pérdida se rompe (Software & IT Services: margen operativo −127%). Damodaran es agregado
-    # (suma de resultados / suma de ventas): pesa por tamaño. Damodaran no publica margen antes de
-    # impuestos ni promedios de 5 años de márgenes: esos quedan sin referencia de industria.
-    for k in MARGIN_KEYS:
-        vals.pop(k, None)
-    for k, v in vals.items():
-        if not ok(k, v):
-            dropped.append(k)
-    for k, v in vals.items():
-        if k not in dropped:
-            bench[k], src[k] = v, "investing"
+def industry_bench(comp, industries):
+    """Valor de la industria por métrica, de Damodaran. Nunca un promedio calculado por nosotros."""
     dam = (industries.bench.get(comp.get("dam_region"), {}).get(comp.get("dam_industry"))
            if industries and comp.get("dam_industry") else None) or {}
-    for ours, dk in DAM_KEYS.items():
-        if ours not in bench and ok(ours, dam.get(dk)):
-            bench[ours], src[ours] = dam[dk], "damodaran"
-    return {"ind_name": (row or {}).get("industry") or comp.get("dam_industry"),
-            "ind_bench": bench or None, "ind_src": src or None, "ind_dropped": dropped or None}
+    bench = {ours: dam[dk] for ours, dk in DAM_KEYS.items()
+             if isinstance(dam.get(dk), (int, float)) and dam[dk] == dam[dk]}
+    dropped = []
+    # Coherencia del dato publicado:
+    # - ROE de signo contrario a un margen neto claramente positivo: el patrimonio agregado de la
+    #   industria quedó distorsionado (recompras masivas). Computers/Peripherals: ROE −0,2% con
+    #   margen neto 17,8%.
+    if (bench.get("net_margin") or 0) > 0.05 and (bench.get("roe") or 0) <= 0:
+        dropped.append("roe")
+    # - Rotaciones de más de 100 veces por año: industrias casi sin inventario o sin cartera
+    #   (Software: inventario rota 40.479 veces). No dicen nada.
+    for k in ("inv_turnover", "ar_turnover"):
+        if (bench.get(k) or 0) > 100:
+            dropped.append(k)
+    # - Financieras: márgenes, deuda y cobertura no aplican (Damodaran publica valores de relleno)
+    if comp.get("financial"):
+        dropped += [k for k in bench if k not in FIN_BENCH]
+    for k in dropped:
+        bench.pop(k, None)
+    # Las empresas extranjeras se comparan contra la industria global (otros valores, mismo nombre)
+    name = comp.get("dam_industry")
+    if name and comp.get("dam_region") == "global":
+        name += " (global)"
+    return {"ind_name": name, "ind_bench": bench or None, "ind_dropped": dropped or None}
 
 
-FIVE_KEYS = ("rev_cagr5", "eps_cagr5", "capex_cagr5", "gm5", "om5", "ptm5", "nm5")
+FIN_BENCH = {"roe", "net_margin", "rev_cagr5", "ni_cagr5", "pe", "peg", "pb", "ps"}
+
+
+FIVE_KEYS = ("rev_cagr5", "eps_cagr5", "ni_cagr5", "capex_cagr5", "gm5", "om5", "ptm5", "nm5")
 
 
 def five_year(rows):
@@ -611,6 +604,7 @@ def five_year(rows):
     ejercicios (Investing: "5YA"). En moneda de origen, antes de convertir a USD.
     AMZN: ventas 13,18%, EPS 27,96%, margen bruto 46,39%, neto 6,4%."""
     out = {"rev_cagr5": cagr(rows, "revenue", 5), "eps_cagr5": cagr(rows, "eps_diluted", 5),
+           "ni_cagr5": cagr(rows, "net_income", 5),   # la misma medida que publica Damodaran
            "capex_cagr5": cagr(rows, "capex", 5)}
     last5 = rows[-5:]
     for out_key, k in (("gm5", "gross_margin"), ("om5", "op_margin"), ("ptm5", "pretax_margin"),
@@ -642,8 +636,6 @@ def main():
         print(f"Sin datos de industria (Damodaran): {e}")
         industries = None
     used_ind = set()
-    inv_file = ROOT / "data" / "investing_industry.json"
-    inv = json.loads(inv_file.read_text(encoding="utf-8")) if inv_file.exists() else {"meta": None, "rows": {}}
     global IND_OVERRIDES
     IND_OVERRIDES = {k: v for k, v in json.loads(IND_OVERRIDES_FILE.read_text(encoding="utf-8")).items()
                      if not k.startswith("_")} if IND_OVERRIDES_FILE.exists() else {}
@@ -756,7 +748,7 @@ def main():
             "byma": byma, "ticker": us, "name": comp["name"], "sector": comp["sector"],
             "sector_group": comp["sector_group"], "industry": comp["industry"],
             "dam_industry": comp["dam_industry"], "dam_region": comp["dam_region"], "dam_match": comp["dam_match"],
-            **industry_bench(byma, comp, inv, industries),
+            **industry_bench(comp, industries),
             "currency": comp["currency"], "reported_currency": comp["reported_currency"],
             "converted": comp["converted"], "fy": L.get("year"), "fiscal_end": L.get("fiscal_end"),
             "last_filed": comp["last_filed"],
@@ -771,6 +763,7 @@ def main():
             "ocf": L.get("ocf"), "pretax_margin": L.get("pretax_margin"), "quick_ratio": L.get("quick_ratio"),
             "asset_turnover": L.get("asset_turnover"), "inv_turnover": L.get("inv_turnover"),
             "ar_turnover": L.get("ar_turnover"),
+            "operating_income": L.get("operating_income"), "interest": L.get("interest"),
             **{k: comp.get(k) for k in FIVE_KEYS},
             **per_share_fields(comp),
             "financial": comp["financial"], "stale": comp["stale"], "api_lag": comp["api_lag"],
@@ -787,7 +780,6 @@ def main():
         "ok": len(screener), "errors": errors,
         "with_market_cap": sum(1 for r in screener if r["market_cap"]),
         "industry_sources": {
-            "investing": inv.get("meta"),
             "damodaran": {"source": "Aswath Damodaran, NYU Stern", "updated": industries.updated} if industries else None,
         },
         "without_sec": [c["byma"] for c in cedears if not c.get("cik")],

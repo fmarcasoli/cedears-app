@@ -1,10 +1,10 @@
 "use client";
 
 import type { Meta, Row } from "@/lib/data";
-import { BENCH_KEYS, benchSource, benchValue } from "@/lib/industry";
+import { BENCH_KEYS, DAMODARAN_NOTES, benchValue } from "@/lib/industry";
 import { COL, type MKey } from "@/lib/metrics";
 
-/** Valores de la industria (Investing; Damodaran de respaldo) para las industrias de las empresas
+/** Valores de la industria (Damodaran, NYU Stern) para las industrias de las empresas
  *  listadas, con las columnas de la vista activa. Tocar una industria filtra. */
 export default function IndustryPanel({ rows, cols, sources, current, onPick }: {
   rows: Row[]; cols: MKey[]; sources: Meta["industry_sources"]; current: string; onPick: (s: string) => void;
@@ -18,12 +18,12 @@ export default function IndustryPanel({ rows, cols, sources, current, onPick }: 
     groups.set(r.ind_name, g);
   }
   const list = [...groups.values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
-  const inv = sources?.investing, dam = sources?.damodaran;
+  const dam = sources?.damodaran;
   return (
     <section className="gloss" id="industrias" aria-label="Valores de la industria">
       <p className="hint">
-        Valores de la industria tomados de afuera, no calculados acá: {inv ? <>Investing.com (columna “Industria”, al {inv.updated})</> : "Investing.com"}
-        {dam && <>; lo que Investing no publica o trae con valores absurdos, de {dam.source} ({dam.updated})</>}.
+        Valores de la industria de {dam?.source ?? "Damodaran (NYU Stern)"}{dam?.updated ? ` (${dam.updated})` : ""}: agregados
+        de toda la industria de EE.UU. (o global, para las extranjeras), no calculados acá.
         {shown.length === 0 && " Esta vista no tiene columnas con dato de industria."} Tocá una industria para filtrar la tabla.
       </p>
       <div className="tablebox">
@@ -44,10 +44,9 @@ export default function IndustryPanel({ rows, cols, sources, current, onPick }: 
                 <td>{g.n}</td>
                 {shown.map((k) => {
                   const v = benchValue(g.row, k);
-                  const src = benchSource(g.row, k);
                   return (
-                    <td key={k} className={v != null && v < 0 ? "neg" : ""} title={src ? `Fuente: ${src === "investing" ? "Investing" : "Damodaran"}` : undefined}>
-                      {COL[k].fmt(v)}{src === "damodaran" && <span className="muted"> ᴰ</span>}
+                    <td key={k} className={v != null && v < 0 ? "neg" : ""} title={DAMODARAN_NOTES[k]}>
+                      {COL[k].fmt(v)}
                     </td>
                   );
                 })}
@@ -56,7 +55,6 @@ export default function IndustryPanel({ rows, cols, sources, current, onPick }: 
           </tbody>
         </table>
       </div>
-      <p className="note">ᴰ = dato de Damodaran (Investing no lo publica para esa industria o su valor no era razonable).</p>
     </section>
   );
 }

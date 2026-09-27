@@ -142,3 +142,15 @@ SEC_USER_AGENT="Nombre mail@dominio" python scripts/build_data.py   # solo si to
   su promedio simple se rompe en industrias con muchas empresas chicas en pérdida (Software −127%).
 - Damodaran (agregado) da bruto, operativo y neto. Antes de impuestos y 5 años de márgenes quedan sin referencia.
 - Reemplaza las reglas anteriores de contagio y MARGIN_GAP.
+
+## Industria = SOLO Damodaran (desde 27-sep-2026, decisión del usuario)
+- Investing NO se usa en la app. Solo sirvió para verificar nuestras fórmulas; el workflow
+  "Comparar con Investing (manual)" queda para contrastes puntuales y la app no lee su salida.
+- Nuestras métricas: definiciones estándar compatibles con Damodaran (agregados de industria).
+  Nuevas: ni_cagr5 (resultado neto 5a, lo que publica Damodaran) e interest_cov (resultado operativo / intereses).
+- industry_bench(): DAM_KEYS; descarta ROE de signo contrario a un margen neto > 5%, rotaciones > 100x y,
+  en financieras, todo salvo FIN_BENCH. ind_name lleva " (global)" para las extranjeras.
+- Pilares: Crecimiento = ventas 12m (contra ventas 5a de la industria), ventas 5a, resultado neto 5a;
+  Solidez = deuda/PN, deuda/EBITDA, cobertura de intereses (liquidez sin referencia de industria).
+- Las secciones anteriores sobre Investing (PLAUSIBLE, contagio, MARGIN_GAP, márgenes solo Damodaran)
+  quedan reemplazadas por esta.

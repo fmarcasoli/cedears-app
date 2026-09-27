@@ -9,10 +9,9 @@ export type ScreenerRow = {
   // Industria de Damodaran (NYU Stern) para comparar contra la industria real, región
   // us | global y cómo se asignó: ticker | nombre | sic (aproximada).
   dam_industry?: string | null; dam_region?: "us" | "global" | null; dam_match?: "ticker" | "nombre" | "sic" | "manual" | null;
-  // Referencia EXTERNA de la industria por métrica (nunca calculada por nosotros):
-  // Investing.com (columna "Industria") y, para lo que falte, Damodaran.
-  ind_name?: string | null; ind_bench?: Record<string, number> | null;
-  ind_src?: Record<string, "investing" | "damodaran"> | null; ind_dropped?: string[] | null;
+  // Valor de la industria por métrica, de Damodaran (NYU Stern), nunca calculado por nosotros.
+  // ind_dropped: métricas que Damodaran publica pero se descartaron por incoherentes.
+  ind_name?: string | null; ind_bench?: Record<string, number> | null; ind_dropped?: string[] | null;
   reported_currency: string; converted: boolean;
   fy: number | null; fiscal_end: string | null; last_filed: string;
   revenue: number | null; net_income: number | null; fcf: number | null;
@@ -31,10 +30,10 @@ export type ScreenerRow = {
   // Valuación: capitalización en USD (Nasdaq, fecha de la corrida) y CAGR 3a del
   // resultado neto en moneda de origen, para el PEG.
   market_cap?: number | null; mcap_date?: string | null; ni_cagr3?: number | null;
-  // PER como Investing (precio / EPS diluido). per_share_ok = el precio es por acción
+  // PER = precio / EPS diluido. per_share_ok = el precio es por acción
   // ordinaria (no ADR); si no, el PER se calcula como capitalización / resultado neto.
   price?: number | null; per_share_ok?: boolean; t_eps?: number | null; eps?: number | null;
-  // Ratios adicionales con criterio Investing (anual y t_ = últimos 12 meses)
+  // Ratios adicionales (anual y t_ = últimos 12 meses)
   ocf?: number | null; t_ocf?: number | null;
   pretax_margin?: number | null; t_pretax_margin?: number | null;
   quick_ratio?: number | null; t_quick_ratio?: number | null;
@@ -42,8 +41,11 @@ export type ScreenerRow = {
   inv_turnover?: number | null; t_inv_turnover?: number | null;
   ar_turnover?: number | null; t_ar_turnover?: number | null;
   t_eps_growth?: number | null;
+  // Para la cobertura de intereses (resultado operativo / intereses), la medida de Damodaran
+  operating_income?: number | null; interest?: number | null;
+  t_operating_income?: number | null; t_interest?: number | null;
   // 5 años: crecimientos compuestos y promedios de márgenes de los últimos 5 ejercicios
-  rev_cagr5?: number | null; eps_cagr5?: number | null; capex_cagr5?: number | null;
+  rev_cagr5?: number | null; eps_cagr5?: number | null; ni_cagr5?: number | null; capex_cagr5?: number | null;
   gm5?: number | null; om5?: number | null; ptm5?: number | null; nm5?: number | null;
 };
 
@@ -55,7 +57,7 @@ export type Row = ScreenerRow & { cik: number | null; bal_a: Balance; bal_t: Bal
 export type SourceMeta = { source: string; updated: string | null } | null;
 export type Meta = {
   generated: string; total_cedears: number; with_sec: number; ok: number;
-  industry_sources?: { investing: SourceMeta; damodaran: SourceMeta };
+  industry_sources?: { damodaran: SourceMeta };
   errors: { byma: string; error: string }[]; without_sec: string[];
 };
 export type Period = Record<string, number | string | null>;

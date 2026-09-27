@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Company, Period, YearRow } from "@/lib/data";
 import { money, num, pct } from "@/lib/format";
 import { COL, mmyy, type Basis, type MKey, type View } from "@/lib/metrics";
-import { BLOCKS, DAMODARAN_NOTES, benchSource, benchValue, versus } from "@/lib/industry";
+import { BLOCKS, DAMODARAN_NOTES, benchValue, versus } from "@/lib/industry";
 import type { Meta } from "@/lib/data";
 import { Chart } from "./charts";
 import { ProfileBig } from "./profile";
@@ -299,16 +299,14 @@ function Evolution({ c }: { c: Company }) {
 
 function VsIndustry({ view, sources }: { view: View | null; sources: Sources }) {
   if (!view || !view.row.ind_bench)
-    return <p className="hint">Sin valores de industria para esta empresa (ETFs y fideicomisos no tienen, o ninguna fuente la cubre).</p>;
+    return <p className="hint">Sin valores de industria para esta empresa (ETFs y fideicomisos no tienen industria en Damodaran).</p>;
   const r = view.row;
-  const inv = sources?.investing, dam = sources?.damodaran;
-  const usedDam = BLOCKS.some((b) => b.keys.some((k) => benchSource(r, k) === "damodaran"));
+  const dam = sources?.damodaran;
   return (
     <section>
       <p className="lead">
-        {r.byma} contra su industria <strong>{r.ind_name}</strong>. Los valores de la industria vienen de afuera:
-        {" "}Investing.com (columna “Industria”{inv?.updated ? `, al ${inv.updated}` : ""})
-        {usedDam && <>, y Damodaran{dam?.updated ? ` (${dam.updated})` : ""} para los renglones marcados con ᴰ</>}.
+        {r.byma} contra su industria <strong>{r.ind_name}</strong>, con los valores que publica Damodaran (NYU Stern
+        {dam?.updated ? `, actualizados al ${dam.updated}` : ""}): agregados de toda la industria, no promedios simples.
       </p>
       <div className="tablebox">
         <table>
@@ -327,17 +325,15 @@ function VsIndustry({ view, sources }: { view: View | null; sources: Sources }) 
               return (
                 <SectorBlock key={blk.title} title={blk.title}>
                   {keys.map((key) => {
-                    const col = COL[key], x = view[key], ind = benchValue(r, key), src = benchSource(r, key);
+                    const col = COL[key], x = view[key], ind = benchValue(r, key);
                     const negEq = key === "de" && view.neg_equity && x != null;
                     const vs = negEq ? { text: "PN negativo", better: null } : versus(key, x, ind);
-                    const note = src === "damodaran" ? DAMODARAN_NOTES[key] : undefined;
+                    const note = DAMODARAN_NOTES[key];
                     return (
                       <tr key={key}>
-                        <td className="l sticky" title={note ?? col.tip}>{col.label}</td>
+                        <td className="l sticky" title={col.tip}>{col.label}</td>
                         <td className={negEq ? "negeq" : x != null && x < 0 ? "neg" : ""}>{col.fmt(x)}{negEq ? "*" : ""}</td>
-                        <td className={ind != null && ind < 0 ? "neg" : ""} title={note}>
-                          {col.fmt(ind)}{src === "damodaran" && <span className="muted"> ᴰ</span>}
-                        </td>
+                        <td className={ind != null && ind < 0 ? "neg" : ""} title={note}>{col.fmt(ind)}</td>
                         <td className={`l ${vs.better === true ? "vs-good" : vs.better === false ? "vs-bad" : ""}`}>
                           {vs.text}{vs.better != null && vs.text !== "–" && <span className="muted"> · {vs.better ? "mejor" : "peor"}</span>}
                         </td>
@@ -351,9 +347,9 @@ function VsIndustry({ view, sources }: { view: View | null; sources: Sources }) 
         </table>
       </div>
       <ul className="note">
-        <li>La empresa se mide con nuestros datos (SEC) en la base elegida; la industria, con el dato publicado por la fuente.</li>
-        {usedDam && <li>ᴰ Damodaran define algunas métricas distinto: pasá el mouse por el valor para ver la diferencia.</li>}
-        {r.ind_dropped?.length ? <li>Investing publicó valores de industria fuera de rango razonable para: {r.ind_dropped.map((k) => COL[k as MKey]?.label ?? k).join(", ")}. Son promedios simples que distorsionan las empresas chicas con pérdidas; no se usaron.</li> : null}
+        <li>La empresa se mide con nuestros datos (SEC) en la base elegida; la industria, con el dato publicado por Damodaran. Pasá el mouse por el valor de industria para ver cómo lo define.</li>
+        <li>Liquidez corriente, test ácido, margen antes de impuestos y crecimiento de 12 meses no tienen comparación: Damodaran no los publica por industria.</li>
+        {r.ind_dropped?.length ? <li>No se usaron valores de Damodaran incoherentes o que no aplican a esta empresa: {r.ind_dropped.map((k) => COL[k as MKey]?.label ?? k).join(", ")}.</li> : null}
       </ul>
     </section>
   );
@@ -379,7 +375,7 @@ function dupont(c: Company): DP[] {
     const f = c.converted ? val(r, "fx_close") : 1;
     return f ? div(val(r, k), f) : null;
   };
-  // Saldos promedio (cierre anterior y actual), como Investing: rotación 0,87 en AMZN.
+  // Saldos promedio (cierre anterior y actual): el período entero, no solo el cierre.
   const avg = (i: number, k: string) => {
     const a = local(c.rows[i], k), b = i > 0 ? local(c.rows[i - 1], k) : null;
     return a != null && b != null ? (a + b) / 2 : a;
@@ -457,7 +453,7 @@ function DuPont({ c }: { c: Company }) {
       </div>
       <p className="note">
         ROE = margen neto × rotación de activos × apalancamiento{c.financial ? " (en financieras: ROA × apalancamiento, porque sus “ingresos” no son comparables)" : ""}.
-        Activo y patrimonio son promedios del cierre anterior y el actual, igual que Investing. Con patrimonio neto negativo el
+        Activo y patrimonio son promedios del cierre anterior y el actual. Con patrimonio neto negativo el
         apalancamiento y el ROE no tienen sentido y quedan vacíos.
         {c.converted && ` Calculado en ${c.reported_currency} para no mezclar el tipo de cambio promedio con el de cierre.`}
       </p>

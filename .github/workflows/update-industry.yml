@@ -1,10 +1,9 @@
-name: Actualizar industria (Investing)
+name: Comparar con Investing (manual)
 
-# La columna "Industria" de Investing cambia poco: una vez por semana alcanza, y así se
-# hacen pocas visitas (Investing limita a ~1 página cada 2-3 segundos).
+# La app ya NO usa Investing (desde el 27-sep-2026 la industria sale solo de Damodaran).
+# Queda solo para correrlo a mano si se quiere contrastar algún cálculo contra Investing:
+# baja data/investing_industry.json, que la app no lee.
 on:
-  schedule:
-    - cron: "0 12 * * 0"   # domingos 09:00 en Argentina
   workflow_dispatch:
 
 permissions:

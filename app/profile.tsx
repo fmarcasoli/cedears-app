@@ -49,7 +49,7 @@ export function ProfileBig({ profile }: { profile: Profile | null }) {
         );
       })}
       <p className="note">
-        50 = igual que su industria real (Investing.com, Damodaran de respaldo); 100 = el doble de buena o más; 0 = el doble de mala o peor.
+        50 = igual que su industria real (Damodaran, NYU Stern); 100 = el doble de buena o más; 0 = el doble de mala o peor.
         {PILLARS.some((p) => profile[p.key] == null) && " Guion: el pilar no tiene al menos la mitad de sus métricas."}
       </p>
     </div>

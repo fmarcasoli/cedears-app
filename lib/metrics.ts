@@ -18,7 +18,8 @@ export type Metrics = {
   pretax_margin: number | null; quick_ratio: number | null;
   asset_turnover: number | null; inv_turnover: number | null; ar_turnover: number | null;
   eps_ttm_yoy: number | null;
-  rev_cagr5: number | null; eps_cagr5: number | null; capex_cagr5: number | null;
+  rev_cagr5: number | null; eps_cagr5: number | null; ni_cagr5: number | null; capex_cagr5: number | null;
+  interest_cov: number | null;
   gm5: number | null; om5: number | null; ptm5: number | null; nm5: number | null;
   alerts: number;
 };
@@ -54,7 +55,7 @@ export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
   const eq = (useTtm ? r.bal_t : r.bal_a)?.equity ?? null;
   const mcap = r.market_cap ?? null;
   // Valuación: con resultado, PN o ventas <= 0 el múltiplo no se calcula (no es "barato").
-  // PER = precio / EPS diluido (criterio Investing). En ADRs, capitalización / resultado neto.
+  // PER = precio / EPS diluido. En ADRs, capitalización / resultado neto.
   const eps = useTtm ? r.t_eps ?? null : r.eps ?? null;
   const pe = r.per_share_ok && r.price && eps != null
     ? (eps > 0 ? r.price / eps : null)
@@ -72,7 +73,14 @@ export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
     inv_turnover: (useTtm ? r.t_inv_turnover : r.inv_turnover) ?? null,
     ar_turnover: (useTtm ? r.t_ar_turnover : r.ar_turnover) ?? null,
     eps_ttm_yoy: r.t_eps_growth ?? null,
-    rev_cagr5: r.rev_cagr5 ?? null, eps_cagr5: r.eps_cagr5 ?? null, capex_cagr5: r.capex_cagr5 ?? null,
+    rev_cagr5: r.rev_cagr5 ?? null, eps_cagr5: r.eps_cagr5 ?? null, ni_cagr5: r.ni_cagr5 ?? null,
+    capex_cagr5: r.capex_cagr5 ?? null,
+    // Cobertura de intereses = resultado operativo / intereses (definición de Damodaran)
+    interest_cov: (() => {
+      const oi = (useTtm ? r.t_operating_income : r.operating_income) ?? null;
+      const it = (useTtm ? r.t_interest : r.interest) ?? null;
+      return r.financial || oi == null || it == null || it <= 0 ? null : oi / it;
+    })(),
     gm5: r.gm5 ?? null, om5: r.om5 ?? null, ptm5: r.ptm5 ?? null, nm5: r.nm5 ?? null,
     row: r,
     period: useTtm ? `TTM ${mmyy(r.ttm_end!)}` : r.fy ? `FY${r.fy}` : "–",
@@ -112,12 +120,13 @@ export function metrics(r: Row, basis: Basis): Omit<View, "profile"> {
  *   50 = igual que la industria; 100 = el doble de bueno o más; 0 = el doble de malo o peor.
  * `floor` evita dividir por un valor de industria cercano a cero (ej. crecimiento de 1%).
  */
-type PMetric = { key: MKey; ref?: number; low?: boolean; floor: number };
+/** ref: referencia fija en vez de la industria; bench: qué valor de industria usar (si no, el de `key`). */
+type PMetric = { key: MKey; ref?: number; bench?: MKey; low?: boolean; floor: number };
 export const PILLARS: { key: PKey; label: string; short: string; metrics: PMetric[]; tip: string }[] = [
   {
     key: "growth", label: "Crecimiento", short: "Crec.",
-    metrics: [{ key: "growth", floor: 0.05 }, { key: "rev_cagr5", floor: 0.05 }, { key: "eps_cagr5", floor: 0.05 }],
-    tip: "Crecimiento de ventas 12 meses, ventas 5 años y EPS 5 años, contra los de su industria.",
+    metrics: [{ key: "growth", bench: "rev_cagr5", floor: 0.05 }, { key: "rev_cagr5", floor: 0.05 }, { key: "ni_cagr5", floor: 0.05 }],
+    tip: "Crecimiento de ventas 12 meses y 5 años, y del resultado neto 5 años, contra los de su industria (Damodaran). El de 12 meses se compara con el crecimiento anual de la industria en 5 años: Damodaran no publica uno de 12 meses.",
   },
   {
     key: "profit", label: "Rentabilidad", short: "Rent.",
@@ -128,9 +137,9 @@ export const PILLARS: { key: PKey; label: string; short: string; metrics: PMetri
     key: "solid", label: "Solidez", short: "Sol.",
     metrics: [
       { key: "de", low: true, floor: 0.25 }, { key: "debt_ebitda", low: true, floor: 0.5 },
-      { key: "current_ratio", floor: 0.25 }, { key: "quick_ratio", floor: 0.25 },
+      { key: "interest_cov", floor: 3 },
     ],
-    tip: "Deuda/PN y deuda/EBITDA (menos es mejor), liquidez corriente y test ácido, contra los de su industria.",
+    tip: "Deuda/PN y deuda/EBITDA (menos es mejor) y cobertura de intereses (más es mejor), contra los de su industria (Damodaran). La liquidez corriente y el test ácido se muestran aparte: Damodaran no los publica por industria.",
   },
   {
     key: "quality", label: "Calidad del resultado", short: "Cal.",
@@ -140,7 +149,7 @@ export const PILLARS: { key: PKey; label: string; short: string; metrics: PMetri
 ];
 
 export const PROFILE_NOTE =
-  "Cada barra compara a la empresa contra su industria real, con los valores de industria de Investing.com (y Damodaran para lo que Investing no publica), en la base elegida: " +
+  "Cada barra compara a la empresa contra su industria real, con los valores de industria de Damodaran (NYU Stern), en la base elegida: " +
   "50 = igual que la industria, 100 = el doble de buena o más, 0 = el doble de mala o peor. El pilar promedia sus " +
   "métricas y solo se calcula si hay al menos la mitad. El puntaje general pondera los pilares según el sector " +
   "(ej. en tecnología pesa más el crecimiento, en servicios públicos la solidez) y no puede pasar de 60 si algún pilar está debajo de 30.";
@@ -231,7 +240,7 @@ export function buildViews(rows: Row[], basis: Basis): View[] {
             const q = rank.get(m.key)!(x);
             return q == null ? null : m.low ? 100 - q : q;
           }
-          const ref = m.ref ?? bench?.[m.key];
+          const ref = m.ref ?? bench?.[m.bench ?? m.key];
           return typeof ref === "number" && Number.isFinite(ref) ? score(x, ref, m) : null;
         })
         .filter((x): x is number => x != null);
@@ -287,11 +296,11 @@ export const COL: Record<MKey, Col> = {
   gross_margin: { key: "gross_margin", label: "Mg. bruto", fmt: pct, shade: "high", tip: "Resultado bruto / ingresos. Algunas empresas no informan costo de ventas y queda vacío." },
   op_margin: { key: "op_margin", label: "Mg. operativo", fmt: pct, shade: "high", tip: "Resultado operativo / ingresos." },
   net_margin: { key: "net_margin", label: "Mg. neto", fmt: pct, shade: "high", tip: "Resultado neto / ingresos. Incluye resultados no operativos." },
-  roe: { key: "roe", label: "ROE", fmt: pct, shade: "high", tip: "Resultado neto / patrimonio neto promedio (inicio y cierre del período), como Investing. Vacío si el PN es negativo o menor al 5% del activo." },
+  roe: { key: "roe", label: "ROE", fmt: pct, shade: "high", tip: "Resultado neto / patrimonio neto promedio (inicio y cierre del período). Vacío si el PN es negativo o menor al 5% del activo." },
   fcf_margin: { key: "fcf_margin", label: "Mg. caja libre", fmt: pct, shade: "high", tip: "Caja libre / ingresos." },
   ocf_ni: { key: "ocf_ni", label: "Flujo op. / RN", fmt: times, shade: "high", tip: "Flujo operativo / resultado neto: cuánto de la ganancia contable se cobra en efectivo, antes de invertir. Cerca o arriba de 1 es sano. Solo con resultado neto positivo." },
   fcf_ni: { key: "fcf_ni", label: "Caja libre / RN", fmt: times, shade: "high", tip: "Caja libre sobre resultado neto: cuánto del resultado se convierte en caja. Solo con resultado neto positivo; en el perfil se acota entre -1 y 2,5." },
-  de: { key: "de", label: "Deuda/PN", fmt: x2, shade: "low", tip: "(Deuda financiera + arrendamientos) / patrimonio neto, como Investing. Con PN negativo se muestra con asterisco y queda fuera del sombreado y del orden." },
+  de: { key: "de", label: "Deuda/PN", fmt: x2, shade: "low", tip: "(Deuda financiera + arrendamientos) / patrimonio neto. Con PN negativo se muestra con asterisco y queda fuera del sombreado y del orden." },
   nd_ebitda: {
     key: "nd_ebitda", label: "DN/EBITDA", fmt: times, shade: "low",
     tip: "Deuda neta / EBITDA, con EBITDA = resultado operativo + depreciaciones y amortizaciones informadas. " +
@@ -301,7 +310,7 @@ export const COL: Record<MKey, Col> = {
   debt_ebitda: { key: "debt_ebitda", label: "Deuda/EBITDA", fmt: times, shade: "low", tip: "Deuda BRUTA (financiera + arrendamientos) / EBITDA, sin restar la caja: la definición de Damodaran, para comparar con la industria." },
   current_ratio: { key: "current_ratio", label: "Liq. corriente", fmt: x2, shade: "high", tip: "Activo corriente / pasivo corriente." },
   mcap: { key: "mcap", label: "Cap. bursátil", fmt: money, tip: "Precio × acciones en circulación, en USD, a la fecha de la última corrida (Nasdaq)." },
-  pe: { key: "pe", label: "PER", fmt: times, shade: "low", tip: "Precio / EPS diluido de la base elegida (criterio Investing). En ADRs, capitalización / resultado neto. Cuántos años de ganancias actuales paga el precio. Sin dato si hay pérdida." },
+  pe: { key: "pe", label: "PER", fmt: times, shade: "low", tip: "Precio / EPS diluido de la base elegida. En ADRs, capitalización / resultado neto. Cuántos años de ganancias actuales paga el precio. Sin dato si hay pérdida." },
   peg: { key: "peg", label: "PEG", fmt: x2, shade: "low", tip: "PER / crecimiento anual del resultado neto en 3 ejercicios (en %). Histórico, no proyectado. Sin dato si el crecimiento es <= 0." },
   pb: { key: "pb", label: "P/VL", fmt: times, shade: "low", tip: "Capitalización / patrimonio neto contable. Sin dato con PN negativo." },
   ps: { key: "ps", label: "P/Ventas", fmt: times, shade: "low", tip: "Capitalización / ingresos de la base elegida (TTM o último ejercicio). No aplica a financieras." },
@@ -313,6 +322,8 @@ export const COL: Record<MKey, Col> = {
   ar_turnover: { key: "ar_turnover", label: "Rot. cobrar", fmt: x2, shade: "high", tip: "Ingresos / cuentas a cobrar promedio. Cuántas veces por año se cobra la cartera." },
   eps_ttm_yoy: { key: "eps_ttm_yoy", label: "EPS 12m i.a.", fmt: pct, shade: "high", tip: "EPS diluido de los últimos 12 meses contra los 12 meses anteriores. Solo si el anterior era positivo." },
   rev_cagr5: { key: "rev_cagr5", label: "Ventas 5a", fmt: pct, shade: "high", tip: "Crecimiento anual compuesto de ingresos en 5 ejercicios, en moneda de origen." },
+  ni_cagr5: { key: "ni_cagr5", label: "Res. neto 5a", fmt: pct, shade: "high", tip: "Crecimiento anual compuesto del resultado neto en 5 ejercicios, en moneda de origen: la medida que publica Damodaran por industria. No se calcula si alguna punta es negativa." },
+  interest_cov: { key: "interest_cov", label: "Cob. intereses", fmt: times, shade: "high", tip: "Resultado operativo / intereses: cuántas veces la ganancia operativa cubre los intereses de la deuda (definición de Damodaran). Sin dato si la empresa no informa intereses." },
   eps_cagr5: { key: "eps_cagr5", label: "EPS 5a", fmt: pct, shade: "high", tip: "Crecimiento anual compuesto del EPS diluido en 5 ejercicios. No se calcula si alguna punta es negativa." },
   capex_cagr5: { key: "capex_cagr5", label: "CAPEX 5a", fmt: pct, tip: "Crecimiento anual compuesto de la inversión en activo fijo en 5 ejercicios. No es bueno ni malo en sí: muestra cuánto está invirtiendo." },
   gm5: { key: "gm5", label: "Mg. bruto 5a", fmt: pct, shade: "high", tip: "Promedio simple del margen bruto de los últimos 5 ejercicios." },
@@ -325,12 +336,12 @@ export const COL: Record<MKey, Col> = {
 export type ViewId = "summary" | "growth" | "profit" | "cash" | "efficiency" | "value" | "five";
 export const VIEWS: { id: ViewId; label: string; cols: MKey[] }[] = [
   { id: "summary", label: "Resumen", cols: ["revenue", "growth", "op_margin", "roe", "fcf_margin", "de", "pe", "alerts"] },
-  { id: "growth", label: "Crecimiento", cols: ["revenue", "growth", "q_yoy", "cagr3", "rev_cagr5", "q_eps_yoy", "eps_ttm_yoy", "eps_cagr5"] },
+  { id: "growth", label: "Crecimiento", cols: ["revenue", "growth", "q_yoy", "cagr3", "rev_cagr5", "ni_cagr5", "q_eps_yoy", "eps_ttm_yoy", "eps_cagr5"] },
   { id: "profit", label: "Rentabilidad", cols: ["gross_margin", "op_margin", "pretax_margin", "net_margin", "roe"] },
-  { id: "cash", label: "Caja y balance", cols: ["fcf", "fcf_margin", "ocf_ni", "fcf_ni", "de", "debt_ebitda", "nd_ebitda", "current_ratio", "quick_ratio"] },
+  { id: "cash", label: "Caja y balance", cols: ["fcf", "fcf_margin", "ocf_ni", "fcf_ni", "de", "debt_ebitda", "nd_ebitda", "interest_cov", "current_ratio", "quick_ratio"] },
   { id: "efficiency", label: "Eficiencia", cols: ["asset_turnover", "inv_turnover", "ar_turnover"] },
   { id: "value", label: "Valuación", cols: ["mcap", "pe", "peg", "pb", "ps", "pcf"] },
-  { id: "five", label: "5 años", cols: ["rev_cagr5", "eps_cagr5", "capex_cagr5", "gm5", "om5", "ptm5", "nm5"] },
+  { id: "five", label: "5 años", cols: ["rev_cagr5", "ni_cagr5", "eps_cagr5", "capex_cagr5", "gm5", "om5", "ptm5", "nm5"] },
 ];
 
 /** Valor para ordenar/sombrear: deuda/PN con PN negativo no participa. */
