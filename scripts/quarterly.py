@@ -23,7 +23,16 @@ N_QUARTERS = 20  # 5 años: 4 de series de 12 meses (Vista) + 1 para comparar in
 # algunas usan el concepto combinado para un componente (MCD etiqueta como
 # DepreciationDepletionAndAmortization 0,46 B y el total de 2,2 B como
 # DepreciationAndAmortization). Un componente nunca supera al total.
-MAX_OF = {"da"}
+# Ingresos: "Revenues" es el total; "ingresos por contratos con clientes" (ASC 606) deja afuera
+# intereses de financieras propias, alquileres y derivados (MELI, GM, BRKB, WELL, COP...).
+# Solo esos dos compiten: el concepto con impuestos internos inflaría tabacaleras y petroleras.
+# {clave: conceptos que pueden ganar por ser mayores (None = todos)}
+MAX_OF = {"da": None,
+          "revenue": {"RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues"}}
+
+
+def max_wins(key: str, concept: str) -> bool:
+    return key in MAX_OF and (MAX_OF[key] is None or concept in MAX_OF[key])
 
 
 def _d(s):
@@ -99,8 +108,8 @@ def build_quarters(facts, taxonomies, currency, concepts, instant_keys, per_shar
                 pts = quarter_points(node["units"][unit], key in instant_keys,
                                      additive=key not in share_count)
                 for e, (v, f) in pts.items():
-                    if key in MAX_OF and e in merged and v is not None:
-                        merged[e] = max(merged[e], v)
+                    if max_wins(key, concept) and e in merged and v is not None:
+                        merged[e] = v if merged[e] is None else max(merged[e], v)
                     elif e not in merged:
                         merged[e] = v
                         filed_by.setdefault(key, {})[e] = f

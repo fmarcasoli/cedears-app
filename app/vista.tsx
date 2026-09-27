@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useRef, useState } from "react";
+import { Segments } from "./segments";
 import type { Company, Period } from "@/lib/data";
 import { money, num, pct } from "@/lib/format";
 import { Chart, type Series } from "./charts";
@@ -44,7 +45,7 @@ type Kind = "money" | "ratio" | "times";
 type RowDef = {
   key: string; label: string; kind: Kind; lowerBetter?: boolean; neutral?: boolean; tip: string;
   get: (q: Q[], i: number) => number | null;
-  detail: (q: Q[], idx: number[], labels: string[]) => React.ReactNode;
+  detail: (q: Q[], idx: number[], labels: string[], c: Company) => React.ReactNode;
 };
 
 const fmtOf = (k: Kind) => (k === "money" ? money : k === "ratio" ? pct : (x: number | null) => (x == null ? "–" : num(x, 1) + "x"));
@@ -71,8 +72,9 @@ const cashSt = (q: Q[], i: number) => {
 const FIN: RowDef[] = [
   {
     key: "revenue", label: "Ingresos", kind: "money", tip: "Ventas del trimestre.", get: at("revenue"),
-    detail: (q, idx, labels) => (
+    detail: (q, idx, labels, c) => (
       <>
+        <Segments c={c} q={q} />
         <Chart title="Ingresos del trimestre" labels={labels} kind="bar" fmt={money} axisFmt={moneyAxis}
           series={[{ name: "Ingresos", values: ser(q, idx, at("revenue")), tone: 1 }]} />
         <Chart title="Crecimiento interanual" labels={labels} kind="line" fmt={pct} axisFmt={pctAxis} height={120}
@@ -295,7 +297,7 @@ export function Vista({ c }: { c: Company }) {
                           <td colSpan={cols.length + 3}>
                             <div className="vdetail-in" style={{ width: boxW }}>
                               <p className="note">{r.tip}</p>
-                              {r.detail(q, idxQ, labelsQ)}
+                              {r.detail(q, idxQ, labelsQ, c)}
                             </div>
                           </td>
                         </tr>

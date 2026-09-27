@@ -123,3 +123,14 @@ SEC_USER_AGENT="Nombre mail@dominio" python scripts/build_data.py   # solo si to
   Servicios públicos, Telecom, Inmobiliario 15/25/40/20 · Energía, Materiales 15/25/35/25 · resto 25/25/25/25.
 - Mínimo 3 pilares (el peso del faltante se reparte). Si algún pilar < 30, tope 60. Financieras: sin puntaje.
 - Elegido por el usuario el 2026-09-27; valuación queda fuera (mide salud, no precio).
+
+## Ingresos por segmento (scripts/segments.py, app/segments.tsx)
+- companyfacts no trae dimensiones: se baja el instance XBRL (<x>_htm.xml) de las últimas 9 presentaciones
+  (10-Q/10-K/20-F/40-F) y se leen los ingresos con StatementBusinessSegmentsAxis (también ProductOrServiceAxis,
+  guardado pero todavía no mostrado: sus miembros se superponen, ej. Product/Service + iPhone/Mac).
+- Hechos de todas las presentaciones juntos (la más nueva pisa) y después trimestres: 3 meses directos o
+  acumulado − acumulado con el mismo inicio (Q4 = anual − 9 meses). Segmento = nombre legible normalizado.
+- Caché commiteada en data/segments/<CIK>.json; salida public/data/segments/<BYMA>.json. Paso del workflow
+  con presupuesto de 20 min y continue-on-error.
+- Ingresos totales: "revenue" toma el MAYOR entre Revenues y RevenueFromContractWithCustomerExcludingAssessedTax
+  (MAX_OF en quarterly.py): el ASC 606 deja afuera intereses de financieras propias (MELI, GM, BRKB...).

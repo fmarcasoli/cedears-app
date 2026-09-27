@@ -282,7 +282,7 @@ def build_company(ticker: str, cik: int, name: str) -> dict:
                         filed_by.setdefault(key, {})[end] = filed
                         concept_by.setdefault(key, {})[end] = concept
                         added = True
-                    elif key in MAX_OF and val is not None and val > merged[end]:
+                    elif max_wins(key, concept) and val is not None and (merged[end] is None or val > merged[end]):
                         merged[end] = val
                         added = True
                     last_filed = max(last_filed, filed)
@@ -435,7 +435,7 @@ from fx import FX  # noqa: E402
 from market import SECTOR_ES, Market, sector_from_sic  # noqa: E402
 from industry import Industries  # noqa: E402
 import splits  # noqa: E402
-from quarterly import (MAX_OF, _lease_in_debt, build_quarters, debt_of, ebitda_of,  # noqa: E402
+from quarterly import (_lease_in_debt, max_wins, build_quarters, debt_of, ebitda_of,  # noqa: E402
                        efficiency, nd_ebitda, ttm, wc_of)
 
 FLOW_KEYS = ("revenue", "gross_profit", "cost_of_revenue", "operating_income", "net_income",

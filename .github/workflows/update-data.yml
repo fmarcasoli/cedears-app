@@ -16,7 +16,7 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 45   # SEC + Nasdaq sin caché: ~20 min
+    timeout-minutes: 60   # SEC + Nasdaq sin caché: ~20 min; segmentos: hasta 20 min más
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -30,6 +30,13 @@ jobs:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
       - name: Bajar fundamentals de la SEC
         run: python scripts/build_data.py
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+      - name: Ingresos por segmento (XBRL de cada 10-Q / 10-K)
+        # Incremental: cada presentación se baja una vez y queda en data/segments. La primera vez
+        # no alcanza el tiempo para las ~320 empresas: sigue en la próxima corrida.
+        continue-on-error: true
+        run: python scripts/segments.py --minutos 20
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
       - name: Commit si hubo cambios

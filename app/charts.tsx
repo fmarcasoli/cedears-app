@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export type Series = { name: string; values: (number | null)[]; tone: 1 | 2 | 3 | 4 };
+/** tone: color de la paleta (1-2 azules, 3 gris, 4 línea); color: override (categorías, ej. segmentos). */
+export type Series = { name: string; values: (number | null)[]; tone: 1 | 2 | 3 | 4; color?: string };
 
 function useWidth<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -91,7 +92,7 @@ export function Chart({
         <span className="ctitle">{title}</span>
         {series.length + overlay.length > 1 && (
           <span className="legend">
-            {[...series, ...overlay].map((s) => <span key={s.name}><i className={`sw t${s.tone}`} />{s.name}</span>)}
+            {[...series, ...overlay].map((s) => <span key={s.name}><i className={`sw t${s.tone}`} style={s.color ? { background: s.color } : undefined} />{s.name}</span>)}
           </span>
         )}
       </figcaption>
@@ -114,7 +115,8 @@ export function Chart({
             if (v == null || v === 0) return null;
             const base = v > 0 ? up : down;
             if (v > 0) up += v; else down += v;
-            return <path key={`${si}-${i}`} className={`bar t${s.tone}`} d={barPath(cx(i) - bw / 2, bw, y(base), y(base + v))} />;
+            return <path key={`${si}-${i}`} className={`bar t${s.tone}`} style={s.color ? { fill: s.color } : undefined}
+              d={barPath(cx(i) - bw / 2, bw, y(base), y(base + v))} />;
           });
         })}
         {kind === "bar" && !stacked && series.map((s, si) => {
@@ -155,7 +157,7 @@ export function Chart({
         }}>
           <strong>{labels[hover]}</strong>
           {[...series, ...(kind === "bar" ? overlay : [])].map((s) => (
-            <span key={s.name}>{series.length + overlay.length > 1 && <i className={`sw t${s.tone}`} />}{s.name}: {fmt(s.values[hover] ?? null)}</span>
+            <span key={s.name}>{series.length + overlay.length > 1 && <i className={`sw t${s.tone}`} style={s.color ? { background: s.color } : undefined} />}{s.name}: {fmt(s.values[hover] ?? null)}</span>
           ))}
         </div>
       )}

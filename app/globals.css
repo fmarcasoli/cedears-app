@@ -322,3 +322,8 @@ ul.note { padding-left: 18px; }
 .prow.general .plabel { font-weight: 700; }
 .prow.general .fill { background: var(--s1); }
 .gw { color: var(--muted); font-size: 12.5px; margin: 2px 0 10px; }
+
+/* Ingresos por segmento (detalle de Ingresos en la Vista) */
+.segs { margin-bottom: 14px; }
+.segs .tablebox { margin: 4px 0 6px; }
+.segtab td.sticky .sw { margin-right: 7px; }
